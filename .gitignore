@@ -1,0 +1,27 @@
+# Dependency directories
+node_modules/
+dist/
+
+# Environment variables
+.env
+
+# TypeScript build files
+*.tsbuildinfo
+*.ts
+
+# Editor/IDE specific files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs and runtime data
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS or editor temporary files
+.DS_Store
+Thumbs.db
