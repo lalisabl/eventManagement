@@ -7,7 +7,7 @@ dist/
 
 # TypeScript build files
 *.tsbuildinfo
-*.ts
+# *.ts
 
 # Editor/IDE specific files
 .vscode/
