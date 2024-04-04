@@ -4,7 +4,8 @@
   "description": "online event management and bookint event tickets to attend",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node src/index.ts"
+    "start": "node ./dist/index.js",
+    "dev": "nodemon --watch ts-node src/index.ts"
   },
   "author": "MLT",
   "license": "ISC",
@@ -14,6 +15,7 @@
     "express": "^4.19.2",
     "joi": "^17.12.2",
     "mongoose": "^8.2.4",
+    "nodemon": "^3.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.3"
   }

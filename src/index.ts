@@ -1,6 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
-// Load environment variables
+// import http from 'http';
 dotenv.config();
 
 // Create Express app
@@ -16,4 +16,18 @@ app.get('/', (req, res) => {
   res.send('Hello, world!');
 });
 
-export default app;
+// Load environment variables
+dotenv.config();
+
+// Set port
+const PORT = process.env.PORT || 3000;
+
+// Create HTTP server
+// const server = http.createServer(app);
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
+
