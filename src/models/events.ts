@@ -1,34 +1,45 @@
 import mongoose, { Schema, Document } from "mongoose";
 import Joi from "joi";
 
-export interface IEvent extends Document {
-  title: string;
+// event document interface
+interface IEvent extends Document {
+  name: string;
   description: string;
-  date: Date;
+  startDate: Date;
+  endDate: Date;
   location: string;
-  organizer: string;
+  capacity: number;
+  ticketsAvailable: number;
 }
 
-const EventSchema: Schema = new Schema(
-  {
-    title: { type: String, required: true },
-    description: { type: String, required: true },
-    date: { type: Date, required: true },
-    location: { type: String, required: true },
-    organizer: { type: String, required: true },
-  },
-  {timestamps:true}
-);
+// event schema
+const EventSchema: Schema = new Schema({
+  name: { type: String, required: true },
+  description: { type: String, required: true },
+  startDate: { type: Date, required: true },
+  endDate: { type: Date, required: true },
+  location: { type: String, required: true },
+  capacity: { type: Number, required: true },
+  ticketsAvailable: { type: Number, required: true },
+});
+
+//  Joi  validation
+const eventJoiSchema = Joi.object({
+  name: Joi.string().required(),
+  description: Joi.string().required(),
+  startDate: Joi.date().iso().required(),
+  endDate: Joi.date().iso().required(),
+  location: Joi.string().required(),
+  capacity: Joi.number().integer().min(1).required(),
+  ticketsAvailable: Joi.number().integer().min(0).required(),
+});
+
+// validate
+function validateEvent(eventData: any) {
+  return eventJoiSchema.validate(eventData, { abortEarly: false });
+}
 
 const Event = mongoose.model<IEvent>("Event", EventSchema);
 
-// validation schema
-const eventValidationSchema = Joi.object({
-  title: Joi.string().required(),
-  description: Joi.string().required(),
-  date: Joi.date().required(),
-  location: Joi.string().required(),
-  organizer: Joi.string().required(),
-});
-
-export { Event, eventValidationSchema };
+exports.Event = Event;
+exports.validateEvent = validateEvent;
