@@ -45,7 +45,6 @@ function validateEvent(eventData: any) {
   return eventJoiSchema.validate(eventData, { abortEarly: false });
 }
 
-// Define and export the Event model
 const Event = mongoose.model<IEvent>("Event", EventSchema);
 
 exports.Event = Event;
