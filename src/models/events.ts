@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 import Joi from "joi";
 
-// event document interface
+//  event document interface
 interface IEvent extends Document {
   name: string;
   description: string;
@@ -10,9 +10,10 @@ interface IEvent extends Document {
   location: string;
   capacity: number;
   ticketsAvailable: number;
+  organiserId: string; // Assuming organiserId is of type string
 }
 
-// event schema
+//  event schema
 const EventSchema: Schema = new Schema(
   {
     name: { type: String, required: true },
@@ -22,13 +23,12 @@ const EventSchema: Schema = new Schema(
     location: { type: String, required: true },
     capacity: { type: Number, required: true },
     ticketsAvailable: { type: Number, required: true },
+    organiserId: { type: Schema.Types.ObjectId, ref: "User", required: true },
   },
-  {
-    timestamps: true, //this Automatically add createdAt and updatedAt 
-  }
+  { timestamps: true }
 );
 
-//  Joi  validation
+//  Joi validation
 const eventJoiSchema = Joi.object({
   name: Joi.string().required(),
   description: Joi.string().required(),
@@ -37,13 +37,15 @@ const eventJoiSchema = Joi.object({
   location: Joi.string().required(),
   capacity: Joi.number().integer().min(1).required(),
   ticketsAvailable: Joi.number().integer().min(0).required(),
+  organiserId: Joi.string().required(), // Assuming organiserId is of type string
 });
 
-// validate
+// Validate by Joi
 function validateEvent(eventData: any) {
   return eventJoiSchema.validate(eventData, { abortEarly: false });
 }
 
+// Define and export the Event model
 const Event = mongoose.model<IEvent>("Event", EventSchema);
 
 exports.Event = Event;
