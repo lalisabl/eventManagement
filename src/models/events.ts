@@ -13,15 +13,20 @@ interface IEvent extends Document {
 }
 
 // event schema
-const EventSchema: Schema = new Schema({
-  name: { type: String, required: true },
-  description: { type: String, required: true },
-  startDate: { type: Date, required: true },
-  endDate: { type: Date, required: true },
-  location: { type: String, required: true },
-  capacity: { type: Number, required: true },
-  ticketsAvailable: { type: Number, required: true },
-});
+const EventSchema: Schema = new Schema(
+  {
+    name: { type: String, required: true },
+    description: { type: String, required: true },
+    startDate: { type: Date, required: true },
+    endDate: { type: Date, required: true },
+    location: { type: String, required: true },
+    capacity: { type: Number, required: true },
+    ticketsAvailable: { type: Number, required: true },
+  },
+  {
+    timestamps: true, //this Automatically add createdAt and updatedAt 
+  }
+);
 
 //  Joi  validation
 const eventJoiSchema = Joi.object({
