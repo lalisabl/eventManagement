@@ -10,7 +10,7 @@ interface IEvent extends Document {
   location: string;
   capacity: number;
   ticketsAvailable: number;
-  organiserId: string; // Assuming organiserId is of type string
+  organiserId: string; 
 }
 
 //  event schema
@@ -37,7 +37,7 @@ const eventJoiSchema = Joi.object({
   location: Joi.string().required(),
   capacity: Joi.number().integer().min(1).required(),
   ticketsAvailable: Joi.number().integer().min(0).required(),
-  organiserId: Joi.string().required(), // Assuming organiserId is of type string
+  organiserId: Joi.string().required(), 
 });
 
 // Validate by Joi
