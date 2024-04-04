@@ -6,3 +6,6 @@ Navigate to the project directory:
 
 Install dependencies:
 `npm install`
+
+start project by
+`npm start`
