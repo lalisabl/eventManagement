@@ -1,6 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import Joi from 'joi';
-
 // Define interface for User document
 interface IUser extends Document {
   fullName: string;
@@ -15,7 +14,7 @@ interface IUser extends Document {
 
 // Define schema for User document
 const UserSchema: Schema = new Schema({
-  fullName: { type: String, required: true },
+  fullName: { type: String},// fullName is now 
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
