@@ -3,8 +3,6 @@ node_modules/
 dist/
 
 # Environment variables
-.env
-
 # TypeScript build files
 *.tsbuildinfo
 # *.ts
