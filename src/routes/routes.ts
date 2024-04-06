@@ -63,7 +63,7 @@ router.post('/product', createProduct);
 router.get('/product', getAllProducts);
 router.get('/product/:id', getProductById);
 router.put('/product/:id', updateProductById);
-router.delete('product/:id', deleteProductById);
+router.delete('/product/:id', deleteProductById);
 
 // attendant routes
 // package routes
