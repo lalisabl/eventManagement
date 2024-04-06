@@ -8,9 +8,9 @@ interface IUser extends Document {
   email: string;
   password: string;
   profileImage?: string;
-  jobTitle?: string; 
-  company?: string; 
-  phoneNumber?: string; 
+  jobTitle?: string;
+  company?: string;
+  phoneNumber?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,10 +21,10 @@ const UserSchema: Schema = new Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  profileImage: { type: String }, 
-  jobTitle: { type: String }, 
-  company: { type: String }, 
-  phoneNumber: { type: String }, 
+  profileImage: { type: String },
+  jobTitle: { type: String },
+  company: { type: String },
+  phoneNumber: { type: String },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
@@ -36,9 +36,9 @@ const userValidationSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().required(),
   profileImage: Joi.string().allow(null, ''),
-  jobTitle: Joi.string().allow(null, ''), 
-  company: Joi.string().allow(null, ''), 
-  phoneNumber: Joi.string().allow(null, ''), 
+  jobTitle: Joi.string().allow(null, ''),
+  company: Joi.string().allow(null, ''),
+  phoneNumber: Joi.string().allow(null, ''),
 });
 
 // Validate user input using Joi schema
