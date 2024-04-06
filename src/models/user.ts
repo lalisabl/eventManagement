@@ -8,9 +8,9 @@ interface IUser extends Document {
   email: string;
   password: string;
   profileImage?: string;
-  jobTitle?: string; // New field
-  company?: string; // New field
-  phoneNumber?: string; // New field
+  jobTitle?: string; 
+  company?: string; 
+  phoneNumber?: string; 
   createdAt: Date;
   updatedAt: Date;
 }
