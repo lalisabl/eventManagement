@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import Product, { validateProduct } from "../models/producst";
+import { Request, Response } from 'express';
+import Product, { validateProduct } from '../models/products';
 
 // Controller functions for Product CRUD operations
 export const createProduct = async (req: Request, res: Response) => {
@@ -18,7 +18,7 @@ export const createProduct = async (req: Request, res: Response) => {
     const savedProduct = await product.save();
     res.status(201).json(savedProduct);
   } catch (err) {
-    res.status(500).send("unable to create a product");
+    res.status(500).send('unable to create a product');
   }
 };
 
@@ -34,7 +34,7 @@ export const getAllProducts = async (req: Request, res: Response) => {
 export const getProductById = async (req: Request, res: Response) => {
   try {
     const product = await Product.findById(req.params.id);
-    if (!product) return res.status(404).send("Product not found");
+    if (!product) return res.status(404).send('Product not found');
     res.json(product);
   } catch (err) {
     res.status(500).send(err);
@@ -51,7 +51,7 @@ export const updateProductById = async (req: Request, res: Response) => {
       req.body,
       { new: true }
     );
-    if (!updatedProduct) return res.status(404).send("Product not found");
+    if (!updatedProduct) return res.status(404).send('Product not found');
     res.json(updatedProduct);
   } catch (err) {
     res.status(500).send(err);
@@ -61,7 +61,7 @@ export const updateProductById = async (req: Request, res: Response) => {
 export const deleteProductById = async (req: Request, res: Response) => {
   try {
     const deletedProduct = await Product.findByIdAndDelete(req.params.id);
-    if (!deletedProduct) return res.status(404).send("Product not found");
+    if (!deletedProduct) return res.status(404).send('Product not found');
     res.json(deletedProduct);
   } catch (err) {
     res.status(500).send(err);

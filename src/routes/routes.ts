@@ -29,6 +29,14 @@ import {
   deleteProductById,
 } from '../controllers/productController';
 
+import {
+  createPackage,
+  getAllPackages,
+  getPackageById,
+  updatePackageById,
+  deletePackageById,
+} from '../controllers/packageController';
+
 const router = express.Router();
 
 // Routes with controller functions
@@ -53,11 +61,18 @@ router.delete('/events/:id', deleteEvent);
 // Routes for Product CRUD operations
 router.post('/product', createProduct);
 router.get('/product', getAllProducts);
-router.get('/product:id', getProductById);
-router.put('/product:id', updateProductById);
+router.get('/product/:id', getProductById);
+router.put('/product/:id', updateProductById);
 router.delete('product/:id', deleteProductById);
 
 // attendant routes
 // package routes
+// Routes for Package CRUD operations
+router.post('/package', createPackage);
+router.get('/package', getAllPackages);
+router.get('/package/:id', getPackageById);
+router.put('/package/:id', updatePackageById);
+router.delete('/package/:id', deletePackageById);
+
 export default router;
 // >>>>>>> 8ec8d3edddac37408849f7af7e0d7977400c7d3e
