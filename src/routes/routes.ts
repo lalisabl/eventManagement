@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+// we use one file for route don't create multiple file i guess it would be better to use one file
+// comments
+// from murtessa
+=======
 // user routes
 import express from "express";
 import {
@@ -37,3 +42,4 @@ router.delete("/events/:id", deleteEvent);
 // attendant routes
 // package routes
 export default router;
+>>>>>>> 8ec8d3edddac37408849f7af7e0d7977400c7d3e
