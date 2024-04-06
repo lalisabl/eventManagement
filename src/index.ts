@@ -1,8 +1,9 @@
-import express from "express";
-import dotenv from "dotenv";
+import express from 'express';
+import dotenv from 'dotenv';
+//const Router = require('./routes/routes');
 // import http from 'http';
 dotenv.config();
-const bodyParser = require("body-parser");
+const bodyParser = require('body-parser');
 
 // Create Express app
 const app = express();
@@ -16,15 +17,18 @@ app.use(bodyParser.json());
 // app.use(morgan('dev'));
 
 // Routes
-app.get("/", (req, res) => {
-  res.send("Hello, world!");
+
+app.get('/', (req, res) => {
+  res.send('Hello, world!');
 });
 
 // Load environment variables
 dotenv.config();
-require("../config/database");
+require('../config/database');
 // Set port
 const PORT = process.env.PORT || 5000;
+
+// app.use('/event', Router);
 
 // Create HTTP server
 // const server = http.createServer(app);
