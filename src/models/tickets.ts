@@ -21,7 +21,7 @@ const ticketSchema: Schema = new Schema({
     enum: ['pending', 'cancelled', 'paid'],
     default: 'pending',
   },
-  ticketCode: { type: Number, required: true },
+  ticketCode: { type: Number, required: true, unique: true },
 });
 
 const Ticket = mongoose.model<ITicket>('Ticket', ticketSchema);
