@@ -1,27 +1,42 @@
 import { Request, Response } from 'express';
 import Ticket from '../models/tickets';
 import Event from '../models/events';
+import { v4 as uuidv4 } from 'uuid';
+
+
+// Function to check if a ticket code is unique
+const isTicketCodeUnique = async (ticketCode: string) => {
+  const existingTicket = await Ticket.findOne({ ticketCode });
+  return !existingTicket; // Returns true if ticket code is unique, false otherwise
+};
 
 // Create a new ticket
 export const createTicket = async (req: Request, res: Response) => {
   try {
-    const { eventId, userId, type, price, ticketCode } = req.body;
+    const { eventId, userId, type, price } = req.body;
 
     // Check if tickets are available for the event
     const event = await Event.findById(eventId);
     if (!event) {
-      return res.status(404).json({ message: 'Event not found' });
+      return res.status(404).json({ message: "Event not found" });
     }
 
     if (event.ticketsAvailable <= 0) {
-      return res
-        .status(400)
-        .json({ message: 'Tickets are not available for this event' });
+      return res.status(400).json({ message: "Tickets are not available for this event" });
     }
 
     // Decrement the ticketsAvailable count for the event
     event.ticketsAvailable -= 1;
     await event.save();
+
+    let ticketCode;
+    let uniqueCodeFound = false;
+    
+    // Generate a unique ticket code (UUID) and check if it's unique
+    while (!uniqueCodeFound) {
+      ticketCode = uuidv4(); // Generate a UUID as ticket code
+      uniqueCodeFound = await isTicketCodeUnique(ticketCode); // Check if the code is unique
+    }
 
     // Create a new ticket instance
     const ticket = new Ticket({
@@ -30,7 +45,7 @@ export const createTicket = async (req: Request, res: Response) => {
       type,
       price,
       ticketCode,
-      status: 'pending', // Set the initial status of the ticket
+      status: "pending", // Set the initial status of the ticket
     });
 
     // Save the ticket to the database
@@ -39,10 +54,11 @@ export const createTicket = async (req: Request, res: Response) => {
     // Return the newly created ticket in the response
     res.status(201).json(ticket);
   } catch (error) {
-    console.error('Error creating ticket:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error creating ticket:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // Get all tickets
 export const getTickets = async (req: Request, res: Response) => {

@@ -36,6 +36,13 @@ import {
   updatePackageById,
   deletePackageById,
 } from '../controllers/packageController';
+import {
+  createTicket,
+  deleteTicket,
+  getTicketById,
+  getTickets,
+  updateTicket,
+} from '../controllers/ticketController';
 
 const router = express.Router();
 
@@ -55,6 +62,16 @@ router.get('/events/:id', getEventById);
 router.post('/events', createEvent);
 router.put('/events/:id', updateEvent);
 router.delete('/events/:id', deleteEvent);
+
+// TICKET routes
+// VIEW
+router.get('/tickets', getTickets);
+router.get('/tickets/:id', getTicketById);
+
+// API
+router.post('/tickets', createTicket);
+router.put('/tickets/:id', updateTicket);
+router.delete('/tickets/:id', deleteTicket);
 
 // product route with controller function
 

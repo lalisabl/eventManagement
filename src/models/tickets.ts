@@ -7,7 +7,7 @@ export interface ITicket extends Document {
   type: string;
   price: number;
   status: string;
-  ticketCode: number;
+  ticketCode: string;
 }
 
 //ticket schema
@@ -21,7 +21,7 @@ const ticketSchema: Schema = new Schema({
     enum: ['pending', 'cancelled', 'paid'],
     default: 'pending',
   },
-  ticketCode: { type: Number, required: true, unique: true },
+  ticketCode: { type: String, required: true, unique: true },
 });
 
 const Ticket = mongoose.model<ITicket>('Ticket', ticketSchema);

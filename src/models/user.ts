@@ -16,18 +16,19 @@ interface IUser extends Document {
 }
 
 // Define schema for User document
-const UserSchema: Schema = new Schema({
-  fullName: { type: String, required: true },
-  username: { type: String, required: true, unique: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  profileImage: { type: String }, 
-  jobTitle: { type: String }, 
-  company: { type: String }, 
-  phoneNumber: { type: String }, 
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
-});
+const UserSchema: Schema = new Schema(
+  {
+    fullName: { type: String, required: true },
+    username: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    profileImage: { type: String },
+    jobTitle: { type: String },
+    company: { type: String },
+    phoneNumber: { type: String },
+  },
+  { timestamps: true }
+);
 
 // Joi validation schema for User
 const userValidationSchema = Joi.object({
@@ -36,9 +37,9 @@ const userValidationSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().required(),
   profileImage: Joi.string().allow(null, ''),
-  jobTitle: Joi.string().allow(null, ''), 
-  company: Joi.string().allow(null, ''), 
-  phoneNumber: Joi.string().allow(null, ''), 
+  jobTitle: Joi.string().allow(null, ''),
+  company: Joi.string().allow(null, ''),
+  phoneNumber: Joi.string().allow(null, ''),
 });
 
 // Validate user input using Joi schema

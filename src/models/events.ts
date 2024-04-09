@@ -2,19 +2,19 @@ import mongoose, { Schema, Document } from 'mongoose';
 import Joi from 'joi';
 // Define an interface for the event document
 interface IEvent extends Document {
-  name: string;
+  title: string;
   description: string;
   startDate: Date;
   endDate: Date;
   location: string;
   capacity: number;
   ticketsAvailable: number;
-  organiserId: string; // Assuming organiserId is of type string
+  organiserId: string; 
 }
 
 // Define the schema for the event
 const EventSchema: Schema = new Schema({
-  name: { type: String, required: true },
+  title: { type: String, required: true },
   description: { type: String, required: true },
   startDate: { type: Date, required: true },
   endDate: { type: Date, required: true },
@@ -26,7 +26,7 @@ const EventSchema: Schema = new Schema({
 
 // Define Joi schema for event validation
 const eventJoiSchema = Joi.object({
-  name: Joi.string().required(),
+  title: Joi.string().required(),
   description: Joi.string().required(),
   startDate: Joi.date().iso().required(),
   endDate: Joi.date().iso().required(),
