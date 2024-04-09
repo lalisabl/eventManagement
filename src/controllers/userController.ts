@@ -5,38 +5,37 @@ import { User, validateUser } from '../models/user'; // Import your User model h
 export const registerUser = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
-    // Check if the email is already registered
-    let user = await User.findOne({ email });
-    if (user) {
-      return res.status(400).json({ message: 'Email already registered' });
-    }
-    // Create new user
-    user = new User({ email, password });
+    let username = email.split('@')[0];
+    const user = new User({ email, username, password });
     await user.save();
-    // Generate JWT token
-    const token = user.generateAuthToke();
+
+    const token = user.generateAuthToken();
     res.status(201).json({ token });
-  } catch (error) {
-    console.error('Error registering user:', error);
-    res.status(500).json({ message: 'Server error' });
+  } catch (error: any) {
+    if (error.code === 11000) {
+      return res
+        .status(400)
+        .json({ message: 'this email is already taken, try login' });
+    } else {
+      console.error('Error creating user:', error);
+      return res.status(500).json({ message: 'Server error' });
+    }
   }
 };
 
-// User login controller
+// login
 export const loginUser = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
-    // Find user by email
+
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
-    // Check password
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
-    // Generate JWT token
     const token = user.generateAuthToken();
     res.json({ token });
   } catch (error) {

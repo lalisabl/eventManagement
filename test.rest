@@ -1,12 +1,18 @@
 # to you this pls don't forget to separate each api call in 3 #n like ###
 # User Registration
-POST http://127.0.0.1:5000/api/signup/
+POST http://127.0.0.1:5000/api/users/register-user
 Content-Type: application/json
 
-{ "username": "new12", "name": "new name",   "phone_number": 898567567, "password": "Pass1234!", "email": "ne1w@mail.com" }
+{ "name": "new name",   "phone_number": 898567567, "password": "Pass1234!", "email": "nwe1w@mail.com" }
 
 ###
 
+POST http://127.0.0.1:5000/api/users/login
+Content-Type: application/json
+
+{ "name": "new name",   "phone_number": 898567567, "password": "Pass1234!", "email": "nwe1w@mail.com" }
+
+###
 # Events
 POST http://127.0.0.1:5000/api/events
 Content-Type: application/json

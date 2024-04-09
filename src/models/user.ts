@@ -15,6 +15,8 @@ interface IUser extends Document {
   phoneNumber?: string; // New field
   createdAt: Date;
   updatedAt: Date;
+  generateAuthToken: () => string; // Corrected method name
+  comparePassword: (password: string) => Promise<boolean>; // Ensure correct method definition
 }
 
 // Define schema for User document
@@ -50,7 +52,7 @@ UserSchema.pre<IUser>('save', async function (next) {
     const hashedPassword = await bcrypt.hash(this.password, salt);
     this.password = hashedPassword;
     next();
-  } catch (error) {
+  } catch (error: any) {
     next(error);
   }
 });
