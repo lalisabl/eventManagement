@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import Ticket from '../models/tickets';
 import Event from '../models/events';
 import { v4 as uuidv4 } from 'uuid';
-
+ 
 // Function to check if a ticket code is unique
 const isTicketCodeUnique = async (ticketCode: string) => {
   const existingTicket = await Ticket.findOne({ ticketCode });
