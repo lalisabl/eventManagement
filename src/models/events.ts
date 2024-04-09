@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import Joi from 'joi';
-// Define an interface for the event document
+//  interface for the event document
 interface IEvent extends Document {
   title: string;
   description: string;
@@ -9,22 +9,25 @@ interface IEvent extends Document {
   location: string;
   capacity: number;
   ticketsAvailable: number;
-  organiserId: string; 
+  organiserId: string;
 }
 
-// Define the schema for the event
-const EventSchema: Schema = new Schema({
-  title: { type: String, required: true },
-  description: { type: String, required: true },
-  startDate: { type: Date, required: true },
-  endDate: { type: Date, required: true },
-  location: { type: String, required: true },
-  capacity: { type: Number, required: true },
-  ticketsAvailable: { type: Number, required: true },
-  organiserId: { type: Schema.Types.ObjectId, ref: 'User', required: true } // Reference to User model
-}, { timestamps: true });
+// schema for the event
+const EventSchema: Schema = new Schema(
+  {
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    startDate: { type: Date, required: true },
+    endDate: { type: Date, required: true },
+    location: { type: String, required: true },
+    capacity: { type: Number, required: true },
+    ticketsAvailable: { type: Number, required: true },
+    organiserId: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // Reference to User model
+  },
+  { timestamps: true }
+);
 
-// Define Joi schema for event validation
+// event validation
 const eventJoiSchema = Joi.object({
   title: Joi.string().required(),
   description: Joi.string().required(),
@@ -33,7 +36,7 @@ const eventJoiSchema = Joi.object({
   location: Joi.string().required(),
   capacity: Joi.number().integer().min(1).required(),
   ticketsAvailable: Joi.number().integer().min(0).required(),
-  organiserId: Joi.string().required() // Assuming organiserId is of type string
+  organiserId: Joi.string().required(),
 });
 
 // Validate event data against Joi schema
