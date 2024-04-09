@@ -1,3 +1,4 @@
+# to you this pls don't forget to separate each api call in 3 #n like ###
 # User Registration
 POST http://127.0.0.1:5000/api/signup/
 Content-Type: application/json
@@ -28,11 +29,19 @@ Content-Type: application/json
 
 #####
 # this helps you to get all events
-GET http://127.0.0.1:5000/api/events
+GET http://127.0.0.1:5000/api/events/66158a48c1de1d824214281b
+
+###
+DELETE http://127.0.0.1:5000/api/events/66156d7ec2c2edb34baf7b3a
+
+###
+POST http://127.0.0.1:5000/api/tickets
 Content-Type: application/json
 
-{ 
- 
+{
+    "eventId": "66158a48c1de1d824214281b",
+    "userId": "66156bca84efea7cc169ec68",
+    "type": "VIP"
 }
 
 ###
