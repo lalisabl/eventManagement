@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 // Function to check if a ticket code is unique
 const isTicketCodeUnique = async (ticketCode: string) => {
   const existingTicket = await Ticket.findOne({ ticketCode });
-  return !existingTicket; // Returns true if ticket code is unique, false otherwise
+  return !existingTicket;
 };
 
 // Create a new ticket
@@ -35,7 +35,7 @@ export const createTicket = async (req: Request, res: Response) => {
           .status(400)
           .json({ message: 'Tickets are not available for this event' });
       }
-      // Decrement the ticketsAvailable count for the event
+
       event.normalTicketsAvailable -= 1;
       price = event.vipPrice;
       await event.save();
@@ -48,20 +48,18 @@ export const createTicket = async (req: Request, res: Response) => {
       uniqueCodeFound = await isTicketCodeUnique(ticketCode); // Check if the code is unique
     }
 
-    // Create a new ticket instance
     const ticket = new Ticket({
       eventId,
       userId,
       type,
       price,
       ticketCode,
-      status: 'pending', // Set the initial status of the ticket
+      status: 'pending',
     });
 
-    // Save the ticket to the database
+    // Saving
     await ticket.save();
 
-    // Return the newly created ticket in the response
     res.status(201).json(ticket);
   } catch (error) {
     console.error('Error creating ticket:', error);

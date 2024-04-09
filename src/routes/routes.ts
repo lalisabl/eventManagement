@@ -11,6 +11,7 @@ import {
   getUserById,
   updateUserById,
   deleteUserById,
+  registerUser,
 } from '../controllers/userController';
 import {
   createEvent,
@@ -48,6 +49,7 @@ const router = express.Router();
 
 // Routes with controller functions
 router.post('/users', createUser);
+router.post('/register-user', registerUser);
 router.get('/users', getAllUsers);
 router.get('/users/:id', getUserById);
 router.put('/users/:id', updateUserById);
