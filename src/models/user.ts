@@ -32,7 +32,7 @@ const UserSchema: Schema = new Schema(
     phoneNumber: { type: String },
   },
   { timestamps: true }
-);
+); 
 
 // Joi validation schema for User
 const userValidationSchema = Joi.object({
