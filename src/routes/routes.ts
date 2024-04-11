@@ -74,5 +74,5 @@ router.get('/package/:id', getPackageById);
 router.put('/package/:id', updatePackageById);
 router.delete('/package/:id', deletePackageById);
 
-export default router;
+exports.module = router;
 // >>>>>>> 8ec8d3edddac37408849f7af7e0d7977400c7d3e
