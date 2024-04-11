@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import Ticket from '../models/tickets';
 import Event from '../models/events';
 import { v4 as uuidv4 } from 'uuid';
- 
+
 // Function to check if a ticket code is unique
 const isTicketCodeUnique = async (ticketCode: string) => {
   const existingTicket = await Ticket.findOne({ ticketCode });
@@ -45,7 +45,7 @@ export const createTicket = async (req: Request, res: Response) => {
 
     while (!uniqueCodeFound) {
       ticketCode = uuidv4().substring(0, 8);
-      uniqueCodeFound = await isTicketCodeUnique(ticketCode); // Check if the code is unique
+      uniqueCodeFound = await isTicketCodeUnique(ticketCode);
     }
 
     const ticket = new Ticket({
@@ -95,11 +95,11 @@ export const getTicketById = async (req: Request, res: Response) => {
 // Update ticket by ID
 export const updateTicket = async (req: Request, res: Response) => {
   try {
-    const { eventId, userId, type, price, ticketCode } = req.body;
+    const { status } = req.body;
 
     const ticket = await Ticket.findByIdAndUpdate(
       req.params.id,
-      { eventId, userId, type, price, ticketCode },
+      { status },
       { new: true }
     );
 
