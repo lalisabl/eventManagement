@@ -11,6 +11,8 @@ import {
   getUserById,
   updateUserById,
   deleteUserById,
+  registerUser,
+  loginUser,
 } from '../controllers/userController';
 import {
   createEvent,
@@ -36,15 +38,28 @@ import {
   updatePackageById,
   deletePackageById,
 } from '../controllers/packageController';
+import {
+  createTicket,
+  deleteTicket,
+  getTicketById,
+  getTickets,
+  updateTicket,
+} from '../controllers/ticketController';
 
 const router = express.Router();
 
 // Routes with controller functions
 router.post('/users', createUser);
+router.post('/users/register-user', registerUser);
 router.get('/users', getAllUsers);
 router.get('/users/:id', getUserById);
 router.put('/users/:id', updateUserById);
 router.delete('/users/:id', deleteUserById);
+
+// AUTHENTICATION
+//login
+router.post('/users/login', loginUser);
+router.post('/users/logout');//finish logout here
 
 // event routes
 // VIEW
@@ -55,6 +70,16 @@ router.get('/events/:id', getEventById);
 router.post('/events', createEvent);
 router.put('/events/:id', updateEvent);
 router.delete('/events/:id', deleteEvent);
+
+// TICKET routes
+// VIEW
+router.get('/tickets', getTickets);
+router.get('/tickets/:id', getTicketById);
+
+// API
+router.post('/tickets', createTicket);
+router.put('/tickets/:id', updateTicket);
+router.delete('/tickets/:id', deleteTicket);
 
 // product route with controller function
 
