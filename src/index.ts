@@ -1,7 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import router from './routes/routes';
-const Router = require('./routes/routes');
+
 // import http from 'http';
 dotenv.config();
 const bodyParser = require('body-parser');
@@ -19,14 +18,11 @@ app.use(bodyParser.json());
 
 // Routes
 
-app.use('/api',router)
-
 // Load environment variables
 dotenv.config();
 require('../config/database');
 // Set port
 const PORT = process.env.PORT || 5000;
-
 
 // Start server
 app.listen(PORT, () => {
