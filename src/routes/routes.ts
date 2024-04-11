@@ -45,8 +45,11 @@ import {
   getTickets,
   updateTicket,
 } from '../controllers/ticketController';
+import { tryChapa } from '../controllers/transactionController';
 
 const router = express.Router();
+//try payment gateway
+router.get('/trychapa', tryChapa);
 
 // Routes with controller functions
 router.post('/users', createUser);
@@ -59,7 +62,7 @@ router.delete('/users/:id', deleteUserById);
 // AUTHENTICATION
 //login
 router.post('/users/login', loginUser);
-router.post('/users/logout');//finish logout here
+router.post('/users/logout'); //finish logout here
 
 // event routes
 // VIEW
@@ -99,5 +102,4 @@ router.get('/package/:id', getPackageById);
 router.put('/package/:id', updatePackageById);
 router.delete('/package/:id', deletePackageById);
 
-exports.module = router;
-// >>>>>>> 8ec8d3edddac37408849f7af7e0d7977400c7d3e
+export default router

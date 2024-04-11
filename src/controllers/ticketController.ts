@@ -65,7 +65,7 @@ export const createTicket = async (req: Request, res: Response) => {
     console.error('Error creating ticket:', error);
     res.status(500).json({ message: 'Server error' });
   }
-};
+}; 
 
 // Get all tickets
 export const getTickets = async (req: Request, res: Response) => {
