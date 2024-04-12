@@ -1,0 +1,59 @@
+# to you this pls don't forget to separate each api call in 3 #n like ###
+# User Registration
+POST http://127.0.0.1:5000/api/users/register-user
+Content-Type: application/json
+
+{ "name": "new name",   "phone_number": 898567567, "password": "Pass1234!", "email": "nwe1w@mail.com" }
+
+###
+
+POST http://127.0.0.1:5000/api/users/login
+Content-Type: application/json
+
+{ "name": "new name",   "phone_number": 898567567, "password": "Pass1234!", "email": "nwe1w@mail.com" }
+
+###
+# Events
+POST http://127.0.0.1:5000/api/events
+Content-Type: application/json
+
+{ 
+  "title": "movie",
+  "description": "des of con",
+  "startDate": "2024-04-09T16:24:42.158Z",
+  "endDate": "2024-04-11T16:24:42.158Z",
+  "location": "adama",
+  "organiserId": "66156bca84efea7cc169ec68",
+  "vipTicketsIncluded": true,
+  "normalTickets": 10,
+  "normalPrice": 100,
+  "vipTickets": 4,
+  "vipPrice": 400,
+  "normalTicketsAvailable": 10,
+  "vipTicketsAvailable":4 
+}
+
+#####
+# this helps you to get all events
+GET http://127.0.0.1:5000/api/events/66158a48c1de1d824214281b
+
+###
+DELETE http://127.0.0.1:5000/api/events/66156d7ec2c2edb34baf7b3a
+
+###
+POST http://127.0.0.1:5000/api/tickets
+Content-Type: application/json
+
+{
+    "eventId": "66158a48c1de1d824214281b",
+    "userId": "66156bca84efea7cc169ec68",
+    "type": "VIP"
+}
+
+###
+GET http://127.0.0.1:5000/api/tickets
+
+
+###
+GET http://127.0.0.1:5000/api/trychapa
+
