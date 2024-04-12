@@ -11,6 +11,17 @@ interface IUser extends Document {
   jobTitle?: string;
   company?: string;
   phoneNumber?: string;
+  organization?: {
+    name: string;
+    description?: string;
+  };
+  address?: {
+    street: string;
+    city: string;
+    state: string;
+    country: string;
+    postalCode: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -25,6 +36,11 @@ const UserSchema: Schema = new Schema({
   jobTitle: { type: String },
   company: { type: String },
   phoneNumber: { type: String },
+  organization: {
+    name: { type: String },
+    logo: { type: String },
+    description: { type: String },
+  },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
