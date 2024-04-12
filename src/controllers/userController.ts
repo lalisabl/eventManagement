@@ -121,4 +121,3 @@ export const deleteUserById = async (req: Request, res: Response) => {
 };
 
 // Export UserController
-export default UserController;
