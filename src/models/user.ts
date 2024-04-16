@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 // Define interface for User document
-interface IUser extends Document {
+interface UserDocument extends Document {
   fullName: string;
   username: string;
   email: string;
@@ -56,7 +56,7 @@ const userValidationSchema = Joi.object({
   phoneNumber: Joi.string().allow(null, ''),
 });
 
-UserSchema.pre<IUser>('save', async function (next) {
+UserSchema.pre<UserDocument>('save', async function (next) {
   try {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(this.password, salt);
@@ -72,11 +72,11 @@ UserSchema.methods.comparePassword = async function (password: string) {
   return await bcrypt.compare(password, this.password);
 };
 // Validate user input using Joi schema
-const validateUser = (user: IUser) => {
+const validateUser = (user: UserDocument) => {
   return userValidationSchema.validate(user);
 };
 
 // Create and export User model
-const User = mongoose.model<IUser>('User', UserSchema);
+const User = mongoose.model<UserDocument>('User', UserSchema);
 
-export { User, validateUser };
+export { User, validateUser, UserDocument };
