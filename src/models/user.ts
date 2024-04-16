@@ -26,7 +26,6 @@ interface IUser extends Document {
   };
   createdAt: Date;
   updatedAt: Date;
-  generateAuthToken: () => string; // Corrected method name
   comparePassword: (password: string) => Promise<boolean>; // Ensure correct method definition
 }
 
@@ -67,14 +66,6 @@ UserSchema.pre<IUser>('save', async function (next) {
     next(error);
   }
 });
-// Generate JWT token
-UserSchema.methods.generateAuthToken = function () {
-  const token = jwt.sign(
-    { _id: this._id },
-    process.env.JWT_SECRET_KEY || 'secret'
-  );
-  return token;
-};
 
 // Compare passwords
 UserSchema.methods.comparePassword = async function (password: string) {
