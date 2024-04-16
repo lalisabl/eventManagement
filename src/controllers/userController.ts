@@ -1,8 +1,35 @@
 // Import necessary modules
 import { Request, Response ,NextFunction} from 'express';
 import { User, validateUser } from '../models/user'; // Import your User model here
+import jwt from "jsonwebtoken";
+const signToken = (id: string) => {
+  return jwt.sign({ id }, process.env.SECRET_KEY as string, {
+    expiresIn: '1h',
+  });
+};
 
+export default signToken;
 
+const createSendToken = (user, statusCode, res) => {
+  const token = signToken(user._id);
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() + parseInt(process.env.JWT_COOKIE_EXPIRES_IN as string, 10)  * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+  };
+  if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
+
+  res.cookie("jwt", token, cookieOptions);
+  user.password = undefined;
+  res.status(statusCode).json({
+    status: "success",
+    token,
+    data: {
+      user,
+    },
+  });
+};
 
 export const getMe = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -20,9 +47,7 @@ export const registerUser = async (req: Request, res: Response) => {
     let username = email.split('@')[0];
     const user = new User({ email, username, password });
     await user.save();
-
-    const token = user.generateAuthToken();
-    res.status(201).json({ token });
+    createSendToken(user, 200, res);
   } catch (error: any) {
     if (error.code === 11000) {
       return res
