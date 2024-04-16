@@ -80,7 +80,6 @@ UserSchema.methods.generateAuthToken = function () {
 UserSchema.methods.comparePassword = async function (password: string) {
   return await bcrypt.compare(password, this.password);
 };
-
 // Validate user input using Joi schema
 const validateUser = (user: IUser) => {
   return userValidationSchema.validate(user);

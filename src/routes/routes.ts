@@ -1,4 +1,3 @@
-// <<<<<<< HEAD
 // we use one file for route don't create multiple file i guess it would be better to use one file
 // comments
 // from murtessa
@@ -58,6 +57,7 @@ router.get('/users', getAllUsers);
 router.get('/users/:id', getUserById);
 router.put('/users/:id', updateUserById);
 router.delete('/users/:id', deleteUserById);
+//router.route("/me",)
 
 // AUTHENTICATION
 //login

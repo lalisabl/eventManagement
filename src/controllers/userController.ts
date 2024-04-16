@@ -1,6 +1,17 @@
 // Import necessary modules
-import { Request, Response } from 'express';
+import { Request, Response ,NextFunction} from 'express';
 import { User, validateUser } from '../models/user'; // Import your User model here
+
+
+
+export const getMe = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    //req.params.userId = req.user.id;
+    next();
+  } catch (error) {
+    next(error); // Pass any caught error to the error handler middleware
+  }
+};
 
 // User registration controller
 export const registerUser = async (req: Request, res: Response) => {
@@ -120,4 +131,44 @@ export const deleteUserById = async (req: Request, res: Response) => {
   }
 };
 
-// Export UserController
+// exports.protect =async (req, res, next) => {
+//   let token;
+//   if (
+//     req.headers.authorization &&
+//     req.headers.authorization.startsWith("Bearer")
+//   ) {
+//     token = req.headers.authorization.split(" ")[1];
+//   } else if (req.cookies.jwt) {
+//     token = req.cookies.jwt;
+//   }
+//   if (!token) {
+//     return next(
+//       new AppError("You are not logged in! Please log in to get access.", )
+//     );
+//   }
+//   const decoded = await promisify(jwt.verify)(token, process.env.SECRET_KEY);
+//   const currentUser = await User.findById(decoded.id);
+//   if (!currentUser) {
+//     return next(new AppError("No user is belongs to this token", 401));
+//   }
+//   req.user = currentUser;
+//   next();
+//   if (!token) {
+//     return next(
+//       new AppError("You are not logged in! Please log in to get access.", 401)
+//     );
+//   }
+// };
+// exports.restrictsto = (role) => {
+//   return (req, res, next) => {
+//     if (!(role === req.user.role)) {
+//       return next(
+//         new AppError(
+//           "You do not have permission to this perform this action!",
+//           403
+//         )
+//       );
+//     }
+//     next();
+//   };
+// };
