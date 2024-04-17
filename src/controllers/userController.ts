@@ -112,13 +112,12 @@ export const getAllUsers = async (req: Request, res: Response) => {
 // Controller function to get logged in user profile
 export const getMe = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    //req.params.userId = req.user.id;
+    req.params.userId = req.user.id;
     next();
   } catch (error) {
     next(error); // Pass any caught error to the error handler middleware
   }
 };
-
 // Controller function to get a user by ID
 export const getUserById = async (req: Request, res: Response) => {
   try {
