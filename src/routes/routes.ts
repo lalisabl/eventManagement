@@ -12,6 +12,8 @@ import {
   deleteUserById,
   registerUser,
   loginUser,
+  protect,
+  getMe,
 } from '../controllers/userController';
 import {
   createEvent,
@@ -54,10 +56,10 @@ router.get('/trychapa', tryChapa);
 router.post('/users', createUser);
 router.post('/users/register-user', registerUser);
 router.get('/users', getAllUsers);
+router.get("/me",protect,getMe,getUserById);
 router.get('/users/:id', getUserById);
 router.put('/users/:id', updateUserById);
 router.delete('/users/:id', deleteUserById);
-//router.route("/me",)
 
 // AUTHENTICATION
 //login
