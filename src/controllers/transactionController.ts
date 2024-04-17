@@ -2,6 +2,7 @@ import { Chapa } from 'chapa-nodejs';
 import { Request, Response } from 'express';
 
 const secretKey = 'CHASECK_TEST-7hqcIQqStVowOXHbAPCOSrhFHuZ7AaRW';
+
 export const tryChapa = async (req: Request, res: Response) => {
   const chapa = new Chapa({
     secretKey: secretKey,

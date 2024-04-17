@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import Event, { validateEvent } from "../models/events";
+import { Request, Response } from 'express';
+import Event, { validateEvent } from '../models/events';
 
 // Create a new event
 export const createEvent = async (req: Request, res: Response) => {
@@ -11,19 +11,20 @@ export const createEvent = async (req: Request, res: Response) => {
     await event.save();
     res.status(201).send(event);
   } catch (error) {
-    console.error("Error creating event:", error);
-    res.status(500).send("Server error");
+    console.error('Error creating event:', error);
+    res.status(500).send('Server error');
   }
 };
 
 // Get all events
+//need to be updated we need logic to filter, search and categorize
 export const getEvents = async (req: Request, res: Response) => {
   try {
     const events = await Event.find();
     res.send(events);
   } catch (error) {
-    console.error("Error fetching events:", error);
-    res.status(500).send("Server error");
+    console.error('Error fetching events:', error);
+    res.status(500).send('Server error');
   }
 };
 
@@ -31,11 +32,11 @@ export const getEvents = async (req: Request, res: Response) => {
 export const getEventById = async (req: Request, res: Response) => {
   try {
     const event = await Event.findById(req.params.id);
-    if (!event) return res.status(404).send("Event not found");
+    if (!event) return res.status(404).send('Event not found');
     res.send(event);
   } catch (error) {
-    console.error("Error fetching event by ID:", error);
-    res.status(500).send("Server error");
+    console.error('Error fetching event by ID:', error);
+    res.status(500).send('Server error');
   }
 };
 
@@ -48,11 +49,11 @@ export const updateEvent = async (req: Request, res: Response) => {
     const event = await Event.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
-    if (!event) return res.status(404).send("Event not found");
+    if (!event) return res.status(404).send('Event not found');
     res.send(event);
   } catch (error) {
-    console.error("Error updating event:", error);
-    res.status(500).send("Server error");
+    console.error('Error updating event:', error);
+    res.status(500).send('Server error');
   }
 };
 
@@ -60,10 +61,10 @@ export const updateEvent = async (req: Request, res: Response) => {
 export const deleteEvent = async (req: Request, res: Response) => {
   try {
     const event = await Event.findByIdAndDelete(req.params.id);
-    if (!event) return res.status(404).send("Event not found");
+    if (!event) return res.status(404).send('Event not found');
     res.send(event);
   } catch (error) {
-    console.error("Error deleting event:", error);
-    res.status(500).send("Server error");
+    console.error('Error deleting event:', error);
+    res.status(500).send('Server error');
   }
 };
