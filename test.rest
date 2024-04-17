@@ -2,15 +2,17 @@
 # User Registration
 POST http://127.0.0.1:5000/api/users/register-user
 Content-Type: application/json
+{ "name": "tola",   "phone_number": 898567567, "password": "Pass1234!", "email": "tola@mail.com" }
 
-{ "name": "new name",   "phone_number": 898567567, "password": "Pass1234!", "email": "nwe1w@mail.com" }
+###
+GET  http://127.0.0.1:5000/api/users
 
 ###
 
 POST http://127.0.0.1:5000/api/users/login
 Content-Type: application/json
 
-{ "name": "new name",   "phone_number": 898567567, "password": "Pass1234!", "email": "nwe1w@mail.com" }
+{"password": "Pass123b!", "email": "toli@mail.com" }
 
 ###
 # Events
