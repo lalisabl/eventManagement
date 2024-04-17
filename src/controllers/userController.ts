@@ -38,15 +38,6 @@ const createSendToken =  (user: UserDocument, statusCode: number, res: Response)
   });
 };
 
-export const getMe = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    //req.params.userId = req.user.id;
-    next();
-  } catch (error) {
-    next(error); // Pass any caught error to the error handler middleware
-  }
-};
-
 // User registration controller
 export const registerUser = async (req: Request, res: Response) => {
   try {
@@ -64,6 +55,26 @@ export const registerUser = async (req: Request, res: Response) => {
       console.error('Error creating user:', error);
       return res.status(500).json({ message: 'Server error' });
     }
+  }
+};
+
+// Controller function to create a new user
+export const createUser = async (req: Request, res: Response) => {
+  try {
+    const { fullName, username, email, password, role, profileImage } =
+      req.body;
+    const newUser = new User({
+      fullName,
+      username,
+      email,
+      password,
+      role,
+      profileImage,
+    });
+    await newUser.save();
+    createSendToken(newUser, 201, res);
+  } catch (err) {
+    res.status(500).json({ error: 'Could not create user' });
   }
 };
 
@@ -88,26 +99,6 @@ export const loginUser = async (req: Request, res: Response) => {
   }
 };
 
-// Controller function to create a new user
-export const createUser = async (req: Request, res: Response) => {
-  try {
-    const { fullName, username, email, password, role, profileImage } =
-      req.body;
-    const newUser = new User({
-      fullName,
-      username,
-      email,
-      password,
-      role,
-      profileImage,
-    });
-    await newUser.save();
-    createSendToken(newUser, 201, res);
-  } catch (err) {
-    res.status(500).json({ error: 'Could not create user' });
-  }
-};
-
 // Controller function to get all users
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
@@ -115,6 +106,16 @@ export const getAllUsers = async (req: Request, res: Response) => {
     res.json(users);
   } catch (err) {
     res.status(500).json({ error: 'Could not retrieve users' });
+  }
+};
+
+// Controller function to get logged in user profile
+export const getMe = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    //req.params.userId = req.user.id;
+    next();
+  } catch (error) {
+    next(error); // Pass any caught error to the error handler middleware
   }
 };
 
