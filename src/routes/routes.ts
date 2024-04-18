@@ -4,6 +4,7 @@
 
 // user routes
 import express from 'express';
+import { User,UserDocument, } from '../models/user';
 import {
   createUser,
   getAllUsers,
@@ -14,6 +15,8 @@ import {
   loginUser,
   protect,
   getMe,
+  signToken,
+  createSendToken,
 } from '../controllers/userController';
 import {
   createEvent,
@@ -74,15 +77,11 @@ router.get(
   '/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
-    // Generate JWT token for the user
-    const token = jwt.sign({ id: (req.user as UserDocument)._id }, 'YOUR_SECRET_KEY', {
-      expiresIn: '1h',
-    });
+    const token = signToken((req.user as UserDocument)._id);
     // Redirect or send token as response
     res.redirect(`/profile?token=${token}`);
   }
 );
-
 
 router.post('/users/logout'); //finish logout here
 
