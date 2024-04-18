@@ -1,8 +1,8 @@
 // Import necessary modules
-import passport from "passport";
 import { Request, Response ,NextFunction} from 'express';
 import { User, UserDocument, validateUser } from '../models/user';
 import jwt from "jsonwebtoken";
+import passport from "passport";
 import { promisify } from 'util';
 
 // Extend Request interface to include the user property
