@@ -1,15 +1,13 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import router from './routes/routes';
+import bodyParser from 'body-parser'; // Import body-parser with TypeScript types
 // import http from 'http';
 dotenv.config();
-const bodyParser = require('body-parser');
-
 // Create Express app
 const app = express();
 
 // Middleware
-app.use(express.json());
 app.use(express.json());
 app.use(bodyParser.json());
 
@@ -31,3 +29,4 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+

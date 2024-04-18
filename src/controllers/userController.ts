@@ -203,6 +203,40 @@ export const logoutUser = (req: Request, res: Response) => {
   res.status(200).json({ status: "success" });
 };
 
+// controller for signin with google
+
+// Initialize Passport Google Strategy
+export const CreateGoogleStrategy = () => {
+  passport.use(
+    new GoogleStrategy(
+      {
+        clientID: 'YOUR_GOOGLE_CLIENT_ID',
+        clientSecret: 'YOUR_GOOGLE_CLIENT_SECRET',
+        callbackURL: 'http://localhost:5000/auth/google/callback',
+      },
+      async (accessToken, refreshToken, profile: Profile, done) => {
+        try {
+          let user = await User.findOne({ googleId: profile.id });
+          if (user) {
+            return done(null, user);
+          } else {
+            user = new User({
+              username: profile.displayName || '',
+              email: profile.emails && profile.emails[0].value,
+              googleId: profile.id,
+            });
+            await user.save();
+            return done(null, user);
+          }
+        } catch (error) {
+          return done(error);
+        }
+      }
+    )
+  );
+};
+
+
 // controller to updatePassword
 // export const updatePassword = async (req: Request, res: Response, next: NextFunction) => {
 //   try {
