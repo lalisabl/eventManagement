@@ -1,18 +1,10 @@
 // Import necessary modules
 import { Request, Response ,NextFunction} from 'express';
-import { User, UserDocument, validateUser } from '../models/user';
-import jwt from "jsonwebtoken";
 import passport from "passport";
+import { User,UserDocument, validateUser } from '../models/user';
+import jwt from "jsonwebtoken";
 import { promisify } from 'util';
 
-// Extend Request interface to include the user property
-declare global {
-  namespace Express {
-    interface Request {
-      user?: UserDocument;
-    }
-  }
-}
 const signToken = (id: string) => {
   return jwt.sign({ id }, process.env.JWT_SECRET_KEY as string, {
     expiresIn: '1h',
@@ -113,7 +105,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
 // Controller function to get logged in user profile
 export const getMe = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const user: UserDocument | undefined = req.user; // Ensure user is of type UserDocument or undefined
+    const user: UserDocument | undefined = req.user as UserDocument | undefined;
     if (!user) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
@@ -202,29 +194,31 @@ export const deleteUserById = async (req: Request, res: Response) => {
   }
 };
 
-// controller to logout
-export const updatePassword = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const user = await User.findById(req.user.id).select("+password");
-    if (!(await user.validatePassword(req.body.currentPassword, user.password))) {
-      return res.status(401).json({ error: "Your current password is wrong." });
-    }
-    user.password = req.body.newPassword;
-    await user.save();
-    createSendToken(user, 200, res);
-  } catch (error: any) {
-    next(error);
-  }
-};
-
+// controller to logout after 10 second 
 export const logoutUser = (req: Request, res: Response) => {
   res.cookie("jwt", "loggedout", {
-    expires: new Date(Date.now() + 10 * 1000),
+    expires: new Date(Date.now() + 10 * 1000),//logged out after 10 sec
     httpOnly: true,
   });
   res.status(200).json({ status: "success" });
 };
 
+// controller to updatePassword
+// export const updatePassword = async (req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     const user = await User.findById(req.user.id).select("+password");
+//     if (!(await user.validatePassword(req.body.currentPassword, user.password))) {
+//       return res.status(401).json({ error: "Your current password is wrong." });
+//     }
+//     user.password = req.body.newPassword;
+//     await user.save();
+//     createSendToken(user, 200, res);
+//   } catch (error: any) {
+//     next(error);
+//   }
+// };
+
+// controller to resetPassword
 export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
   // Implement your reset password logic here
 };

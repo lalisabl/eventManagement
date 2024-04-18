@@ -30,7 +30,7 @@ interface UserDocument extends Document {
   comparePassword: (password: string) => Promise<boolean>; // Ensure correct method definition
 }
 
-// Define schema for User document
+// UserSchema
 const UserSchema: Schema = new Schema(
   {
     fullName: { type: String },
