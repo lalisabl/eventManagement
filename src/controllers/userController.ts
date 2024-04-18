@@ -1,7 +1,7 @@
 // Import necessary modules
-import { Request, Response ,NextFunction} from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { User, UserDocument, validateUser } from '../models/user';
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
 import { promisify } from 'util';
 
 // Extend Request interface to include the user property
@@ -17,20 +17,29 @@ const signToken = (id: string) => {
     expiresIn: '1h',
   });
 };
-const createSendToken =  (user: UserDocument, statusCode: number, res: Response) => {
+const createSendToken = (
+  user: UserDocument,
+  statusCode: number,
+  res: Response
+) => {
   const token = signToken(user._id);
-  const cookieOptions:any = {
+  const cookieOptions: any = {
     expires: new Date(
-      Date.now() + parseInt(process.env.JWT_COOKIE_EXPIRES_IN as string, 10)  * 24 * 60 * 60 * 1000
+      Date.now() +
+        parseInt(process.env.JWT_COOKIE_EXPIRES_IN as string, 10) *
+          24 *
+          60 *
+          60 *
+          1000
     ),
     httpOnly: true,
   };
   if (process.env.NODE_ENV === 'production') {
     cookieOptions.secure = true;
   }
-  res.cookie("jwt", token, cookieOptions);
+  res.cookie('jwt', token, cookieOptions);
   res.status(statusCode).json({
-    status: "success",
+    status: 'success',
     token,
     data: {
       user,
@@ -92,7 +101,6 @@ export const loginUser = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
     createSendToken(user, 201, res);
-
   } catch (error) {
     console.error('Error logging in:', error);
     res.status(500).json({ message: 'Server error' });
@@ -110,7 +118,11 @@ export const getAllUsers = async (req: Request, res: Response) => {
 };
 
 // Controller function to get logged in user profile
-export const getMe = async (req: Request, res: Response, next: NextFunction) => {
+export const getMe = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     //req.params.userId = req.user.id;
     next();
@@ -164,15 +176,18 @@ export const deleteUserById = async (req: Request, res: Response) => {
   }
 };
 
-export const protect = async (req: Request, res: Response, next: NextFunction) => {
+export const protect = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   let token;
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
-  }
-   else if (req.cookies.jwt) {
+  } else if (req.cookies.jwt) {
     token = req.cookies.jwt;
   }
 
@@ -182,7 +197,7 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
     }
 
     const verifyAsync = promisify(jwt.verify);
-    const decoded = await verifyAsync(token) as any;
+    const decoded = (await verifyAsync(token)) as any;
     const currentUser = await User.findById(decoded.id);
 
     if (!currentUser) {
@@ -191,7 +206,7 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
 
     req.user = currentUser;
     next();
-  } catch (error:any) {
+  } catch (error: any) {
     return res.status(401).json({ error: error.message });
   }
 };

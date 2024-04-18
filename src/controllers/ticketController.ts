@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import Ticket from '../models/tickets';
+import Ticket, { validateTicket } from '../models/tickets';
 import Event from '../models/events';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -12,7 +12,10 @@ const isTicketCodeUnique = async (ticketCode: string) => {
 // Create a new ticket
 export const createTicket = async (req: Request, res: Response) => {
   try {
-    const { eventId, userId, type } = req.body;
+    const { error } = validateTicket(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+
+    const { eventId, email, firstName, lastName, userId, type } = req.body;
 
     // Check if tickets are available for the event
     const event = await Event.findById(eventId);
@@ -52,6 +55,9 @@ export const createTicket = async (req: Request, res: Response) => {
       eventId,
       userId,
       type,
+      firstName,
+      lastName,
+      email,
       price,
       ticketCode,
       status: 'pending',
@@ -65,7 +71,7 @@ export const createTicket = async (req: Request, res: Response) => {
     console.error('Error creating ticket:', error);
     res.status(500).json({ message: 'Server error' });
   }
-}; 
+};
 
 // Get all tickets
 export const getTickets = async (req: Request, res: Response) => {
