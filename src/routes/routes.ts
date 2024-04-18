@@ -49,14 +49,12 @@ import {
 import { tryChapa } from '../controllers/transactionController';
 
 const router = express.Router();
-//try payment gateway
-router.get('/trychapa', tryChapa);
 
 // Routes with controller functions
 router.post('/users', createUser);
 router.post('/users/register-user', registerUser);
 router.get('/users', getAllUsers);
-router.get("/me",protect,getMe,getUserById);
+router.get('/me', protect, getMe, getUserById);
 router.get('/users/:id', getUserById);
 router.put('/users/:id', updateUserById);
 router.delete('/users/:id', deleteUserById);
@@ -87,21 +85,22 @@ router.put('/tickets/:id', updateTicket);
 router.delete('/tickets/:id', deleteTicket);
 
 // product route with controller function
-
-// Routes for Product CRUD operations
-router.post('/product', createProduct);
+//VIEWs
 router.get('/product', getAllProducts);
 router.get('/product/:id', getProductById);
+// API
+router.post('/product', createProduct);
 router.put('/product/:id', updateProductById);
 router.delete('/product/:id', deleteProductById);
 
 // attendant routes
 // package routes
-// Routes for Package CRUD operations
-router.post('/package', createPackage);
+//views
 router.get('/package', getAllPackages);
 router.get('/package/:id', getPackageById);
+// Routes for Package CRUD operations
+router.post('/package', createPackage);
 router.put('/package/:id', updatePackageById);
 router.delete('/package/:id', deletePackageById);
 
-export default router
+export default router;
