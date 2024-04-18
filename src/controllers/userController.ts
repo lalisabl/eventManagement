@@ -5,12 +5,12 @@ import { User,UserDocument, validateUser } from '../models/user';
 import jwt from "jsonwebtoken";
 import { promisify } from 'util';
 
-const signToken = (id: string) => {
+export const signToken = (id: string) => {
   return jwt.sign({ id }, process.env.JWT_SECRET_KEY as string, {
     expiresIn: '1h',
   });
 };
-const createSendToken =  (user: UserDocument, statusCode: number, res: Response) => {
+export const createSendToken =  (user: UserDocument, statusCode: number, res: Response) => {
   const token = signToken(user._id);
   const cookieOptions:any = {
     expires: new Date(

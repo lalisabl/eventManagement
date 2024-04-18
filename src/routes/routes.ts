@@ -47,6 +47,7 @@ import {
   updateTicket,
 } from '../controllers/ticketController';
 import { tryChapa } from '../controllers/transactionController';
+import passport from 'passport';
 
 const router = express.Router();
 //try payment gateway
@@ -64,6 +65,25 @@ router.delete('/users/:id', deleteUserById);
 // AUTHENTICATION
 //login
 router.post('/users/login', loginUser);
+
+// Google OAuth login route
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+// Google OAuth callback route
+router.get(
+  '/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/login' }),
+  (req, res) => {
+    // Generate JWT token for the user
+    const token = jwt.sign({ id: (req.user as UserDocument)._id }, 'YOUR_SECRET_KEY', {
+      expiresIn: '1h',
+    });
+    // Redirect or send token as response
+    res.redirect(`/profile?token=${token}`);
+  }
+);
+
+
 router.post('/users/logout'); //finish logout here
 
 // event routes
