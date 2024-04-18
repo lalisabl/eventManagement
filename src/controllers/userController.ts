@@ -112,15 +112,53 @@ export const getAllUsers = async (req: Request, res: Response) => {
 // Controller function to get logged in user profile
 export const getMe = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    req.params.userId = req.user.id;
+    const user: UserDocument | undefined = req.user; // Ensure user is of type UserDocument or undefined
+    if (!user) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+    req.params.id = user.id;
     next();
   } catch (error) {
     next(error); // Pass any caught error to the error handler middleware
   }
 };
+
+export const protect = async (req: Request, res: Response, next: NextFunction) => {
+  let token;
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
+  }
+
+  try {
+    if (!token) {
+      throw new Error('You are not logged in! Please log in to get access.');
+    }
+
+    const decoded = await new Promise((resolve, reject) => {
+      jwt.verify(token, process.env.JWT_SECRET_KEY as string, (err: any, decoded: unknown) => {
+        if (err) reject(err);
+        else resolve(decoded);
+      });
+    }) as any;
+
+    const currentUser = await User.findById(decoded.id);
+    if (!currentUser) {
+      throw new Error('No user belongs to this token');
+    }
+
+    req.user = currentUser;
+    next();
+  } catch (error: any) {
+    return res.status(401).json({ error: error.message });
+  }
+};
+
 // Controller function to get a user by ID
 export const getUserById = async (req: Request, res: Response) => {
   try {
+    console.log(req.params.id)
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -163,34 +201,4 @@ export const deleteUserById = async (req: Request, res: Response) => {
   }
 };
 
-export const protect = async (req: Request, res: Response, next: NextFunction) => {
-  let token;
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
-    token = req.headers.authorization.split(' ')[1];
-  }
-   else if (req.cookies.jwt) {
-    token = req.cookies.jwt;
-  }
-
-  try {
-    if (!token) {
-      throw new Error('You are not logged in! Please log in to get access.');
-    }
-
-    const verifyAsync = promisify(jwt.verify);
-    const decoded = await verifyAsync(token) as any;
-    const currentUser = await User.findById(decoded.id);
-
-    if (!currentUser) {
-      throw new Error('No user belongs to this token');
-    }
-
-    req.user = currentUser;
-    next();
-  } catch (error:any) {
-    return res.status(401).json({ error: error.message });
-  }
-};
+// protect controller for authorization

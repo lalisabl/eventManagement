@@ -5,7 +5,8 @@ import jwt from 'jsonwebtoken';
 
 // Define interface for User document
 interface UserDocument extends Document {
-  fullName: string;
+  firstName: string;
+  lastName:string;
   username: string;
   email: string;
   password: string;
@@ -33,6 +34,7 @@ interface UserDocument extends Document {
 const UserSchema: Schema = new Schema(
   {
     fullName: { type: String },
+    lastName: { type: String },
     username: { type: String, unique: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
