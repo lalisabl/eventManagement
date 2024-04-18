@@ -13,18 +13,23 @@ export const signToken = (id: string) => {
 };
 export const createSendToken =  (user: UserDocument, statusCode: number, res: Response) => {
   const token = signToken(user._id);
-  const cookieOptions:any = {
+  const cookieOptions: any = {
     expires: new Date(
-      Date.now() + parseInt(process.env.JWT_COOKIE_EXPIRES_IN as string, 10)  * 24 * 60 * 60 * 1000
+      Date.now() +
+        parseInt(process.env.JWT_COOKIE_EXPIRES_IN as string, 10) *
+          24 *
+          60 *
+          60 *
+          1000
     ),
     httpOnly: true,
   };
   if (process.env.NODE_ENV === 'production') {
     cookieOptions.secure = true;
   }
-  res.cookie("jwt", token, cookieOptions);
+  res.cookie('jwt', token, cookieOptions);
   res.status(statusCode).json({
-    status: "success",
+    status: 'success',
     token,
     data: {
       user,
@@ -86,7 +91,6 @@ export const loginUser = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
     createSendToken(user, 201, res);
-
   } catch (error) {
     console.error('Error logging in:', error);
     res.status(500).json({ message: 'Server error' });
@@ -104,7 +108,11 @@ export const getAllUsers = async (req: Request, res: Response) => {
 };
 
 // Controller function to get logged in user profile
-export const getMe = async (req: Request, res: Response, next: NextFunction) => {
+export const getMe = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const user: UserDocument | undefined = req.user as UserDocument | undefined;
     if (!user) {

@@ -1,7 +1,11 @@
 import { Request, Response } from 'express';
-import Ticket from '../models/tickets';
+import Ticket, { validateTicket } from '../models/tickets';
 import Event from '../models/events';
 import { v4 as uuidv4 } from 'uuid';
+import {
+  generateTransactionGateway,
+  verifyTransaction,
+} from './transactionController';
 
 // Function to check if a ticket code is unique
 const isTicketCodeUnique = async (ticketCode: string) => {
@@ -12,7 +16,10 @@ const isTicketCodeUnique = async (ticketCode: string) => {
 // Create a new ticket
 export const createTicket = async (req: Request, res: Response) => {
   try {
-    const { eventId, userId, type } = req.body;
+    const { error } = validateTicket(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+
+    const { eventId, email, firstName, lastName, userId, type } = req.body;
 
     // Check if tickets are available for the event
     const event = await Event.findById(eventId);
@@ -48,30 +55,66 @@ export const createTicket = async (req: Request, res: Response) => {
       uniqueCodeFound = await isTicketCodeUnique(ticketCode);
     }
 
-    const ticket = new Ticket({
-      eventId,
-      userId,
-      type,
-      price,
-      ticketCode,
-      status: 'pending',
-    });
+    const transaction = {
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      amount: price,
+      userId: userId,
+    };
+    const resp = await generateTransactionGateway(transaction);
 
+    const transactionId = resp._id;
+    if (transactionId) {
+      const ticket = new Ticket({
+        eventId,
+        userId,
+        type,
+        transactionId,
+        firstName,
+        lastName,
+        email,
+        price,
+        ticketCode,
+        status: 'pending',
+      });
+
+      await ticket.save();
+      res.status(201).json({ ticket: ticket, tranx: resp });
+    } else {
+      res.status(500).json({ message: 'Server error' });
+    }
     // Saving
-    await ticket.save();
-
-    res.status(201).json(ticket);
   } catch (error) {
     console.error('Error creating ticket:', error);
     res.status(500).json({ message: 'Server error' });
   }
-}; 
+};
 
 // Get all tickets
 export const getTickets = async (req: Request, res: Response) => {
   try {
-    const tickets = await Ticket.find();
-    res.json(tickets);
+    const tickets = await Ticket.find().populate(
+      'transactionId',
+      '-checkout_url -__v'
+    );
+
+    for (const ticket of tickets) {
+      let transaction: any = ticket?.transactionId;
+
+      if (transaction?.status !== 'completed') {
+        await verifyTransaction(ticket?.transactionId._id);
+
+        // Repopulate the ticket after verification
+        // await ticket.populate('transactionId', '-__v');
+      }
+    }
+    const ticketRes = await Ticket.find().populate(
+      'transactionId',
+      '-checkout_url -__v'
+    );
+
+    res.json(ticketRes);
   } catch (error) {
     console.error('Error fetching tickets:', error);
     res.status(500).json({ message: 'Server error' });
@@ -81,11 +124,28 @@ export const getTickets = async (req: Request, res: Response) => {
 // Get ticket by ID
 export const getTicketById = async (req: Request, res: Response) => {
   try {
-    const ticket = await Ticket.findById(req.params.id);
+    const ticket = await Ticket.findById(req.params.id).populate(
+      'transactionId',
+      '-checkout_url -__v'
+    );
+
     if (!ticket) {
       return res.status(404).json({ message: 'Ticket not found' });
     }
-    res.json(ticket);
+    let transaction: any = ticket.transactionId;
+    console.log(transaction);
+    if (transaction.status !== 'completed') {
+      await verifyTransaction(ticket.transactionId._id);
+
+      const ticketVerified = await Ticket.findById(req.params.id).populate(
+        'transactionId',
+        '-__v'
+      );
+      res.json(ticketVerified);
+    } else {
+      res.json(ticket);
+    }
+    // console.log(VerifyTransaction);
   } catch (error) {
     console.error('Error fetching ticket by ID:', error);
     res.status(500).json({ message: 'Server error' });
