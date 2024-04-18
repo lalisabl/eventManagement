@@ -5,7 +5,8 @@ interface IPaymentTransaction extends Document {
   amount: number;
   paymentMethod: string;
   status: string;
-  tickets: string[];
+  checkout_url:string;
+  tranxRef:string;
   //
 }
 
@@ -14,12 +15,13 @@ const PaymentTransactionSchema = new Schema(
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     amount: { type: Number, required: true },
     paymentMethod: { type: String, required: true },
+    checkout_url: { type: String, required: true },
     status: {
       type: String,
       enum: ['pending', 'completed', 'failed'],
       default: 'pending',
     },
-    tickets: [{ type: Schema.Types.ObjectId, ref: 'Ticket' }],
+    tranxRef: { type: String, required: true },
     //
   },
   { timestamps: true }

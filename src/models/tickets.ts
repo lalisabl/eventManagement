@@ -19,6 +19,11 @@ const ticketSchema: Schema = new Schema(
   {
     eventId: { type: mongoose.Types.ObjectId, ref: 'Event', required: true },
     userId: { type: mongoose.Types.ObjectId, ref: 'User', required: true },
+    transactionId: {
+      type: mongoose.Types.ObjectId,
+      ref: 'PaymentTransaction',
+      required: true,
+    },
     email: { type: String, required: true },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
@@ -26,7 +31,7 @@ const ticketSchema: Schema = new Schema(
     price: { type: Number, required: true },
     status: {
       type: String,
-      enum: ['pending', 'cancelled', 'paid'],
+      enum: ['pending', 'cancelled', 'paid', 'used', 'expired'],
       default: 'pending',
     },
     ticketCode: { type: String, required: true, unique: true },
@@ -36,8 +41,8 @@ const ticketSchema: Schema = new Schema(
 
 const ticketJoiSchema = Joi.object({
   type: Joi.string().required(),
-  fullName: Joi.string().required(),
-  username: Joi.string().required(),
+  firstName:Joi.string().required(),
+  lastName: Joi.string().required(),
   email: Joi.string().email().required(),
   eventId: Joi.string().required(),
   userId: Joi.string().required(),

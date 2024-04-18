@@ -49,11 +49,14 @@ Content-Type: application/json
 {
     "eventId": "66158a48c1de1d824214281b",
     "userId": "66156bca84efea7cc169ec68",
+    "firstName":"abe",
+    "lastName":"tol",
+    "email":"emm@gmaa.com",
     "type": "VIP"
 }
 
 ###
-GET http://127.0.0.1:5000/api/tickets
+GET http://127.0.0.1:5000/api/tickets/66211d4c6d03232292984ce6
 
 
 ###

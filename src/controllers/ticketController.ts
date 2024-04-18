@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import Ticket, { validateTicket } from '../models/tickets';
 import Event from '../models/events';
 import { v4 as uuidv4 } from 'uuid';
+import { generateTransactionGateway } from './transactionController';
 
 // Function to check if a ticket code is unique
 const isTicketCodeUnique = async (ticketCode: string) => {
@@ -51,22 +52,36 @@ export const createTicket = async (req: Request, res: Response) => {
       uniqueCodeFound = await isTicketCodeUnique(ticketCode);
     }
 
-    const ticket = new Ticket({
-      eventId,
-      userId,
-      type,
-      firstName,
-      lastName,
-      email,
-      price,
-      ticketCode,
-      status: 'pending',
-    });
+    const transaction = {
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      amount: price,
+      userId: userId,
+    };
+    const resp = await generateTransactionGateway(transaction);
 
+    const transactionId = resp._id;
+    if (transactionId) {
+      const ticket = new Ticket({
+        eventId,
+        userId,
+        type,
+        transactionId,
+        firstName,
+        lastName,
+        email,
+        price,
+        ticketCode,
+        status: 'pending',
+      });
+
+      await ticket.save();
+      res.status(201).json({ ticket: ticket, tranx: resp });
+    } else {
+      res.status(500).json({ message: 'Server error' });
+    }
     // Saving
-    await ticket.save();
-
-    res.status(201).json(ticket);
   } catch (error) {
     console.error('Error creating ticket:', error);
     res.status(500).json({ message: 'Server error' });
@@ -87,7 +102,9 @@ export const getTickets = async (req: Request, res: Response) => {
 // Get ticket by ID
 export const getTicketById = async (req: Request, res: Response) => {
   try {
-    const ticket = await Ticket.findById(req.params.id);
+    const ticket = await Ticket.findById(req.params.id).populate(
+      'transactionId'
+    );
     if (!ticket) {
       return res.status(404).json({ message: 'Ticket not found' });
     }
