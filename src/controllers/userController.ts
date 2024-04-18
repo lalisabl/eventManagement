@@ -221,9 +221,11 @@ export const CreateGoogleStrategy = () => {
           if (user) {
             return done(null, user);
           } else {
+            const email = profile.emails && profile.emails[0].value;
+            const username = email ? email.split('@')[0] : ''; // Extract username from email
             user = new User({
-              username: profile.displayName || '',
-              email: profile.emails && profile.emails[0].value,
+              username:username,
+              email:email,
               googleId: profile.id,
             });
             await user.save();
