@@ -10,6 +10,7 @@ export interface ITicket extends Document {
   status: string;
   ticketCode: string;
   firstName: string;
+  transactionId:mongoose.Types.ObjectId;
   lastName: string;
   email: string;
 }

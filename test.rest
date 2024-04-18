@@ -37,26 +37,29 @@ Content-Type: application/json
 
 #####
 # this helps you to get all events
-GET http://127.0.0.1:5000/api/events/66158a48c1de1d824214281b
+GET http://127.0.0.1:5000/api/events/
 
 ###
-DELETE http://127.0.0.1:5000/api/events/66156d7ec2c2edb34baf7b3a
+DELETE http://127.0.0.1:5000/api/events/66159d44d3fa896a51253be6
 
 ###
 POST http://127.0.0.1:5000/api/tickets
 Content-Type: application/json
 
 {
-    "eventId": "66158a48c1de1d824214281b",
+    "eventId": "662130cc44cf180bd535406b",
     "userId": "66156bca84efea7cc169ec68",
-    "firstName":"abe",
+    "firstName":"ma",
     "lastName":"tol",
     "email":"emm@gmaa.com",
     "type": "VIP"
 }
+ 
+### 
+GET http://127.0.0.1:5000/api/tickets
 
-###
-GET http://127.0.0.1:5000/api/tickets/66211d4c6d03232292984ce6
+### 
+GET   http://127.0.0.1:5000/api/tickets/662130df44cf180bd5354072
 
 
 ###

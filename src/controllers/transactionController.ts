@@ -1,6 +1,7 @@
 import { Chapa } from 'chapa-nodejs';
 import { Request, Response } from 'express';
 import PaymentTransaction from '../models/transaction';
+import Ticket from '../models/tickets';
 const secretKey = 'CHASECK_TEST-7hqcIQqStVowOXHbAPCOSrhFHuZ7AaRW';
 
 export const tryChapa = async (req: Request, res: Response) => {
@@ -60,4 +61,42 @@ export const generateTransactionGateway = async (
   } catch (error: any) {
     return error.message || 'An error occurred';
   }
+};
+
+export const verifyTransaction = async (transactionId: any): Promise<any> => {
+  const transaction = await PaymentTransaction.findById(transactionId);
+  if (!transaction) {
+    return { error: true, message: 'Ticket not found' };
+  }
+  const chapa = new Chapa({
+    secretKey: secretKey,
+  });
+  const verifyResponse = await chapa.verify({
+    tx_ref: transaction.tranxRef,
+  });
+  if (
+    (verifyResponse.data.status !== 'pending' &&
+      verifyResponse.data.status == 'success' &&
+      transaction.status === 'pending') ||
+    transaction.status === 'failed'
+  ) {
+    const updateTranx = await PaymentTransaction.findByIdAndUpdate(
+      transactionId,
+      { status: 'completed' },
+      { new: true }
+    );
+
+    if (updateTranx?.status === 'completed') {
+      const result = await Ticket.updateMany(
+        { transactionId: transactionId },
+        { status: 'paid' }
+      );
+      // console.log(result);
+      // return result;
+    }
+    // console.log(updateTranx);
+  }
+
+  // console.log(verifyResponse);
+  return verifyResponse;
 };

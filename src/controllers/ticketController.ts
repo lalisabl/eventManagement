@@ -2,7 +2,10 @@ import { Request, Response } from 'express';
 import Ticket, { validateTicket } from '../models/tickets';
 import Event from '../models/events';
 import { v4 as uuidv4 } from 'uuid';
-import { generateTransactionGateway } from './transactionController';
+import {
+  generateTransactionGateway,
+  verifyTransaction,
+} from './transactionController';
 
 // Function to check if a ticket code is unique
 const isTicketCodeUnique = async (ticketCode: string) => {
@@ -91,8 +94,27 @@ export const createTicket = async (req: Request, res: Response) => {
 // Get all tickets
 export const getTickets = async (req: Request, res: Response) => {
   try {
-    const tickets = await Ticket.find();
-    res.json(tickets);
+    const tickets = await Ticket.find().populate(
+      'transactionId',
+      '-checkout_url -__v'
+    );
+
+    for (const ticket of tickets) {
+      let transaction: any = ticket?.transactionId;
+
+      if (transaction?.status !== 'completed') {
+        await verifyTransaction(ticket?.transactionId._id);
+
+        // Repopulate the ticket after verification
+        // await ticket.populate('transactionId', '-__v');
+      }
+    }
+    const ticketRes = await Ticket.find().populate(
+      'transactionId',
+      '-checkout_url -__v'
+    );
+
+    res.json(ticketRes);
   } catch (error) {
     console.error('Error fetching tickets:', error);
     res.status(500).json({ message: 'Server error' });
@@ -103,12 +125,27 @@ export const getTickets = async (req: Request, res: Response) => {
 export const getTicketById = async (req: Request, res: Response) => {
   try {
     const ticket = await Ticket.findById(req.params.id).populate(
-      'transactionId'
+      'transactionId',
+      '-checkout_url -__v'
     );
+
     if (!ticket) {
       return res.status(404).json({ message: 'Ticket not found' });
     }
-    res.json(ticket);
+    let transaction: any = ticket.transactionId;
+    console.log(transaction);
+    if (transaction.status !== 'completed') {
+      await verifyTransaction(ticket.transactionId._id);
+
+      const ticketVerified = await Ticket.findById(req.params.id).populate(
+        'transactionId',
+        '-__v'
+      );
+      res.json(ticketVerified);
+    } else {
+      res.json(ticket);
+    }
+    // console.log(VerifyTransaction);
   } catch (error) {
     console.error('Error fetching ticket by ID:', error);
     res.status(500).json({ message: 'Server error' });
