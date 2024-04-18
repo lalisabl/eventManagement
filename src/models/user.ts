@@ -48,7 +48,8 @@ const UserSchema: Schema = new Schema(
 
 // Joi validation schema for User
 const userValidationSchema = Joi.object({
-  fullName: Joi.string().required(),
+  firstName: Joi.string().required(),
+  lastName: Joi.string().required(),
   username: Joi.string().required(),
   email: Joi.string().email().required(),
   password: Joi.string().required(),
