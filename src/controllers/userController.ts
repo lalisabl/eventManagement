@@ -1,6 +1,7 @@
 // Import necessary modules
 import { Request, Response ,NextFunction} from 'express';
 import passport from "passport";
+import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 import { User,UserDocument, validateUser } from '../models/user';
 import jwt from "jsonwebtoken";
 import { promisify } from 'util';
