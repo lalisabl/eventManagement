@@ -1,6 +1,7 @@
 // Import necessary modules
 import { Request, Response ,NextFunction} from 'express';
 import { User, UserDocument, validateUser } from '../models/user';
+import passport from 'passport';
 import jwt from "jsonwebtoken";
 import { promisify } from 'util';
 
@@ -123,6 +124,7 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
+// protect controller for authorization
 export const protect = async (req: Request, res: Response, next: NextFunction) => {
   let token;
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
@@ -135,7 +137,6 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
     if (!token) {
       throw new Error('You are not logged in! Please log in to get access.');
     }
-
     const decoded = await new Promise((resolve, reject) => {
       jwt.verify(token, process.env.JWT_SECRET_KEY as string, (err: any, decoded: unknown) => {
         if (err) reject(err);
@@ -201,4 +202,66 @@ export const deleteUserById = async (req: Request, res: Response) => {
   }
 };
 
-// protect controller for authorization
+// controller to logout
+export const updatePassword = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = await User.findById(req.user.id).select("+password");
+    if (!(await user.validatePassword(req.body.currentPassword, user.password))) {
+      return res.status(401).json({ error: "Your current password is wrong." });
+    }
+    user.password = req.body.newPassword;
+    await user.save();
+    createSendToken(user, 200, res);
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+export const logoutUser = (req: Request, res: Response) => {
+  res.cookie("jwt", "loggedout", {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  });
+  res.status(200).json({ status: "success" });
+};
+
+export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+  // Implement your reset password logic here
+};
+
+// Initialize Passport Google Strategy
+// export const createGoogleStrategy = () => {
+//   passport.use(
+//     new GoogleStrategy.Strategy(
+//       {
+//         clientID: process.env.GOOGLE_CLIENT_ID!,
+//         clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+//         callbackURL: "http://localhost:5000/api/v1/users/auth/google/callback",
+//       },
+//       async (accessToken, refreshToken, profile, done) => {
+//         try {
+//           let user = await User.findOne({ googleId: profile.id });
+//           if (user) {
+//             return done(null, user);
+//           } else {
+//             user = new User({
+//               username: profile.displayName!,
+//               email: profile.emails![0].value!,
+//               fullName: profile.displayName!,
+//               googleId: profile.id!,
+//             });
+//             await user.save();
+//             return done(null, user);
+//           }
+//         } catch (error) {
+//           return done(error);
+//         }
+//       }
+//     )
+//   );
+// };
+
+// export const googleSignInRedirect = (req: Request, res: Response) => {
+//   const user = req.user as UserDocument;
+//   const token = createSendToken(user, 200, res);
+// };
