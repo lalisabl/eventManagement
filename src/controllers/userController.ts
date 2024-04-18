@@ -229,9 +229,11 @@ export const CreateGoogleStrategy = () => {
             await user.save();
             return done(null, user);
           }
-        } catch (error) {
+        } 
+        catch (error: any) {
           return done(error);
         }
+        
       }
     )
   );
