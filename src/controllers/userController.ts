@@ -11,6 +11,7 @@ export const signToken = (id: string) => {
     expiresIn: '1h',
   });
 };
+
 export const createSendToken =  (user: UserDocument, statusCode: number, res: Response) => {
   const token = signToken(user._id);
   const cookieOptions: any = {
@@ -219,8 +220,8 @@ export const CreateGoogleStrategy = () => {
   passport.use(
     new GoogleStrategy(
       {
-        clientID: 'YOUR_GOOGLE_CLIENT_ID',
-        clientSecret: 'YOUR_GOOGLE_CLIENT_SECRET',
+        clientID: '525342472530-9onqvmef5ao0f8gf6dcm08tkje8m3gu3.apps.googleusercontent.com',
+        clientSecret: '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',
         callbackURL: 'http://localhost:5000/auth/google/callback',
       },
       async (accessToken, refreshToken, profile: Profile, done) => {
