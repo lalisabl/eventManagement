@@ -212,7 +212,6 @@ export const logoutUser = (req: Request, res: Response) => {
   res.status(200).json({ status: "success" });
 };
 
-// controller for signin with google
 
 // Initialize Passport Google Strategy
 export const CreateGoogleStrategy = () => {
@@ -249,7 +248,7 @@ export const CreateGoogleStrategy = () => {
   );
 };
 
-
+// googleSignInRedirect controller
 export const googleSignInRedirect = (req: Request, res: Response) => {
   const user = req.user as UserDocument | undefined;
   if (user) {
