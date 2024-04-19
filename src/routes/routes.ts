@@ -15,8 +15,7 @@ import {
   loginUser,
   protect,
   getMe,
-  signToken,
-  createSendToken,
+  googleSignInRedirect,
 } from '../controllers/userController';
 import {
   createEvent,
@@ -73,12 +72,7 @@ router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 
 // Google OAuth callback route
 router.get(
   '/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),
-  (req, res) => {
-    const token = signToken((req.user as UserDocument)._id);
-    // Redirect or send token as response
-    res.redirect(`/profile?token=${token}`);
-  }
+  passport.authenticate('google', { failureRedirect: '/login' }),googleSignInRedirect
 );
 
 router.post('/users/logout'); //finish logout here

@@ -4,19 +4,31 @@ import router from './routes/routes';
 import bodyParser from 'body-parser'; // Import body-parser with TypeScript types
 import { CreateGoogleStrategy } from './controllers/userController';
 import passport from 'passport';
+import session from 'express-session';
+ import { SessionOptions } from 'express-session';
+ import { User, UserDocument } from './models/user'; // Import your User model
+
+
 // import http from 'http';
 dotenv.config();
 // Create Express app
 const app = express();
 
 // Middleware
+app.use(passport.initialize());
 app.use(express.json());
 app.use(bodyParser.json());
 CreateGoogleStrategy();
-app.use(passport.initialize());
 // app.use(cors());
 // app.use(morgan('dev'));
-
+// Configure session middleware
+const sessionOptions: CustomSessionOptions = {
+  secret: process.env.SESSION_SECRET || 'your_secret_here',
+};
+interface CustomSessionOptions extends SessionOptions {
+  secret: string;
+}
+app.use(session(sessionOptions));
 // Routes
 
 app.use('/api',router)
@@ -32,4 +44,15 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+// 
+// Serialize user
+passport.serializeUser((user: any, done) => {
+  done(null, user.id); // Serialize user by storing the user's ID in the session
+});
 
+// Deserialize user
+passport.deserializeUser((id, done) => {
+  User.findById(id, (err:Error, user:any) => {
+    done(err, user); // Deserialize user by finding the user in the database based on the stored ID
+  });
+});

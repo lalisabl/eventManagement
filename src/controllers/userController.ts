@@ -4,7 +4,6 @@ import passport from "passport";
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 import { User,UserDocument, validateUser } from '../models/user';
 import jwt from "jsonwebtoken";
-import { promisify } from 'util';
 
 export const signToken = (id: string) => {
   return jwt.sign({ id }, process.env.JWT_SECRET_KEY as string, {
@@ -220,9 +219,9 @@ export const CreateGoogleStrategy = () => {
   passport.use(
     new GoogleStrategy(
       {
-        clientID: '525342472530-9onqvmef5ao0f8gf6dcm08tkje8m3gu3.apps.googleusercontent.com',
-        clientSecret: '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',
-        callbackURL: 'http://localhost:5000/auth/google/callback',
+        clientID: '525342472530-j5049f62qh691rg4akuv6nmll5slkt3p.apps.googleusercontent.com',
+        clientSecret: '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',
+        callbackURL: 'http://localhost:5000/api/auth/google/callback',
       },
       async (accessToken, refreshToken, profile: Profile, done) => {
         try {
@@ -237,7 +236,7 @@ export const CreateGoogleStrategy = () => {
               email:email,
               googleId: profile.id,
             });
-            await user.save();
+           // await user.save();
             return done(null, user);
           }
         } 
@@ -250,6 +249,17 @@ export const CreateGoogleStrategy = () => {
   );
 };
 
+
+export const googleSignInRedirect = (req: Request, res: Response) => {
+  const user = req.user as UserDocument | undefined;
+  if (user) {
+    createSendToken(user, 200, res);
+  } else {
+    // Handle the case where user is undefined
+    res.status(401).json({ error: 'User not authenticated' });
+  }
+
+};
 
 // controller to updatePassword
 // export const updatePassword = async (req: Request, res: Response, next: NextFunction) => {
