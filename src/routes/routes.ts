@@ -4,6 +4,7 @@
 
 // user routes
 import express from 'express';
+import { User,UserDocument, } from '../models/user';
 import {
   createUser,
   getAllUsers,
@@ -14,6 +15,7 @@ import {
   loginUser,
   protect,
   getMe,
+  googleSignInRedirect,
 } from '../controllers/userController';
 import {
   createEvent,
@@ -47,6 +49,7 @@ import {
   updateTicket,
 } from '../controllers/ticketController';
 import { tryChapa } from '../controllers/transactionController';
+import passport from 'passport';
 
 const router = express.Router();
 
@@ -62,6 +65,16 @@ router.delete('/users/:id', deleteUserById);
 // AUTHENTICATION
 //login
 router.post('/users/login', loginUser);
+
+// Google OAuth login route
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+// Google OAuth callback route
+router.get(
+  '/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/login' }),googleSignInRedirect
+);
+
 router.post('/users/logout'); //finish logout here
 
 // event routes

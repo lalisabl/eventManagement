@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 import Joi from 'joi';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 
 // Define interface for User document
 interface UserDocument extends Document {
@@ -9,7 +10,7 @@ interface UserDocument extends Document {
   lastName:string;
   username: string;
   email: string;
-  password: string;
+  password:string;  
   profileImage?: string;
   jobTitle?: string;
   company?: string;
@@ -30,7 +31,7 @@ interface UserDocument extends Document {
   comparePassword: (password: string) => Promise<boolean>; // Ensure correct method definition
 }
 
-// Define schema for User document
+// UserSchema
 const UserSchema: Schema = new Schema(
   {
     fullName: { type: String },
@@ -48,15 +49,22 @@ const UserSchema: Schema = new Schema(
 
 // Joi validation schema for User
 const userValidationSchema = Joi.object({
-  fullName: Joi.string().required(),
+  firstName: Joi.string().required(),
+  lastName: Joi.string().required(),
   username: Joi.string().required(),
   email: Joi.string().email().required(),
-  password: Joi.string().required(),
+  googleId: Joi.string(), // Not required for Google sign-in
+  password: Joi.string().when('googleId', {
+    is: Joi.exist(),
+    then: Joi.optional(), // Password is optional if googleId exists (Google sign-in)
+    otherwise: Joi.required(), // Password is required if googleId doesn't exist (manual sign-up)
+  }),
   profileImage: Joi.string().allow(null, ''),
   jobTitle: Joi.string().allow(null, ''),
   company: Joi.string().allow(null, ''),
   phoneNumber: Joi.string().allow(null, ''),
 });
+
 
 UserSchema.pre<UserDocument>('save', async function (next) {
   try {

@@ -1,27 +1,17 @@
 // Import necessary modules
-import { Request, Response, NextFunction } from 'express';
-import { User, UserDocument, validateUser } from '../models/user';
-import jwt from 'jsonwebtoken';
-import { promisify } from 'util';
+import { Request, Response ,NextFunction} from 'express';
+import passport from "passport";
+import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
+import { User,UserDocument, validateUser } from '../models/user';
+import jwt from "jsonwebtoken";
 
-// Extend Request interface to include the user property
-declare global {
-  namespace Express {
-    interface Request {
-      user?: UserDocument;
-    }
-  }
-}
-const signToken = (id: string) => {
+export const signToken = (id: string) => {
   return jwt.sign({ id }, process.env.JWT_SECRET_KEY as string, {
     expiresIn: '1h',
   });
 };
-const createSendToken = (
-  user: UserDocument,
-  statusCode: number,
-  res: Response
-) => {
+
+export const createSendToken =  (user: UserDocument, statusCode: number, res: Response) => {
   const token = signToken(user._id);
   const cookieOptions: any = {
     expires: new Date(
@@ -124,7 +114,7 @@ export const getMe = async (
   next: NextFunction
 ) => {
   try {
-    const user: UserDocument | undefined = req.user; // Ensure user is of type UserDocument or undefined
+    const user: UserDocument | undefined = req.user as UserDocument | undefined;
     if (!user) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
@@ -135,6 +125,7 @@ export const getMe = async (
   }
 };
 
+// protect controller for authorization
 export const protect = async (req: Request, res: Response, next: NextFunction) => {
   let token;
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
@@ -147,7 +138,6 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
     if (!token) {
       throw new Error('You are not logged in! Please log in to get access.');
     }
-
     const decoded = await new Promise((resolve, reject) => {
       jwt.verify(token, process.env.JWT_SECRET_KEY as string, (err: any, decoded: unknown) => {
         if (err) reject(err);
@@ -213,4 +203,79 @@ export const deleteUserById = async (req: Request, res: Response) => {
   }
 };
 
-// protect controller for authorization
+// controller to logout after 10 second 
+export const logoutUser = (req: Request, res: Response) => {
+  res.cookie("jwt", "loggedout", {
+    expires: new Date(Date.now() + 10 * 1000),//logged out after 10 sec
+    httpOnly: true,
+  });
+  res.status(200).json({ status: "success" });
+};
+
+
+// Initialize Passport Google Strategy
+export const CreateGoogleStrategy = () => {
+  passport.use(
+    new GoogleStrategy(
+      {
+        clientID: '525342472530-j5049f62qh691rg4akuv6nmll5slkt3p.apps.googleusercontent.com',
+        clientSecret: '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',
+        callbackURL: 'http://localhost:5000/api/auth/google/callback',
+      },
+      async (accessToken, refreshToken, profile: Profile, done) => {
+        try {
+          let user = await User.findOne({ googleId: profile.id });
+          if (user) {
+            return done(null, user);
+          } else {
+            const email = profile.emails && profile.emails[0].value;
+            const username = email ? email.split('@')[0] : ''; // Extract username from email
+            user = new User({
+              username:username,
+              email:email,
+              googleId: profile.id,
+            });
+           // await user.save();
+            return done(null, user);
+          }
+        } 
+        catch (error: any) {
+          return done(error);
+        }
+        
+      }
+    )
+  );
+};
+
+// googleSignInRedirect controller
+export const googleSignInRedirect = (req: Request, res: Response) => {
+  const user = req.user as UserDocument | undefined;
+  if (user) {
+    createSendToken(user, 200, res);
+  } else {
+    // Handle the case where user is undefined
+    res.status(401).json({ error: 'User not authenticated' });
+  }
+
+};
+
+// controller to resetPassword
+export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+  // Implement your reset password logic here
+};
+
+// controller to updatePassword
+// export const updatePassword = async (req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     const user = await User.findById(req.user.id).select("+password");
+//     if (!(await user.validatePassword(req.body.currentPassword, user.password))) {
+//       return res.status(401).json({ error: "Your current password is wrong." });
+//     }
+//     user.password = req.body.newPassword;
+//     await user.save();
+//     createSendToken(user, 200, res);
+//   } catch (error: any) {
+//     next(error);
+//   }
+// };
