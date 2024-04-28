@@ -54,27 +54,6 @@ export const registerUser = async (req: Request, res: Response) => {
     }
   }
 };
-
-// Controller function to create a new user
-export const createUser = async (req: Request, res: Response) => {
-  try {
-    const { fullName, username, email, password, role, profileImage } =
-      req.body;
-    const newUser = new User({
-      fullName,
-      username,
-      email,
-      password,
-      role,
-      profileImage,
-    });
-    await newUser.save();
-    createSendToken(newUser, 201, res);
-  } catch (err) {
-    res.status(500).json({ error: 'Could not create user' });
-  }
-};
-
 // login
 export const loginUser = async (req: Request, res: Response) => {
   try {

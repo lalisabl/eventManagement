@@ -6,7 +6,6 @@
 import express from 'express';
 import { User,UserDocument, } from '../models/user';
 import {
-  createUser,
   getAllUsers,
   getUserById,
   updateUserById,
@@ -54,7 +53,6 @@ import passport from 'passport';
 const router = express.Router();
 
 // Routes with controller functions
-router.post('/users', createUser);
 router.post('/users/register-user', registerUser);
 router.get('/users', getAllUsers);
 router.get('/me', protect, getMe, getUserById);
