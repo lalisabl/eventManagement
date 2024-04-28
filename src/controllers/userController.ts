@@ -40,9 +40,9 @@ export const createSendToken =  (user: UserDocument, statusCode: number, res: Re
 // User registration controller
 export const registerUser = async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
+    const { email, password,firstName,lastName ,phoneNumber} = req.body;
     let username = email.split('@')[0];
-    const user = new User({ email, username, password });
+    const user = new User({ email, username, password,firstName,lastName,phoneNumber });
     await user.save();
     createSendToken(user, 200, res);
   } catch (error: any) {
