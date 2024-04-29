@@ -4,7 +4,12 @@ import passport from "passport";
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 import { User,UserDocument, validateUser } from '../models/user';
 import jwt from "jsonwebtoken";
-
+import multer from 'multer';
+import sharp from 'sharp';
+interface AuthenticatedRequest extends Request {
+  user?: UserDocument; // Assuming UserDocument contains an _id or id property
+}
+const multerStorage = multer.memoryStorage();
 export const signToken = (id: string) => {
   return jwt.sign({ id }, process.env.JWT_SECRET_KEY as string, {
     expiresIn: '1h',
@@ -34,7 +39,78 @@ export const createSendToken =  (user: UserDocument, statusCode: number, res: Re
     user
   });
 };
+const multerFilter = (req:Request, file:any, cb:any) => {
+  if (file.mimetype.startsWith("image")) {
+    cb(null, true);
+  } else {
+    cb(Error("Not an image! Please upload only images."), false);
+  }
+};
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+});
+// protect controller for authorization
+export const protect = async (req: Request, res: Response, next: NextFunction) => {
+  let token;
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
+  }
 
+  try {
+    if (!token) {
+      throw Error('You are not logged in! Please log in to get access.');
+    }
+    const decoded = await new Promise((resolve, reject) => {
+      jwt.verify(token, process.env.JWT_SECRET_KEY as string, (err: any, decoded: unknown) => {
+        if (err) reject(err);
+        else resolve(decoded);
+      });
+    }) as any;
+
+    const currentUser = await User.findById(decoded.id);
+    if (!currentUser) {
+      throw new Error('No user belongs to this token');
+    }
+
+    req.user = currentUser;
+    next();
+  } catch (error: any) {
+    return res.status(401).json({ error: error.message });
+  }
+};
+
+// photo upload controller
+export const uploadUserPhoto = upload.single("profileImage");
+// photo resizer controller
+export const resizeUserPhoto = async (req:any, res:Response, next:NextFunction) => {
+ if (!req.file) return next();
+  req.file.filename = `user-${req.user?._id}}.jpeg`;
+  console.log(req.file.filename);
+  await sharp(req.file.buffer)
+    .resize(500, 500)
+    .toFormat("jpeg")
+    .jpeg({ quality: 90 })
+    .toFile(`src/public/images/users/${req.file.filename}`);
+  next();
+};
+// update user profile controller
+export const updateProfile =async (req:any, res:Response) => {
+  const user = await User.findById(req.user?.id);
+  const { firstName,lastName,username} = req.body;
+  let profileImage;
+  if (req.file) profileImage = req.file.filename;
+  if (firstName) user!.firstName = firstName;
+  if (lastName) user!.lastName = lastName;
+  if (username) user!.username = username;
+  const updatedUser = await user!.save();
+  res.status(200).json({
+    status: "success",
+    data: { updatedUser },
+  });
+};
 // User registration controller
 export const registerUser = async (req: Request, res: Response) => {
   try {
@@ -67,7 +143,7 @@ export const loginUser = async (req: Request, res: Response) => {
     if (!isPasswordValid) {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
-    createSendToken(user, 201, res);
+    createSendToken(user, 200, res);
   } catch (error) {
     console.error('Error logging in:', error);
     res.status(500).json({ message: 'Server error' });
@@ -101,39 +177,6 @@ export const getMe = async (
     next(error); // Pass any caught error to the error handler middleware
   }
 };
-
-// protect controller for authorization
-export const protect = async (req: Request, res: Response, next: NextFunction) => {
-  let token;
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    token = req.headers.authorization.split(' ')[1];
-  } else if (req.cookies.jwt) {
-    token = req.cookies.jwt;
-  }
-
-  try {
-    if (!token) {
-      throw new Error('You are not logged in! Please log in to get access.');
-    }
-    const decoded = await new Promise((resolve, reject) => {
-      jwt.verify(token, process.env.JWT_SECRET_KEY as string, (err: any, decoded: unknown) => {
-        if (err) reject(err);
-        else resolve(decoded);
-      });
-    }) as any;
-
-    const currentUser = await User.findById(decoded.id);
-    if (!currentUser) {
-      throw new Error('No user belongs to this token');
-    }
-
-    req.user = currentUser;
-    next();
-  } catch (error: any) {
-    return res.status(401).json({ error: error.message });
-  }
-};
-
 // Controller function to get a user by ID
 export const getUserById = async (req: Request, res: Response) => {
   try {

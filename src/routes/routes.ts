@@ -14,6 +14,10 @@ import {
   loginUser,
   protect,
   getMe,
+  uploadUserPhoto,
+  resizeUserPhoto,
+  updateProfile,
+
   googleSignInRedirect,
 } from '../controllers/userController';
 import {
@@ -59,6 +63,13 @@ router.get('/me', protect, getMe, getUserById);
 router.get('/users/:id', getUserById);
 router.put('/users/:id', updateUserById);
 router.delete('/users/:id', deleteUserById);
+router.patch(
+  "/updateProfile",
+ protect,
+uploadUserPhoto,
+resizeUserPhoto,
+//updateProfile
+);
 
 // AUTHENTICATION
 //login

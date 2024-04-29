@@ -19,13 +19,6 @@ interface UserDocument extends Document {
     name: string;
     description?: string;
   };
-  address?: {
-    street: string;
-    city: string;
-    state: string;
-    country: string;
-    postalCode: string;
-  };
   createdAt: Date;
   updatedAt: Date;
   comparePassword: (password: string) => Promise<boolean>; // Ensure correct method definition
