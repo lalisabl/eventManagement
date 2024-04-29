@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 import Joi from 'joi';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import crypto from "crypto";
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 
 // Define interface for User document
@@ -22,7 +23,12 @@ interface UserDocument extends Document {
   createdAt: Date;
   updatedAt: Date;
   comparePassword: (password: string) => Promise<boolean>; // Ensure correct method definition
+  passwordResetToken: String |undefined,
+  passwordResetExpires: Date | undefined,
+  createPasswordResetToken:()=>String,
+
 }
+
 
 // UserSchema
 const UserSchema: Schema = new Schema(
@@ -77,6 +83,16 @@ UserSchema.methods.comparePassword = async function (password: string) {
 // Validate user input using Joi schema
 const validateUser = (user: UserDocument) => {
   return userValidationSchema.validate(user);
+};
+// password reset token
+UserSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  this.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+  return resetToken;
 };
 
 // Create and export User model

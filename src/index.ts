@@ -41,7 +41,13 @@ require('../config/database');
 // Set port
 const PORT = process.env.PORT || 5000;
 
-
+//global Middlewares
+app.use(
+  cors({
+    origin: "http://localhost:5000", // Set the allowed origin
+    credentials: true, // Allow cookies and authentication headers
+  })
+);
 // Start server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

@@ -3,6 +3,7 @@ import { Request, Response ,NextFunction} from 'express';
 import passport from "passport";
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 import { User,UserDocument, validateUser } from '../models/user';
+import {sendEmail} from '../utils/email';
 import jwt from "jsonwebtoken";
 import multer from 'multer';
 import sharp from 'sharp';
@@ -180,7 +181,6 @@ export const getMe = async (
 // Controller function to get a user by ID
 export const getUserById = async (req: Request, res: Response) => {
   try {
-    console.log(req.params.id)
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -281,21 +281,44 @@ export const googleSignInRedirect = (req: Request, res: Response) => {
 };
 
 // controller to resetPassword
-export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
-  // Implement your reset password logic here
-};
+exports.forgotPassword = async (req:Request, res:Response, next:NextFunction) => {
+  const user:UserDocument = await User.findOne({ email: req.body.email }) as UserDocument;
+  if (!user) {
+     res.status(404).json({ error: 'There is no user with email address.' });
 
+  }
+  const resetToken = user.createPasswordResetToken();
+  const resetURL = `${req.protocol}://${req.get(
+    "host"
+  )}/api/users/resetPassword/${resetToken}`;
+  const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "Your password reset token (valid for 10 min)",
+      message,
+    });
+    res.status(200).json({
+      status: "success",
+      message: "Token sent to email!",
+    });
+  } catch (err) {
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    res.status(400).json({error:"There was an error sending the email. Try again later!"});
+  }
+};
 // controller to updatePassword
-// export const updatePassword = async (req: Request, res: Response, next: NextFunction) => {
-//   try {
-//     const user = await User.findById(req.user.id).select("+password");
-//     if (!(await user.validatePassword(req.body.currentPassword, user.password))) {
-//       return res.status(401).json({ error: "Your current password is wrong." });
-//     }
-//     user.password = req.body.newPassword;
-//     await user.save();
-//     createSendToken(user, 200, res);
-//   } catch (error: any) {
-//     next(error);
-//   }
-// };
+export const updatePassword = async (req: any, res: Response, next: NextFunction) => {
+  try {
+    const user: UserDocument = req.user as UserDocument;
+    if (!(await user?.comparePassword(req.body.currentPassword))) {
+      return res.status(401).json({ error: "Your current password is wrong." });
+    }
+    user!.password = req.body.newPassword;
+    await user!.save();
+    createSendToken(user, 200, res);
+  } catch (error: any) {
+    res.status(404).json({ status: "fail",message:error });
+  }
+};
