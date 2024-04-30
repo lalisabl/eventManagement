@@ -90,6 +90,7 @@ const validateUser = (user: UserDocument) => {
 // password reset token
 UserSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString("hex");
+  console.log(this.passwordResetToken);
   this.passwordResetToken = crypto
     .createHash("sha256")
     .update(resetToken)
