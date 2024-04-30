@@ -298,7 +298,7 @@ export const forgotPassword = async (req:Request, res:Response, next:NextFunctio
   }
   const resetToken = user.createPasswordResetToken();
   const resetURL = `${req.protocol}://${req.get("host")}/api/users/resetPassword/${resetToken}`;
-  const message = `we have recieved password reset request.please use the following link to reset your password \n\n: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
+  const message = `we have recieved password reset request.please use the following link to reset your password \n\n ${resetURL}.\n\nIf you didn't forget your password, please ignore this email!`;
   try {
     await sendEmail({
       email: user.email,
