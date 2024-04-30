@@ -336,7 +336,7 @@ export const resetPassword=async(req:Request,res:Response)=>{
 catch(err){
   res.status(404).json({
     status: "fail",
-    message: "something wrong while reseting your password!",
+    message: "something wrong while reseting your password!",err,
   });
 }
 }
