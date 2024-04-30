@@ -309,9 +309,11 @@ export const forgotPassword = async (req:Request, res:Response, next:NextFunctio
       status: "success",
       message: "Token sent to email!",
     });
+    await user.save();
   } catch (err) {
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
+    await user.save();
     res.status(400).json({error:"There was an error sending the email. Try again later!"});
   }
 };
@@ -322,8 +324,7 @@ export const resetPassword=async(req:Request,res:Response)=>{
     if(!user){
       res.status(404).json({status:'fail',message:'invalid token or expired!'})
     }
-    console.log(user);
-     user!.password=req.body;
+     user!.password=req.body.password;
      user!.passwordResetToken = undefined;
      user!.passwordResetExpires = undefined;
      await user!.save();
@@ -332,5 +333,6 @@ export const resetPassword=async(req:Request,res:Response)=>{
 
 catch(err){
 console.log("Error",err)
+res.status(404).json({status:'fail',message:err})
 }
 }

@@ -11,7 +11,7 @@ interface UserDocument extends Document {
   username: string;
   email: string;
   password:string;  
-  profileImage?: string;
+  profileImage: string;
   jobTitle?: string;
   company?: string;
   phoneNumber?: string;
@@ -41,7 +41,7 @@ const UserSchema: Schema = new Schema(
     jobTitle: { type: String },
     company: { type: String },
     phoneNumber: { type: String },
-    passwordResetToken: {type:String },
+    passwordResetToken: {type:String},
     passwordResetExpires: {type:Date},
   },
   { timestamps: true }
@@ -72,6 +72,7 @@ UserSchema.pre<UserDocument>('save', async function (next) {
   try {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(this.password, salt);
+    console.log(hashedPassword);
     this.password = hashedPassword;
     next();
   } catch (error: any) {
@@ -90,7 +91,6 @@ const validateUser = (user: UserDocument) => {
 // password reset token
 UserSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString("hex");
-  console.log(this.passwordResetToken);
   this.passwordResetToken = crypto
     .createHash("sha256")
     .update(resetToken)
