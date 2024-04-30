@@ -41,6 +41,8 @@ const UserSchema: Schema = new Schema(
     jobTitle: { type: String },
     company: { type: String },
     phoneNumber: { type: String },
+    passwordResetToken: {type:String },
+    passwordResetExpires: {type:Date},
   },
   { timestamps: true }
 ); 
