@@ -22,8 +22,8 @@ interface UserDocument extends Document {
   createdAt: Date;
   updatedAt: Date;
   comparePassword: (password: string) => Promise<boolean>; // Ensure correct method definition
-  passwordResetToken: String |undefined,
-  passwordResetExpires: Date | undefined,
+  passwordResetToken?: String,
+  passwordResetExpires?: Date,
   createPasswordResetToken:()=>String,
 
 }
