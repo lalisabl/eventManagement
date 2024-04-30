@@ -297,7 +297,7 @@ export const forgotPassword = async (req:Request, res:Response, next:NextFunctio
 
   }
   const resetToken = user.createPasswordResetToken();
-  const resetURL = `${req.protocol}://${req.get("host")}/api/users/resetPassword/${resetToken}`;
+  const resetURL = `${req.protocol}://${req.get("host")}/api/resetPassword/${resetToken}`;
   const message = `we have recieved password reset request.please use the following link to reset your password \n\n ${resetURL}.\n\nIf you didn't forget your password, please ignore this email!`;
   try {
     await sendEmail({
@@ -327,16 +327,9 @@ export const resetPassword=async(req:Request,res:Response)=>{
      user!.passwordResetExpires = undefined;
      await user!.save();
      createSendToken(user!, 200, res);
-     res.status(200).json({
-      status: "success",
-      message: "password changed successfully!",
-    });
   }
 
 catch(err){
-  res.status(404).json({
-    status: "fail",
-    message: "something wrong while reseting your password!",err,
-  });
+console.log("Error",err)
 }
 }
