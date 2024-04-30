@@ -117,7 +117,7 @@ export const updateProfile =async (req:any, res:Response) => {
 // User registration controller
 export const registerUser = async (req: Request, res: Response) => {
   try {
-    const { email, password,firstName,lastName ,phoneNumber} = req.body;
+    const {firstName,lastName, email, password,phoneNumber} = req.body;
     let username = email.split('@')[0];
     const user = new User({ email, username, password,firstName,lastName,phoneNumber });
     await user.save();

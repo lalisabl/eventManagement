@@ -32,7 +32,7 @@ interface UserDocument extends Document {
 // UserSchema
 const UserSchema: Schema = new Schema(
   {
-    fullName: { type: String },
+    firstName: { type: String },
     lastName: { type: String },
     username: { type: String, unique: true },
     email: { type: String, required: true, unique: true },
@@ -59,10 +59,12 @@ const userValidationSchema = Joi.object({
     then: Joi.optional(), // Password is optional if googleId exists (Google sign-in)
     otherwise: Joi.required(), // Password is required if googleId doesn't exist (manual sign-up)
   }),
-  profileImage: Joi.string().allow(null, ''),
+  profileImage: Joi.string().allow(''),
   jobTitle: Joi.string().allow(null, ''),
   company: Joi.string().allow(null, ''),
   phoneNumber: Joi.string().allow(null, ''),
+  passwordResetToken:Joi.string().allow(''),
+  passwordResetExpires:Joi.date().allow(''),
 });
 
 
