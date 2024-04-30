@@ -1,7 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import Joi from 'joi';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import crypto from "crypto";
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 

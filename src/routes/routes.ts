@@ -1,9 +1,8 @@
 // we use one file for route don't create multiple file i guess it would be better to use one file
 // comments
-// from murtessa
-
-// user routes
 import express from 'express';
+import passport from 'passport';
+// user routes
 import { User,UserDocument, } from '../models/user';
 import {
   getAllUsers,
@@ -17,9 +16,11 @@ import {
   uploadUserPhoto,
   resizeUserPhoto,
   updateProfile,
-
+  forgotPassword,
+  resetPassword,
   googleSignInRedirect,
 } from '../controllers/userController';
+// event routes
 import {
   createEvent,
   deleteEvent,
@@ -36,7 +37,7 @@ import {
   updateProductById,
   deleteProductById,
 } from '../controllers/productController';
-
+// package routes
 import {
   createPackage,
   getAllPackages,
@@ -44,6 +45,7 @@ import {
   updatePackageById,
   deletePackageById,
 } from '../controllers/packageController';
+// tickte routes
 import {
   createTicket,
   deleteTicket,
@@ -52,7 +54,6 @@ import {
   updateTicket,
 } from '../controllers/ticketController';
 import { tryChapa } from '../controllers/transactionController';
-import passport from 'passport';
 
 const router = express.Router();
 
@@ -68,8 +69,10 @@ router.patch(
  protect,
 uploadUserPhoto,
 resizeUserPhoto,
-//updateProfile
+updateProfile
 );
+router.post("/forgotPassword",forgotPassword);
+router.patch("/resetPassword/:token",resetPassword);
 
 // AUTHENTICATION
 //login

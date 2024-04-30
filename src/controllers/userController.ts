@@ -5,18 +5,18 @@ import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 import { User,UserDocument, validateUser } from '../models/user';
 import {sendEmail} from '../utils/email';
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import multer from 'multer';
 import sharp from 'sharp';
-interface AuthenticatedRequest extends Request {
-  user?: UserDocument; // Assuming UserDocument contains an _id or id property
-}
+import { date } from 'joi';
+
 const multerStorage = multer.memoryStorage();
 export const signToken = (id: string) => {
   return jwt.sign({ id }, process.env.JWT_SECRET_KEY as string, {
     expiresIn: '1h',
   });
 };
-
+// create and send token 
 export const createSendToken =  (user: UserDocument, statusCode: number, res: Response) => {
   const token = signToken(user._id);
   const cookieOptions: any = {
@@ -40,6 +40,7 @@ export const createSendToken =  (user: UserDocument, statusCode: number, res: Re
     user
   });
 };
+// filter only images from files
 const multerFilter = (req:Request, file:any, cb:any) => {
   if (file.mimetype.startsWith("image")) {
     cb(null, true);
@@ -47,6 +48,7 @@ const multerFilter = (req:Request, file:any, cb:any) => {
     cb(Error("Not an image! Please upload only images."), false);
   }
 };
+// phot upload controller
 const upload = multer({
   storage: multerStorage,
   fileFilter: multerFilter,
@@ -131,7 +133,7 @@ export const registerUser = async (req: Request, res: Response) => {
     }
   }
 };
-// login
+// login controller
 export const loginUser = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
@@ -150,7 +152,6 @@ export const loginUser = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
-
 // Controller function to get all users
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
@@ -160,7 +161,6 @@ export const getAllUsers = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Could not retrieve users' });
   }
 };
-
 // Controller function to get logged in user profile
 export const getMe = async (
   req: Request,
@@ -190,7 +190,6 @@ export const getUserById = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Could not retrieve user' });
   }
 };
-
 // Controller function to update a user by ID
 export const updateUserById = async (req: Request, res: Response) => {
   try {
@@ -209,7 +208,6 @@ export const updateUserById = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Could not update user' });
   }
 };
-
 // Controller function to delete a user by ID
 export const deleteUserById = async (req: Request, res: Response) => {
   try {
@@ -222,7 +220,6 @@ export const deleteUserById = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Could not delete user' });
   }
 };
-
 // controller to logout after 10 second 
 export const logoutUser = (req: Request, res: Response) => {
   res.cookie("jwt", "loggedout", {
@@ -231,8 +228,6 @@ export const logoutUser = (req: Request, res: Response) => {
   });
   res.status(200).json({ status: "success" });
 };
-
-
 // Initialize Passport Google Strategy
 export const CreateGoogleStrategy = () => {
   passport.use(
@@ -267,7 +262,6 @@ export const CreateGoogleStrategy = () => {
     )
   );
 };
-
 // googleSignInRedirect controller
 export const googleSignInRedirect = (req: Request, res: Response) => {
   const user = req.user as UserDocument | undefined;
@@ -279,19 +273,32 @@ export const googleSignInRedirect = (req: Request, res: Response) => {
   }
 
 };
+// controller to updatePassword
+export const updatePassword = async (req: any, res: Response, next: NextFunction) => {
+  try {
+    const user: UserDocument = req.user as UserDocument;
+    if (!(await user?.comparePassword(req.body.currentPassword))) {
+      return res.status(401).json({ error: "Your current password is wrong." });
+    }
+    user!.password = req.body.newPassword;
+    await user!.save();
+    createSendToken(user, 200, res);
+  } catch (error: any) {
+    res.status(404).json({ status: "fail",message:error });
+  }
+};
+
 
 // controller to resetPassword
-exports.forgotPassword = async (req:Request, res:Response, next:NextFunction) => {
+export const forgotPassword = async (req:Request, res:Response, next:NextFunction) => {
   const user:UserDocument = await User.findOne({ email: req.body.email }) as UserDocument;
   if (!user) {
      res.status(404).json({ error: 'There is no user with email address.' });
 
   }
   const resetToken = user.createPasswordResetToken();
-  const resetURL = `${req.protocol}://${req.get(
-    "host"
-  )}/api/users/resetPassword/${resetToken}`;
-  const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
+  const resetURL = `${req.protocol}://${req.get("host")}/api/users/resetPassword/${resetToken}`;
+  const message = `we have recieved password reset request.please use the following link to reset your password \n\n: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
   try {
     await sendEmail({
       email: user.email,
@@ -308,17 +315,28 @@ exports.forgotPassword = async (req:Request, res:Response, next:NextFunction) =>
     res.status(400).json({error:"There was an error sending the email. Try again later!"});
   }
 };
-// controller to updatePassword
-export const updatePassword = async (req: any, res: Response, next: NextFunction) => {
-  try {
-    const user: UserDocument = req.user as UserDocument;
-    if (!(await user?.comparePassword(req.body.currentPassword))) {
-      return res.status(401).json({ error: "Your current password is wrong." });
+export const resetPassword=async(req:Request,res:Response)=>{
+  try{
+    const token=crypto.createHash("sha256").update(req.params.token).digest("hex");
+    const user=await User.findOne({passwordResetToken:token,passwordResetExpires:{$gt:Date.now()}});
+    if(!user){
+      res.status(404).json({status:'fail',message:'invalid token or expired!'})
     }
-    user!.password = req.body.newPassword;
-    await user!.save();
-    createSendToken(user, 200, res);
-  } catch (error: any) {
-    res.status(404).json({ status: "fail",message:error });
+     user!.password=req.body.password;
+     user!.passwordResetToken = undefined;
+     user!.passwordResetExpires = undefined;
+     await user!.save();
+     createSendToken(user!, 200, res);
+     res.status(200).json({
+      status: "success",
+      message: "password changed successfully!",
+    });
   }
-};
+
+catch(err){
+  res.status(404).json({
+    status: "fail",
+    message: "something wrong while reseting your password!",
+  });
+}
+}
