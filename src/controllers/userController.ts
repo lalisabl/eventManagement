@@ -250,7 +250,7 @@ export const CreateGoogleStrategy = () => {
               email:email,
               googleId: profile.id,
             });
-           // await user.save();
+            await user.save();
             return done(null, user);
           }
         } 

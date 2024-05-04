@@ -6,23 +6,18 @@ import bodyParser from 'body-parser'; // Import body-parser with TypeScript type
 import { CreateGoogleStrategy } from './controllers/userController';
 import passport from 'passport';
 import session from 'express-session';
- import { SessionOptions } from 'express-session';
- import { User, UserDocument } from './models/user'; // Import your User model
-
-
-// import http from 'http';
+import { SessionOptions } from 'express-session';
+import { User, UserDocument } from './models/user'; // Import your User model
+import {errorHandler} from "./controllers/errorContoller"
 dotenv.config();
 // Create Express app
 const app = express();
-
 // Middleware
 app.use(cors());
 app.use(passport.initialize());
 app.use(express.json());
 app.use(bodyParser.json());
 CreateGoogleStrategy();
-// app.use(cors());
-// app.use(morgan('dev'));
 // Configure session middleware
 const sessionOptions: CustomSessionOptions = {
   secret: process.env.SESSION_SECRET || 'your_secret_here',
@@ -31,10 +26,8 @@ interface CustomSessionOptions extends SessionOptions {
   secret: string;
 }
 app.use(session(sessionOptions));
-// Routes
-
+// Route
 app.use('/api',router)
-
 // Load environment variables
 dotenv.config();
 require('../config/database');
@@ -48,6 +41,7 @@ app.use(
     credentials: true, // Allow cookies and authentication headers
   })
 );
+app.use(errorHandler);
 // Start server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
