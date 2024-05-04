@@ -19,7 +19,6 @@ export class CustomError extends Error {
 let message = null;
 const handleJWTError = () => new CustomError('Invalid token. Please log in again!', 401);
 const handleJWTExpiredError = () => new CustomError('Your token is expired, please login again!', 401);
-
 const handleCastErrorDB = (err:any) => {
     message = `Invalid ${err.path}: ${err.value}.`;
     return new CustomError(message, 400);
@@ -34,10 +33,7 @@ const handleCastErrorDB = (err:any) => {
     message = `Invalid input data: ${errors.join(".")}`;
     return new CustomError(message,400);
   };
-  
-
-// Other error handlers...
-export const sendErrorDev = (err: CustomError, req: Request, res: Response, next: NextFunction) => {
+ const sendErrorDev = (err: CustomError, req: Request, res: Response, next: NextFunction) => {
   res.status(err.statusCode).json({
     status: err.status,
     error: err,
@@ -46,8 +42,7 @@ export const sendErrorDev = (err: CustomError, req: Request, res: Response, next
   });
   next(); // Call next to move to the next middleware
 };
-
-export const sendErrorProd = (err: CustomError, res: Response, next: NextFunction) => {
+ const sendErrorProd = (err: CustomError, res: Response, next: NextFunction) => {
   if (err.isOperational) {
     res.status(err.statusCode).json({
       status: err.status,
