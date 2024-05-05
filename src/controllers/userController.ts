@@ -84,7 +84,7 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
     next();
   } catch (error: any) {
 throw new Error(error.message);
-    //return new CustomError( error.message,500);
+//    return new CustomError( error.message,500);
 
   }
 };

@@ -50,7 +50,8 @@ export const errorHandler = (err: CustomError, req: Request, res: Response, next
   if (process.env.NODE_ENV === 'development') {
     sendErrorDev(err, req, res, next);
 
-  } else if (process.env.NODE_ENV === 'production') {
+  } 
+  else if (process.env.NODE_ENV === 'production') {
     let error = { ...err };
     if (error.kind === "ObjectId") error = handleCastErrorDB(error);
     if (error.code === 11000) error = handleDuplicateFieldError(error);
