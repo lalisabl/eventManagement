@@ -1,21 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-
-export class CustomError extends Error {
-  statusCode: number;
-  status: string;
-  isOperational: boolean;
-  kind?: string;
-  code?:Number;
-  _message?:string;
-  constructor(message: string, statusCode: number) {
-    super(message);
-    this.statusCode = statusCode;
-    this.status = `${statusCode}`.startsWith('4') ? 'fail' : 'error';
-    this.isOperational = true;
-
-    Error.captureStackTrace(this, this.constructor);
-  }
-}
+import { CustomError } from '../utils/errorHandler';
 let message = null;
 const handleJWTError = () => new CustomError('Invalid token. Please log in again!', 401);
 const handleJWTExpiredError = () => new CustomError('Your token is expired, please login again!', 401);
@@ -23,7 +7,7 @@ const handleCastErrorDB = (err:any) => {
     message = `Invalid ${err.path}: ${err.value}.`;
     return new CustomError(message, 400);
   };
-  const handleDuplicateFieldError = (err:any) => {
+const handleDuplicateFieldError = (err:any) => {
     const field = Object.keys(err.keyValue)[0];
     message = `Duplicate key error. The value '${err.keyValue[field]}' for field '${field}' is already in use.`;
     return new CustomError( message,400);
@@ -40,7 +24,7 @@ const handleCastErrorDB = (err:any) => {
     message: err.message,
     stack: err.stack,
   });
-  next(); // Call next to move to the next middleware
+  next(); 
 };
  const sendErrorProd = (err: CustomError, res: Response, next: NextFunction) => {
   if (err.isOperational) {
@@ -59,11 +43,13 @@ const handleCastErrorDB = (err:any) => {
 };
 
 export const errorHandler = (err: CustomError, req: Request, res: Response, next: NextFunction) => {
+  console.log("Error",err);
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
   if (process.env.NODE_ENV === 'development') {
     sendErrorDev(err, req, res, next);
+
   } else if (process.env.NODE_ENV === 'production') {
     let error = { ...err };
     if (error.kind === "ObjectId") error = handleCastErrorDB(error);
@@ -71,10 +57,10 @@ export const errorHandler = (err: CustomError, req: Request, res: Response, next
     if (error._message === "Product validation failed")
         error = handleValidationErrorDB(error);
     if (error.name === 'JsonWebTokenError') {
-        err = handleJWTError();
+        error = handleJWTError();
       } 
     else if (err.name === 'TokenExpiredError') {
-      err = handleJWTExpiredError();
+        error = handleJWTExpiredError();
     }
 
 

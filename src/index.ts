@@ -31,9 +31,20 @@ app.use('/api',router)
 // Load environment variables
 dotenv.config();
 require('../config/database');
+
+// Serialize user
+passport.serializeUser((user: any, done) => {
+  done(null, user.id); // Serialize user by storing the user's ID in the session
+});
+// Deserialize user
+passport.deserializeUser((id, done) => {
+  User.findById(id, (err:Error, user:any) => {
+    done(err, user); // Deserialize user by finding the user in the database based on the stored ID
+  });
+});
+
 // Set port
 const PORT = process.env.PORT || 5000;
-
 //global Middlewares
 app.use(
   cors({
@@ -47,14 +58,4 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 // 
-// Serialize user
-passport.serializeUser((user: any, done) => {
-  done(null, user.id); // Serialize user by storing the user's ID in the session
-});
 
-// Deserialize user
-passport.deserializeUser((id, done) => {
-  User.findById(id, (err:Error, user:any) => {
-    done(err, user); // Deserialize user by finding the user in the database based on the stored ID
-  });
-});

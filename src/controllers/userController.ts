@@ -2,13 +2,14 @@
 import { Request, Response ,NextFunction} from 'express';
 import passport from "passport";
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
-import { User,UserDocument, validateUser } from '../models/user';
+import { User,UserDocument } from '../models/user';
 import {sendEmail} from '../utils/email';
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import multer from 'multer';
 import sharp from 'sharp';
 import { date } from 'joi';
+import { CustomError } from '../utils/errorHandler';
 
 const multerStorage = multer.memoryStorage();
 export const signToken = (id: string) => {
@@ -64,7 +65,8 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
 
   try {
     if (!token) {
-      throw Error('You are not logged in! Please log in to get access.');
+    throw new Error('You are not logged in! Please log in to get access!')
+      // return new CustomError('You are not logged in! Please log in to get access!', 401);
     }
     const decoded = await new Promise((resolve, reject) => {
       jwt.verify(token, process.env.JWT_SECRET_KEY as string, (err: any, decoded: unknown) => {
@@ -75,13 +77,15 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
 
     const currentUser = await User.findById(decoded.id);
     if (!currentUser) {
-      throw new Error('No user belongs to this token');
+      throw new Error('No user belongs to this token')
+     // return new CustomError('No user belongs to this token',401);
     }
-
     req.user = currentUser;
     next();
   } catch (error: any) {
-    return res.status(401).json({ error: error.message });
+throw new Error(error.message);
+    //return new CustomError( error.message,500);
+
   }
 };
 

@@ -60,7 +60,7 @@ const router = express.Router();
 // Routes with controller functions
 router.post('/users/register-user', registerUser);
 router.get('/users', getAllUsers);
-router.get('/me', protect, getMe, getUserById);
+router.get('/me', protect);
 router.get('/users/:id', getUserById);
 router.put('/users/:id', updateUserById);
 router.delete('/users/:id', deleteUserById);
