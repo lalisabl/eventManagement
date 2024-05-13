@@ -84,7 +84,7 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
     next();
   } catch (error: any) {
 throw new Error(error.message);
-//    return new CustomError( error.message,500);
+//return new CustomError( error.message,500);
 
   }
 };
@@ -119,22 +119,21 @@ export const updateProfile =async (req:any, res:Response) => {
   });
 };
 // User registration controller
-export const registerUser = async (req: Request, res: Response) => {
+export const registerUser = async (req: Request, res: Response,next:NextFunction) => {
   try {
     const {firstName,lastName, email, password,phoneNumber} = req.body;
     let username = email.split('@')[0];
     const user = new User({ email, username, password,firstName,lastName,phoneNumber });
+            // Check if email is already taken
+            // const existingUser = await User.findOne({ email:email });
+            // if (existingUser) {
+            //   return next(new CustomError('Email is already taken', 400));
+            // }
     await user.save();
     createSendToken(user, 200, res);
-  } catch (error: any) {
-    if (error.code === 11000) {
-      return res
-        .status(400)
-        .json({ message: 'this email is already taken, try login' });
-    } else {
-      console.error('Error creating user:', error);
-      return res.status(500).json({ message: 'Server error' });
-    }
+  } 
+  catch (error:any) {
+    next(error);
   }
 };
 // login controller

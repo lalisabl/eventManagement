@@ -25,7 +25,6 @@ interface UserDocument extends Document {
   passwordResetToken?: String,
   passwordResetExpires?: Date,
   createPasswordResetToken:()=>String,
-
 }
 
 
@@ -36,7 +35,7 @@ const UserSchema: Schema = new Schema(
     lastName: { type: String },
     username: { type: String, unique: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String},
     profileImage: { type: String },
     jobTitle: { type: String },
     company: { type: String },
@@ -67,17 +66,18 @@ const userValidationSchema = Joi.object({
   passwordResetExpires:Joi.date().allow(''),
 });
 
-
 UserSchema.pre<UserDocument>('save', async function (next) {
-  try {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(this.password, salt);
-    console.log(hashedPassword);
-    this.password = hashedPassword;
-    next();
-  } catch (error: any) {
-    next(error);
+  // Only hash the password if it exists (for manual sign-ups)
+  if (this.isModified('password')) {
+    try {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(this.password, salt);
+      this.password = hashedPassword;
+    } catch (error:any) {
+      return next(error);
+    }
   }
+  next();
 });
 
 // Compare passwords
