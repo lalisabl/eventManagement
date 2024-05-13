@@ -88,9 +88,10 @@ router.get(
   passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
     // Redirect the user to the home page upon successful authentication
-    res.json({ redirectUrl: '/home' });
+   res.redirect('http://localhost:3000/home');
   }
 );
+
 //router.get(
 //   '/auth/google/callback',
 //   passport.authenticate('google', { failureRedirect: '/login' }),googleSignInRedirect
