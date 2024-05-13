@@ -269,9 +269,28 @@ export const CreateGoogleStrategy = () => {
 export const googleSignInRedirect = (req: Request, res: Response) => {
   const user = req.user as UserDocument | undefined;
   if (user) {
-    createSendToken(user, 200, res);
+    const token = signToken(user._id);
+    const cookieOptions: any = {
+      expires: new Date(
+        Date.now() +
+          parseInt(process.env.JWT_COOKIE_EXPIRES_IN as string, 10) *
+            24 *
+            60 *
+            60 *
+            1000
+      ),
+      httpOnly: true,
+    };
+    if (process.env.NODE_ENV === 'production') {
+      cookieOptions.secure = true;
+    }
+    res.cookie('jwt', token, cookieOptions);
+    res.status(200).json({
+      status: 'success',
+      redirectUrl: '/home',
+      user
+    });
   } else {
-    // Handle the case where user is undefined
     res.status(401).json({ error: 'User not authenticated' });
   }
 

@@ -82,10 +82,19 @@ router.post('/users/login', loginUser);
 router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 // Google OAuth callback route
+
 router.get(
   '/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),googleSignInRedirect
+  passport.authenticate('google', { failureRedirect: '/login' }),
+  (req, res) => {
+    // Redirect the user to the home page upon successful authentication
+    res.json({ redirectUrl: '/home' });
+  }
 );
+//router.get(
+//   '/auth/google/callback',
+//   passport.authenticate('google', { failureRedirect: '/login' }),googleSignInRedirect
+// );
 
 router.post('/users/logout'); //finish logout here
 
