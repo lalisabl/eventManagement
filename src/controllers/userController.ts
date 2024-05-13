@@ -290,6 +290,7 @@ export const googleSignInRedirect = (req: Request, res: Response) => {
       redirectUrl: '/home',
       user
     });
+    
   } else {
     res.status(401).json({ error: 'User not authenticated' });
   }
