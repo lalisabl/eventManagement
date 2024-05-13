@@ -95,7 +95,6 @@ export const uploadUserPhoto = upload.single("profileImage");
 export const resizeUserPhoto = async (req:any, res:Response, next:NextFunction) => {
  if (!req.file) return next();
   req.file.filename = `user-${req.user?._id}.jpeg`;
-  console.log(req.file.filename);
   await sharp(req.file.buffer)
     .resize(500, 500)
     .toFormat("jpeg")
