@@ -1,0 +1,2 @@
+### don't forget to create your own branch before pushing anything to the repo, 
+#### one person will merge the changes periodically, and main branch is our provider and the production branch we will use later.
