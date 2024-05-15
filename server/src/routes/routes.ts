@@ -87,12 +87,12 @@ router.get(
   '/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
-    // Redirect the user to the home page upon successful authentication
+   // Redirect the user to the home page upon successful authentication
    res.redirect('http://localhost:3000/home');
   }
 );
 
-//router.get(
+// router.get(
 //   '/auth/google/callback',
 //   passport.authenticate('google', { failureRedirect: '/login' }),googleSignInRedirect
 // );

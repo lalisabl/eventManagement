@@ -23,3 +23,4 @@ yarn-error.log*
 # OS or editor temporary files
 .DS_Store
 Thumbs.db
+.vercel

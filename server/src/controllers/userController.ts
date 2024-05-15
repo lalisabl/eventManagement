@@ -94,8 +94,7 @@ export const uploadUserPhoto = upload.single("profileImage");
 // photo resizer controller
 export const resizeUserPhoto = async (req:any, res:Response, next:NextFunction) => {
  if (!req.file) return next();
-  req.file.filename = `user-${req.user?._id}}.jpeg`;
-  console.log(req.file.filename);
+  req.file.filename = `user-${req.user?._id}.jpeg`;
   await sharp(req.file.buffer)
     .resize(500, 500)
     .toFormat("jpeg")
@@ -108,7 +107,7 @@ export const updateProfile =async (req:any, res:Response) => {
   const user = await User.findById(req.user?.id);
   const { firstName,lastName,username} = req.body;
   let profileImage;
-  if (req.file) profileImage = req.file.filename;
+  if (req.file) user!.profileImage = req.file.filename;
   if (firstName) user!.firstName = firstName;
   if (lastName) user!.lastName = lastName;
   if (username) user!.username = username;
@@ -290,6 +289,7 @@ export const googleSignInRedirect = (req: Request, res: Response) => {
       redirectUrl: '/home',
       user
     });
+    
   } else {
     res.status(401).json({ error: 'User not authenticated' });
   }
