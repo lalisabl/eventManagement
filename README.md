@@ -46,6 +46,7 @@
 
 ## Branch Naming Conventions
 - Use descriptive names for branches. Examples:
+  - `your_name/feature_you_are_doing` this is good i guess
   - `feature/login-page`
   - `bugfix/navbar-issue`
   - `hotfix/critical-bug`
