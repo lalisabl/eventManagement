@@ -11,7 +11,7 @@
      git pull origin main
      ```
 
-2. **Create a New Branch for Each Task**
+2. **Create a New Branch Before Making Any Change/Commit on Your Task**
    - Always create your own branch before making any changes:
      ```sh
      git checkout -b your-branch-name
