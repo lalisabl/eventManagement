@@ -1,30 +1,23 @@
+import 'package:clientapp/screens/screen1.dart';
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:clientapp/screens/common/profile.dart';
-import 'package:clientapp/screens/owner/my_property_list.dart';
-import 'package:clientapp/screens/owner/homeScreen.dart';
-import 'package:clientapp/screens/common/notification.dart';
-import 'package:clientapp/screens/owner/addHouse.dart';
-import 'package:clientapp/screens/common/messaging.dart';
-import 'package:clientapp/themes/colors.dart';
+import 'package:clientapp/screens/screen2.dart';
+import 'package:clientapp/screens/screen3.dart';
+import 'package:clientapp/screens/screen4.dart';
 
-class OwnerBottomNavigationBar extends StatefulWidget {
+class MyBottomNavigationBar extends StatefulWidget {
   @override
-  _OwnerBottomNavigationBarState createState() =>
-      _OwnerBottomNavigationBarState();
+  _MyBottomNavigationBarState createState() => _MyBottomNavigationBarState();
 }
 
-class _OwnerBottomNavigationBarState extends State<OwnerBottomNavigationBar> {
+class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
-    HomeScreen(),
-    OwnerPropertyListScreen(),
-    AddHouseRentScreen(),
-     Screen2(),
-    // ChattingScreen(),
-    // Screen3(),
-    ProfileScreen(),
+    Screen1(),
+    Screen2(),
+    Screen3(),
+    Screen4(),
   ];
 
   void _onItemTapped(int index) {
@@ -36,35 +29,25 @@ class _OwnerBottomNavigationBarState extends State<OwnerBottomNavigationBar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Screen ${_selectedIndex + 1}'),
+      ),
       body: _screens[_selectedIndex],
       bottomNavigationBar: CurvedNavigationBar(
-        items: <Widget>[
-          Icon(Icons.home,
-              color:
-                  _selectedIndex == 0 ? AppColors.secondaryColor : Colors.white,
-              size: 30),
-          Icon(Icons.history,
-              color:
-                  _selectedIndex == 1 ? AppColors.secondaryColor : Colors.white,
-              size: 30),
-          Icon(Icons.add,
-              color:
-                  _selectedIndex == 2 ? AppColors.secondaryColor : Colors.white,
-              size: 30),
-          Icon(Icons.message,
-              color:
-                  _selectedIndex == 3 ? AppColors.secondaryColor : Colors.white,
-              size: 30),
-          Icon(Icons.person,
-              color:
-                  _selectedIndex == 4 ? AppColors.secondaryColor : Colors.white,
-              size: 30),
+        // Change as needed
+        items: const <Widget>[
+          Icon(Icons.home, color: Colors.white, size: 30),
+          Icon(Icons.add_shopping_cart_sharp, color: Colors.white, size: 30),
+          Icon(Icons.message, color: Colors.white, size: 30),
+          Icon(Icons.notifications,
+              color: Colors.white, size: 30), // Use notifications icon
         ],
+
         index: _selectedIndex,
         onTap: _onItemTapped,
         height: 60.0,
-        color: AppColors.primaryColor,
-        buttonBackgroundColor: AppColors.primaryColor,
+        color: Color.fromRGBO(0, 39, 56, 1.0),
+        buttonBackgroundColor: Color.fromRGBO(0, 39, 56, 1.0),
         backgroundColor: Colors.white,
         animationCurve: Curves.easeInOut,
         animationDuration: Duration(milliseconds: 600),
