@@ -1,13 +1,10 @@
 import 'dart:convert';
+import 'package:clientapp/constants/url.dart';
+import 'package:clientapp/screens/screen1.dart';
+import 'package:clientapp/themes/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:owner_app/constants/url.dart';
-import 'package:owner_app/screens/authentication/register.dart';
-import 'package:owner_app/screens/owner/homeScreen.dart';
-import 'package:owner_app/themes/colors.dart';
-import 'package:owner_app/widgets/bottom_bar_owner.dart';
-import 'package:owner_app/widgets/bottom_bar_renter.dart';
 
 class SignUpScreen extends StatefulWidget {
   @override
@@ -43,7 +40,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       );
       return; // Exit the function early
     }
-
     // Send POST request to signUp API
     final response = await http.post(
       Uri.parse('${AppConstants.APIURL}/users/create'),
@@ -70,22 +66,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
       final userJson = jsonEncode(jsonDecode(response.body)['user']);
       await storage.write(key: 'user', value: userJson);
 
-      Map<String, dynamic> responseBody = jsonDecode(response.body);
-      String role = responseBody['user']['role'];
-      print(role);
-      if (role == "renter") {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => RenterBottomNavigationBar()),
-          (Route<dynamic> route) => false,
-        );
-      } else {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => OwnerBottomNavigationBar()),
-          (Route<dynamic> route) => false,
-        );
-      }
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => Screen1()),
+        (Route<dynamic> route) => false,
+      );
     } else {
       // If signUp fails, show error message
       showDialog(
@@ -107,7 +92,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
+      body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -115,7 +100,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             // Logo Image
             SizedBox(height: 20),
             Image.asset(
-              'assets/images/logo.png',
+              'assets/day_logo.png',
               height: 120,
               width: 50,
             ),
@@ -194,8 +179,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               decoration: InputDecoration(
                 labelText: 'Confirm PIN',
                 filled: true,
-                fillColor:
-                    AppColors.primaryColor.withOpacity(0.3), 
+                fillColor: AppColors.primaryColor.withOpacity(0.3),
                 border: OutlineInputBorder(
                   borderSide: BorderSide.none,
                   borderRadius: BorderRadius.circular(10.0),
@@ -311,6 +295,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
               ),
             ),
+            SizedBox(height: 40),
           ],
         ),
       ),

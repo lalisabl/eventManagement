@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:clientapp/constants/url.dart';
+import 'package:clientapp/screens/authentication/register.dart';
 import 'package:clientapp/screens/screen1.dart';
+import 'package:clientapp/themes/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -65,7 +67,7 @@ class LoginScreen extends StatelessWidget {
             children: [
               SizedBox(height: 100),
               Image.asset(
-                'assets/images/logo.png',
+                'assets/day_logo.png',
                 height: 120,
                 width: 50,
               ),
