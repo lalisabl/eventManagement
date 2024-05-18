@@ -1,13 +1,8 @@
 import 'dart:convert';
+import 'package:clientapp/screens/screen1.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:owner_app/constants/url.dart';
-import 'package:owner_app/screens/authentication/register.dart';
-import 'package:owner_app/screens/owner/homeScreen.dart';
-import 'package:owner_app/themes/colors.dart';
-import 'package:owner_app/widgets/bottom_bar_owner.dart';
-import 'package:owner_app/widgets/bottom_bar_renter.dart';
 
 class LoginScreen extends StatelessWidget {
   final TextEditingController phoneController = TextEditingController();
@@ -35,23 +30,12 @@ class LoginScreen extends StatelessWidget {
           key: 'token', value: jsonDecode(response.body)['token']);
       final userJson = jsonEncode(jsonDecode(response.body)['user']);
       await storage.write(key: 'user', value: userJson);
-      Map<String, dynamic> responseBody = jsonDecode(response.body);
-      String role = responseBody['user']['role'];
-      print(role);
-      // Navigator.pushNamed(context, "/owner_home");
-      if (role == "renter") {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => RenterBottomNavigationBar()),
-          (Route<dynamic> route) => false,
-        );
-      } else {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => OwnerBottomNavigationBar()),
-          (Route<dynamic> route) => false,
-        );
-      }
+     
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => Screen1()),
+        (Route<dynamic> route) => false,
+      );
     } else {
       showDialog(
         context: context,
@@ -195,9 +179,9 @@ class LoginScreen extends StatelessWidget {
               ),
               SizedBox(height: 40),
               GestureDetector(
-                onTap: ()  {
+                onTap: () {
                   Navigator.pop(context);
-                   Navigator.push(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => SignUpScreen()),
                   );
