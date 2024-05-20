@@ -193,15 +193,14 @@ class LoginScreen extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Image.asset(
-                          'assets/google.png', // Make sure to add the Google icon asset in your assets folder
-                          height: 104.0,
-                          width: 204.0,
-                        ),
                         SizedBox(width: 8.0),
                         Text(
-                          'Continue with Google',
+                          'Continue with ',
                           style: TextStyle(color: AppColors.primaryColor),
+                        ),
+                        Image.asset(
+                          'assets/images/google_icon.png', // Make sure to add the Google icon asset in your assets folder
+                          height: 20.0,
                         ),
                       ],
                     ),
