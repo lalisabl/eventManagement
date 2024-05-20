@@ -202,7 +202,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
             SizedBox(height: 20),
 
-            // SignUp Button
             ElevatedButton(
               onPressed: () => signUpUser(context),
               style: ButtonStyle(
@@ -251,7 +250,37 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ],
             ),
             SizedBox(height: 40),
-            // Login Button
+
+            GestureDetector(
+              onTap: () {
+                // Handle Google sign-in here
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 16.0),
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.primaryColor),
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(width: 8.0),
+                      Text(
+                        'Continue with ',
+                        style: TextStyle(color: AppColors.primaryColor),
+                      ),
+                      Image.asset(
+                        'assets/images/google_icon.png',
+                        height: 20.0,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
+
             GestureDetector(
               onTap: () {
                 Navigator.pushNamed(context, '/login');
