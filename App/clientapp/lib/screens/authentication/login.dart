@@ -99,7 +99,7 @@ class LoginScreen extends StatelessWidget {
                       color: AppColors.secondaryColor,
                     ),
                     child: Icon(
-                      Icons.phone,
+                      Icons.email,
                       color: Colors.white,
                     ),
                   ),
@@ -108,7 +108,7 @@ class LoginScreen extends StatelessWidget {
               SizedBox(height: 20),
               TextFormField(
                 controller: passwordController,
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.text,
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'password',

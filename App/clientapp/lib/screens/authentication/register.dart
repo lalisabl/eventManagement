@@ -12,24 +12,26 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  final TextEditingController phoneController = TextEditingController();
-  final TextEditingController pinController = TextEditingController();
-  final TextEditingController confirmPinController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmpasswordController =
+      TextEditingController();
   String selectedRole = 'renter'; // Default role
 
   Future<void> signUpUser(BuildContext context) async {
     // Get user input
-    String phoneNumber = phoneController.text.trim();
-    String pin = pinController.text.trim();
-    String confirmPin = confirmPinController.text.trim();
+    String email = emailController.text.trim();
+    String password = passwordController.text.trim();
+    String confirmpassword = confirmpasswordController.text.trim();
 
-    // Check if PIN and confirmed PIN match
-    if (pin != confirmPin) {
+    // Check if password and confirmed password match
+    if (password != confirmpassword) {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('PIN Mismatch'),
-          content: Text('The PINs entered do not match. Please try again.'),
+          title: Text('password Mismatch'),
+          content:
+              Text('The passwords entered do not match. Please try again.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -47,8 +49,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
         'Content-Type': 'application/json',
       },
       body: jsonEncode(<String, String>{
-        'phoneNumber': '+251$phoneNumber',
-        'PIN': pin,
+        'email': email,
+        'password': password,
         'role': selectedRole, // Include the selected role
       }),
     );
@@ -77,7 +79,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         context: context,
         builder: (context) => AlertDialog(
           title: Text('Signup Failed'),
-          content: Text('Invalid phone number or PIN. Please try again.'),
+          content: Text('Invalid email number or password. Please try again.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -114,12 +116,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
             ),
             SizedBox(height: 20),
-            // Phone Number Field
+            // email Number Field
             TextFormField(
-              controller: phoneController,
-              keyboardType: TextInputType.phone,
+              controller: emailController,
+              keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
-                labelText: 'Phone Number',
+                labelText: 'Email',
                 filled: true,
                 fillColor:
                     AppColors.primaryColor.withOpacity(0.3), // 30% opacity
@@ -127,29 +129,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   borderSide: BorderSide.none, // No border
                   borderRadius: BorderRadius.circular(10.0),
                 ),
-                prefixText: '+251', // Country code
-                prefixStyle: TextStyle(color: Colors.black),
                 suffixIcon: Container(
                   height: 55,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10.0),
-                    color: AppColors.secondaryColor, // Background color for icon
+                    color:
+                        AppColors.secondaryColor, // Background color for icon
                   ),
                   child: Icon(
-                    Icons.phone,
+                    Icons.email,
                     color: Colors.white, // Icon color
-                  ), // Phone Icon
+                  ), // email Icon
                 ),
               ),
             ),
             SizedBox(height: 20),
-            // PIN Field
+            // password Field
             TextFormField(
-              controller: pinController,
-              keyboardType: TextInputType.number,
+              controller: passwordController,
+              keyboardType: TextInputType.text,
               obscureText: true,
               decoration: InputDecoration(
-                labelText: 'PIN',
+                labelText: 'password',
                 filled: true,
                 fillColor:
                     AppColors.primaryColor.withOpacity(0.3), // 30% opacity
@@ -161,7 +162,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   height: 55,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10.0),
-                    color: AppColors.secondaryColor, // Background color for icon
+                    color:
+                        AppColors.secondaryColor, // Background color for icon
                   ),
                   child: Icon(
                     Icons.lock,
@@ -171,13 +173,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
             ),
             SizedBox(height: 20),
-            // Confirm PIN Field
+            // Confirm password Field
             TextFormField(
-              controller: confirmPinController,
-              keyboardType: TextInputType.number,
+              controller: confirmpasswordController,
+              keyboardType: TextInputType.text,
               obscureText: true,
               decoration: InputDecoration(
-                labelText: 'Confirm PIN',
+                labelText: 'Confirm password',
                 filled: true,
                 fillColor: AppColors.primaryColor.withOpacity(0.3),
                 border: OutlineInputBorder(
@@ -188,7 +190,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   height: 55,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10.0),
-                    color: AppColors.secondaryColor, // Background color for icon
+                    color:
+                        AppColors.secondaryColor, // Background color for icon
                   ),
                   child: Icon(
                     Icons.lock,
@@ -198,7 +201,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
             ),
             SizedBox(height: 20),
-        
+
             // SignUp Button
             ElevatedButton(
               onPressed: () => signUpUser(context),
