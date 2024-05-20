@@ -199,7 +199,7 @@ class LoginScreen extends StatelessWidget {
                           style: TextStyle(color: AppColors.primaryColor),
                         ),
                         Image.asset(
-                          'assets/images/google_icon.png', // Make sure to add the Google icon asset in your assets folder
+                          'assets/images/google_icon.png', 
                           height: 20.0,
                         ),
                       ],
