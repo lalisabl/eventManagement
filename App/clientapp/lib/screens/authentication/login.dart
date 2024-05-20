@@ -111,7 +111,7 @@ class LoginScreen extends StatelessWidget {
                 keyboardType: TextInputType.text,
                 obscureText: true,
                 decoration: InputDecoration(
-                  labelText: 'password',
+                  labelText: 'Password',
                   filled: true,
                   fillColor: AppColors.primaryColor.withOpacity(0.3),
                   border: OutlineInputBorder(
@@ -179,6 +179,36 @@ class LoginScreen extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 40),
+              GestureDetector(
+                onTap: () {
+                  // Handle Google sign-in here
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 16.0),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.primaryColor),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset(
+                          'assets/google.png', // Make sure to add the Google icon asset in your assets folder
+                          height: 104.0,
+                          width: 204.0,
+                        ),
+                        SizedBox(width: 8.0),
+                        Text(
+                          'Continue with Google',
+                          style: TextStyle(color: AppColors.primaryColor),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
               GestureDetector(
                 onTap: () {
                   Navigator.pop(context);
