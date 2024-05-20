@@ -133,7 +133,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   height: 55,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10.0),
-                    color: AppColors.primaryColor, // Background color for icon
+                    color: AppColors.secondaryColor, // Background color for icon
                   ),
                   child: Icon(
                     Icons.phone,
@@ -161,7 +161,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   height: 55,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10.0),
-                    color: AppColors.primaryColor, // Background color for icon
+                    color: AppColors.secondaryColor, // Background color for icon
                   ),
                   child: Icon(
                     Icons.lock,
@@ -188,7 +188,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   height: 55,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10.0),
-                    color: AppColors.primaryColor, // Background color for icon
+                    color: AppColors.secondaryColor, // Background color for icon
                   ),
                   child: Icon(
                     Icons.lock,
@@ -198,33 +198,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
             ),
             SizedBox(height: 20),
-            // Role Selection Dropdown
-            DropdownButtonFormField<String>(
-              value: selectedRole,
-              onChanged: (value) {
-                setState(() {
-                  selectedRole = value!;
-                });
-              },
-              items: <String>['renter', 'landlord']
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              decoration: InputDecoration(
-                labelText: 'Role',
-                filled: true,
-                fillColor:
-                    AppColors.primaryColor.withOpacity(0.3), // 30% opacity
-                border: OutlineInputBorder(
-                  borderSide: BorderSide.none, // No border
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
-            ),
-            SizedBox(height: 30),
+        
             // SignUp Button
             ElevatedButton(
               onPressed: () => signUpUser(context),

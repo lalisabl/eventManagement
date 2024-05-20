@@ -8,22 +8,22 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class LoginScreen extends StatelessWidget {
-  final TextEditingController phoneController = TextEditingController();
-  final TextEditingController pinController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   Future<void> loginUser(BuildContext context) async {
     // Get user input
-    String phoneNumber = phoneController.text.trim();
-    String pin = pinController.text.trim();
-
+    String email = emailController.text.trim();
+    String password = passwordController.text.trim();
+    print(email + ", " + password);
     final response = await http.post(
       Uri.parse('${AppConstants.APIURL}/login'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },
       body: jsonEncode(<String, String>{
-        'phoneNumber': '+251$phoneNumber',
-        'PIN': pin,
+        'email': email,
+        'password': password,
       }),
     );
 
@@ -33,7 +33,7 @@ class LoginScreen extends StatelessWidget {
           key: 'token', value: jsonDecode(response.body)['token']);
       final userJson = jsonEncode(jsonDecode(response.body)['user']);
       await storage.write(key: 'user', value: userJson);
-     
+
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => Screen1()),
@@ -44,7 +44,7 @@ class LoginScreen extends StatelessWidget {
         context: context,
         builder: (context) => AlertDialog(
           title: Text('Login Failed'),
-          content: Text('Invalid phone number or PIN. Please try again.'),
+          content: Text('Invalid phone number or password. Please try again.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -82,23 +82,21 @@ class LoginScreen extends StatelessWidget {
               ),
               SizedBox(height: 40),
               TextFormField(
-                controller: phoneController,
-                keyboardType: TextInputType.phone,
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
-                  labelText: 'Phone Number',
+                  labelText: 'Email',
                   filled: true,
                   fillColor: AppColors.primaryColor.withOpacity(0.3),
                   border: OutlineInputBorder(
                     borderSide: BorderSide.none,
                     borderRadius: BorderRadius.circular(10.0),
                   ),
-                  prefixText: '+251',
-                  prefixStyle: TextStyle(color: Colors.black),
                   suffixIcon: Container(
                     height: 55,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10.0),
-                      color: AppColors.primaryColor,
+                      color: AppColors.secondaryColor,
                     ),
                     child: Icon(
                       Icons.phone,
@@ -109,11 +107,11 @@ class LoginScreen extends StatelessWidget {
               ),
               SizedBox(height: 20),
               TextFormField(
-                controller: pinController,
+                controller: passwordController,
                 keyboardType: TextInputType.number,
                 obscureText: true,
                 decoration: InputDecoration(
-                  labelText: 'PIN',
+                  labelText: 'password',
                   filled: true,
                   fillColor: AppColors.primaryColor.withOpacity(0.3),
                   border: OutlineInputBorder(
@@ -124,7 +122,7 @@ class LoginScreen extends StatelessWidget {
                     height: 55,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10.0),
-                      color: AppColors.primaryColor,
+                      color: AppColors.secondaryColor,
                     ),
                     child: Icon(
                       Icons.lock,
