@@ -1,3 +1,4 @@
+import 'package:clientapp/screens/screen4.dart';
 import 'package:flutter/material.dart';
 
 class Screen2 extends StatelessWidget {
@@ -6,7 +7,10 @@ class Screen2 extends StatelessWidget {
     return Center(
       child: ElevatedButton(
         onPressed: () {
-          Navigator.pushNamed(context, '/screen4');
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Screen4()),
+          );
         },
         child: Text('Go to Screen 4'),
       ),
