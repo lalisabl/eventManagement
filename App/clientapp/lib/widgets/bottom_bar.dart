@@ -29,24 +29,26 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
 
   @override
   Widget build(BuildContext context) {
+    // Check the current theme brightness
+    bool isDarkMode = Theme.of(context).brightness == Brightness.light;
+
+    // Set icon colors based on the theme
+    Color iconColor = isDarkMode ? Colors.white : Color.fromRGBO(40, 40, 43, 1.0);
     return Scaffold(
       body: _screens[_selectedIndex],
       bottomNavigationBar: CurvedNavigationBar(
-        // Change as needed
-        items: const <Widget>[
-          Icon(Icons.home, color: Colors.white, size: 30),
-          Icon(Icons.add_shopping_cart_sharp, color: Colors.white, size: 30),
-          Icon(Icons.message, color: Colors.white, size: 30),
-          Icon(Icons.notifications,
-              color: Colors.white, size: 30), // Use notifications icon
+        items: <Widget>[
+          Icon(Icons.home, color: iconColor, size: 30),
+          Icon(Icons.add_shopping_cart_sharp, color: iconColor, size: 30),
+          Icon(Icons.message, color: iconColor, size: 30),
+          Icon(Icons.notifications, color: iconColor, size: 30),
         ],
-
         index: _selectedIndex,
         onTap: _onItemTapped,
         height: 60.0,
         color: AppColors.primaryColor,
         buttonBackgroundColor: AppColors.primaryColor,
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.white.withOpacity(0),
         animationCurve: Curves.easeInOut,
         animationDuration: Duration(milliseconds: 600),
       ),

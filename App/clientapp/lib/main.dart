@@ -1,6 +1,7 @@
 import 'package:clientapp/screens/screen2.dart';
 import 'package:clientapp/screens/screen3.dart';
 import 'package:clientapp/screens/screen4.dart';
+import 'package:clientapp/themes/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:clientapp/screens/authentication/login.dart';
@@ -40,9 +41,10 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Client App',
-            theme: ThemeData(
-              primarySwatch: Colors.red,
-            ),
+            theme: AppThemes.lightTheme,
+            darkTheme: AppThemes.darkTheme,
+            themeMode: ThemeMode.system,
+        
             // home: MyBottomNavigationBar(),
             initialRoute: '/',
             routes: {
