@@ -48,9 +48,9 @@ const UserSchema: Schema = new Schema(
 
 // Joi validation schema for User
 const userValidationSchema = Joi.object({
-  firstName: Joi.string().required(),
-  lastName: Joi.string().required(),
-  username: Joi.string().required(),
+  firstName: Joi.string(),
+  lastName: Joi.string(),
+  username: Joi.string(),
   email: Joi.string().email().required(),
   googleId: Joi.string(), // Not required for Google sign-in
   password: Joi.string().when('googleId', {
