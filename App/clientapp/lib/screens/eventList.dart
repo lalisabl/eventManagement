@@ -19,7 +19,7 @@ class EventCard extends StatelessWidget {
           Stack(
             children: [
               CachedNetworkImage(
-               imageUrl: 'https://server.5gada.com/api/getImage/photo_2024-03-24_18-12-23.jpg',
+               imageUrl: 'http://localhost:5000/thumbnails/thumbnail.jpeg',
                 placeholder: (context, url) =>
                     Center(child: CircularProgressIndicator()),
                 errorWidget: (context, url, error) => Icon(Icons.error),

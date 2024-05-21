@@ -6,8 +6,8 @@ import bodyParser from 'body-parser';
 import { CreateGoogleStrategy } from './controllers/userController';
 import passport from 'passport';
 import session from 'express-session';
-import { errorHandler } from "./controllers/errorContoller"; 
-import { User } from './models/user'; 
+import { errorHandler } from './controllers/errorContoller';
+import { User } from './models/user';
 
 dotenv.config();
 
@@ -34,7 +34,7 @@ app.use(session(sessionOptions));
 
 // Route
 app.use('/api', router);
-
+app.use(express.static('src/public'));
 // Load environment variables
 dotenv.config();
 require('../config/database');
