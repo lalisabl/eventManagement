@@ -102,7 +102,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             // Logo Image
             SizedBox(height: 20),
             Image.asset(
-              'assets/day_logo.png',
+              'assets/logo.png',
               height: 120,
               width: 50,
             ),

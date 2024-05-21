@@ -82,6 +82,7 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isDarkMode = Theme.of(context).brightness == Brightness.light;
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
@@ -91,7 +92,7 @@ class LoginScreen extends StatelessWidget {
             children: [
               SizedBox(height: 100),
               Image.asset(
-                'assets/day_logo.png',
+                'assets/logo.png',
                 height: 120,
                 width: 50,
               ),

@@ -1,3 +1,4 @@
+import 'package:clientapp/screens/eventList.dart';
 import 'package:clientapp/screens/screen2.dart';
 import 'package:clientapp/screens/screen3.dart';
 import 'package:clientapp/screens/screen4.dart';
@@ -26,10 +27,9 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Client App',
-            theme: ThemeData(
-              primarySwatch: Colors.red,
-            ),
-            // home: LoginScreen(),
+            theme: AppThemes.lightTheme,
+            darkTheme: AppThemes.darkTheme,
+            themeMode: ThemeMode.system,
             initialRoute: '/login',
             routes: {
               '/register': (context) => SignUpScreen(),
@@ -44,12 +44,12 @@ class MyApp extends StatelessWidget {
             theme: AppThemes.lightTheme,
             darkTheme: AppThemes.darkTheme,
             themeMode: ThemeMode.system,
-        
+
             // home: MyBottomNavigationBar(),
             initialRoute: '/',
             routes: {
               '/': (context) => MyBottomNavigationBar(),
-              '/screen1': (context) => Screen1(),
+              '/eventlist': (context) => EventsListScreen(),
               '/login': (context) => LoginScreen(),
               '/register': (context) => SignUpScreen(),
               '/screen2': (context) => Screen2(),

@@ -1,3 +1,4 @@
+import 'package:clientapp/screens/eventList.dart';
 import 'package:clientapp/screens/screen1.dart';
 import 'package:clientapp/themes/colors.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +16,7 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
-    Screen1(),
+    EventsListScreen(),
     Screen2(),
     Screen3(),
     Screen4(),
