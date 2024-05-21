@@ -112,7 +112,6 @@ class _EventsListScreenState extends State<EventsListScreen> {
     final response = await http.get(Uri.parse(AppConstants.APIURL + '/events'));
   
     if (response.statusCode == 200) {
-      print(response.body);
       List<dynamic> body = jsonDecode(response.body);
       return body.map((dynamic item) => Event.fromJson(item)).toList();
     } else {
