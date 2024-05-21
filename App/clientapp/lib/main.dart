@@ -28,9 +28,11 @@ class MyApp extends StatelessWidget {
             theme: ThemeData(
               primarySwatch: Colors.red,
             ),
-            home: LoginScreen(),
+            // home: LoginScreen(),
+            initialRoute: '/login',
             routes: {
               '/register': (context) => SignUpScreen(),
+              '/login': (context) => LoginScreen(),
             },
           );
         } else {
@@ -41,8 +43,10 @@ class MyApp extends StatelessWidget {
             theme: ThemeData(
               primarySwatch: Colors.red,
             ),
-            home: MyBottomNavigationBar(),
+            // home: MyBottomNavigationBar(),
+            initialRoute: '/',
             routes: {
+              '/': (context) => MyBottomNavigationBar(),
               '/screen1': (context) => Screen1(),
               '/login': (context) => LoginScreen(),
               '/register': (context) => SignUpScreen(),

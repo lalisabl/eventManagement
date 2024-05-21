@@ -1,4 +1,5 @@
 import 'package:clientapp/screens/screen1.dart';
+import 'package:clientapp/themes/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:clientapp/screens/screen2.dart';
@@ -29,9 +30,6 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Screen ${_selectedIndex + 1}'),
-      ),
       body: _screens[_selectedIndex],
       bottomNavigationBar: CurvedNavigationBar(
         // Change as needed
@@ -46,8 +44,8 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
         index: _selectedIndex,
         onTap: _onItemTapped,
         height: 60.0,
-        color: Color.fromRGBO(0, 39, 56, 1.0),
-        buttonBackgroundColor: Color.fromRGBO(0, 39, 56, 1.0),
+        color: AppColors.primaryColor,
+        buttonBackgroundColor: AppColors.primaryColor,
         backgroundColor: Colors.white,
         animationCurve: Curves.easeInOut,
         animationDuration: Duration(milliseconds: 600),
