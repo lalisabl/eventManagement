@@ -12,48 +12,71 @@ class LoginScreen extends StatelessWidget {
   final TextEditingController passwordController = TextEditingController();
 
   Future<void> loginUser(BuildContext context) async {
-    // Get user input
-    String email = emailController.text.trim();
-    String password = passwordController.text.trim();
-    print(email + ", " + password);
-    final response = await http.post(
-      Uri.parse('${AppConstants.APIURL}/login'),
-      headers: <String, String>{
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(<String, String>{
-        'email': email,
-        'password': password,
-      }),
-    );
+    try {
+      // Get user input
+      String email = emailController.text.trim();
+      String password = passwordController.text.trim();
+      print(email + ", " + password);
 
-    if (response.statusCode == 200) {
-      final storage = FlutterSecureStorage();
-      await storage.write(
-          key: 'token', value: jsonDecode(response.body)['token']);
-      final userJson = jsonEncode(jsonDecode(response.body)['user']);
-      await storage.write(key: 'user', value: userJson);
+      // Make the HTTP request
+      final response = await http.post(
+        Uri.parse('${AppConstants.APIURL}/users/login'),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(<String, String>{
+          'email': email,
+          'password': password,
+        }),
+      );
 
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => Screen1()),
-        (Route<dynamic> route) => false,
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Login Failed'),
-          content: Text('Invalid phone number or password. Please try again.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('OK'),
-            ),
-          ],
-        ),
-      );
+      // Print response for debugging
+      print("status: ${response.statusCode}");
+      print("response body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final storage = FlutterSecureStorage();
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+
+        // Ensure the response contains the token and user fields
+        if (responseBody.containsKey('token') &&
+            responseBody.containsKey('user')) {
+          await storage.write(key: 'token', value: responseBody['token']);
+          final userJson = jsonEncode(responseBody['user']);
+          await storage.write(key: 'user', value: userJson);
+
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => Screen1()),
+            (Route<dynamic> route) => false,
+          );
+        } else {
+          throw Exception('Missing token or user in response');
+        }
+      } else {
+        // Handle login failure
+        _showLoginFailedDialog(context);
+      }
+    } catch (e) {
+      print("Error during login: $e");
+      _showLoginFailedDialog(context);
     }
+  }
+
+  void _showLoginFailedDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Login Failed'),
+        content: Text('Invalid email or password. Please try again.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -199,7 +222,7 @@ class LoginScreen extends StatelessWidget {
                           style: TextStyle(color: AppColors.primaryColor),
                         ),
                         Image.asset(
-                          'assets/images/google_icon.png', 
+                          'assets/images/google_icon.png',
                           height: 20.0,
                         ),
                       ],
