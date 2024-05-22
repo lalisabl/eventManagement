@@ -1,5 +1,4 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import Joi from 'joi';
 //  interface for the event document
 interface IEvent extends Document {
   title: string;
@@ -25,7 +24,7 @@ const EventSchema: Schema = new Schema(
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
     location: { type: String, required: true },
-    thumbnail: { type: String, default: "" },
+    thumbnail: { type: String, default: '' },
     vipTicketsIncluded: { type: Boolean, default: false, required: true },
     normalTickets: { type: Number, required: true },
     normalPrice: { type: Number, required: true },
@@ -34,6 +33,12 @@ const EventSchema: Schema = new Schema(
     normalTicketsAvailable: { type: Number, required: true },
     vipTicketsAvailable: { type: Number },
     organiserId: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // Reference to User model
+    attendant: [
+      {
+        username: String,
+        accessCode: String ,
+      },
+    ],
   },
   { timestamps: true }
 );
