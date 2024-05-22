@@ -92,6 +92,7 @@ class LoginScreen extends StatelessWidget {
             children: [
               SizedBox(height: 100),
               Image.asset(
+                isDarkMode?'assets/day_logo.png':
                 'assets/logo.png',
                 height: 120,
                 width: 50,
