@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
+import Joi from 'joi';
 //  interface for the event document
 interface IEvent extends Document {
   title: string;
