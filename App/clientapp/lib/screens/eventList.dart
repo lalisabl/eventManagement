@@ -19,7 +19,7 @@ class EventCard extends StatelessWidget {
           Stack(
             children: [
               CachedNetworkImage(
-               imageUrl: 'http://localhost:5000/thumbnails/thumbnail.jpeg',
+                imageUrl: 'http://localhost:5000/thumbnails/thumbnail.jpeg',
                 placeholder: (context, url) =>
                     Center(child: CircularProgressIndicator()),
                 errorWidget: (context, url, error) => Icon(Icons.error),
@@ -30,12 +30,16 @@ class EventCard extends StatelessWidget {
               Positioned(
                 top: 8,
                 left: 8,
-                child: Container(
-                  padding: EdgeInsets.all(8),
-                  color: Colors.blue, // Adjust color as needed
-                  child: Text(
-                    '\$${event.vipPrice.toString()}',
-                    style: TextStyle(color: Colors.white),
+                child: ClipRRect(
+                  borderRadius:
+                      BorderRadius.circular(8.0), // Adjust the radius as needed
+                  child: Container(
+                    padding: EdgeInsets.all(8),
+                    color: Colors.white,
+                    child: Text(
+                      '\$${event.vipPrice.toString()}',
+                      style: TextStyle(color: Colors.black),
+                    ),
                   ),
                 ),
               ),
@@ -110,7 +114,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
 
   Future<List<Event>> fetchEvents() async {
     final response = await http.get(Uri.parse(AppConstants.APIURL + '/events'));
-  
+
     if (response.statusCode == 200) {
       List<dynamic> body = jsonDecode(response.body);
       return body.map((dynamic item) => Event.fromJson(item)).toList();

@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
             title: 'Client App',
             theme: AppThemes.lightTheme,
             darkTheme: AppThemes.darkTheme,
-            themeMode: ThemeMode.system,
+            themeMode: ThemeMode.light,
             initialRoute: '/login',
             routes: {
               '/register': (context) => SignUpScreen(),
