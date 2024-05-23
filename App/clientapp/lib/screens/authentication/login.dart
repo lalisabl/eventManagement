@@ -3,6 +3,7 @@ import 'package:clientapp/constants/url.dart';
 import 'package:clientapp/screens/authentication/register.dart';
 import 'package:clientapp/screens/screen1.dart';
 import 'package:clientapp/themes/colors.dart';
+import 'package:clientapp/widgets/bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -47,7 +48,7 @@ class LoginScreen extends StatelessWidget {
 
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (context) => Screen1()),
+            MaterialPageRoute(builder: (context) => MyBottomNavigationBar()),
             (Route<dynamic> route) => false,
           );
         } else {
@@ -81,6 +82,7 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isDarkMode = Theme.of(context).brightness == Brightness.light;
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
@@ -90,7 +92,8 @@ class LoginScreen extends StatelessWidget {
             children: [
               SizedBox(height: 100),
               Image.asset(
-                'assets/day_logo.png',
+                isDarkMode?'assets/day_logo.png':
+                'assets/logo.png',
                 height: 120,
                 width: 50,
               ),

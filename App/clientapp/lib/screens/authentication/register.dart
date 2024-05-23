@@ -93,6 +93,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+     bool isDarkMode = Theme.of(context).brightness == Brightness.light;
     return Scaffold(
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
@@ -102,7 +103,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
             // Logo Image
             SizedBox(height: 20),
             Image.asset(
-              'assets/day_logo.png',
+             isDarkMode?'assets/day_logo.png':
+                'assets/logo.png',
               height: 120,
               width: 50,
             ),
