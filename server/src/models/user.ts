@@ -6,6 +6,7 @@ import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 
 // Define interface for User document
 interface UserDocument extends Document {
+  _id: string;
   firstName: string;
   lastName:string;
   username: string;
@@ -31,6 +32,7 @@ interface UserDocument extends Document {
 // UserSchema
 const UserSchema: Schema = new Schema(
   {
+    
     firstName: { type: String },
     lastName: { type: String },
     username: { type: String, unique: true },
