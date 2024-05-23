@@ -40,6 +40,8 @@ dependencies:
   http: ^1.2.1
   image_picker: ^1.1.0  
   carousel_slider: ^4.0.0
+  barcode_widget: ^2.0.1
+  flutter_barcode_scanner: ^2.0.0
 
 dev_dependencies:
   flutter_test:
