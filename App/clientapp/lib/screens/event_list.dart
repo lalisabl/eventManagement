@@ -21,7 +21,8 @@ class EventCard extends StatelessWidget {
           Stack(
             children: [
               CachedNetworkImage(
-                imageUrl: 'http://localhost:5000/thumbnails/thumbnail.jpeg',
+                imageUrl:
+                    'http://192.168.126.20:5000/thumbnails/thumbnail.jpeg',
                 placeholder: (context, url) =>
                     Center(child: CircularProgressIndicator()),
                 errorWidget: (context, url, error) => Icon(Icons.error),
@@ -99,20 +100,23 @@ class _EventsListScreenState extends State<EventsListScreen> {
     bool isDarkMode = Theme.of(context).brightness == Brightness.light;
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              child: Image.asset(
-                isDarkMode ? 'assets/day_logo.png' : 'assets/logo.png',
+        title: Padding(
+          padding: const EdgeInsets.only(top: 14.0, bottom: 14.0),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                child: Image.asset(
+                  isDarkMode ? 'assets/day_logo.png' : 'assets/logo.png',
+                ),
               ),
-            ),
-            SizedBox(width: 8.0),
-            Expanded(
-              child: Search_Bar(onSearch: _searchEvents),
-            ),
-          ],
+              SizedBox(width: 8.0),
+              Expanded(
+                child: Search_Bar(onSearch: _searchEvents),
+              ),
+            ],
+          ),
         ),
       ),
       body: FutureBuilder<List<Event>>(

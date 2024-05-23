@@ -8,22 +8,24 @@ class Search_Bar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isDarkMode = Theme.of(context).brightness == Brightness.light;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.primaryColor.withOpacity(0.6),
+          color: AppColors.secondaryColor.withOpacity(0.3),
           borderRadius: BorderRadius.circular(8.0),
         ),
         child: TextField(
           decoration: InputDecoration(
             hintText: 'Search events...',
-            hintStyle: TextStyle(color: Colors.white54),
+            hintStyle:
+                TextStyle(color: !isDarkMode ? Colors.white54 : Colors.black54),
             border: InputBorder.none,
-            prefixIcon: Icon(Icons.search, color: Colors.white54),
+            prefixIcon: Icon(Icons.search, color: !isDarkMode ? Colors.white54 : Colors.black54),
             contentPadding: EdgeInsets.symmetric(vertical: 15.0),
           ),
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: !isDarkMode ? Colors.white54 : Colors.black54),
           onSubmitted: onSearch,
         ),
       ),
