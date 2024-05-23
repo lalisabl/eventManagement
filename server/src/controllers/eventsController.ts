@@ -30,7 +30,7 @@ class APIfeatures {
       const regexSearch = {
         $or: [
           { title: { $regex: searchQuery, $options: 'i' } },
-          { categories: { $regex: searchQuery, $options: 'i' } },
+          { description: { $regex: searchQuery, $options: 'i' } },
         ],
       };
       this.query.find(regexSearch);
