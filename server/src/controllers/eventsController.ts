@@ -31,6 +31,7 @@ class APIfeatures {
         $or: [
           { title: { $regex: searchQuery, $options: 'i' } },
           { description: { $regex: searchQuery, $options: 'i' } },
+          { location: { $regex: searchQuery, $options: 'i' } },
         ],
       };
       this.query.find(regexSearch);

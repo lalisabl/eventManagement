@@ -23,7 +23,8 @@ class EventCard extends StatelessWidget {
             children: [
               CachedNetworkImage(
                 imageUrl: 'http://localhost:5000/thumbnails/thumbnail.jpeg',
-                placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+                placeholder: (context, url) =>
+                    Center(child: CircularProgressIndicator()),
                 errorWidget: (context, url, error) => Icon(Icons.error),
                 width: double.infinity,
                 height: 200,
@@ -58,7 +59,8 @@ class EventCard extends StatelessWidget {
                 SizedBox(height: 8),
                 Text(event.description),
                 SizedBox(height: 8),
-                Text('Date: ${event.startDate.toLocal()} - ${event.endDate.toLocal()}'),
+                Text(
+                    'Date: ${event.startDate.toLocal()} - ${event.endDate.toLocal()}'),
                 SizedBox(height: 8),
                 Text('Location: ${event.location}'),
               ],
@@ -90,21 +92,30 @@ class _EventsListScreenState extends State<EventsListScreen> {
   void _searchEvents(String query) {
     setState(() {
       searchQuery = query;
-      futureEvents = fetchEvents(searchQuery: searchQuery, sortOption: sortOption, locationFilter: locationFilter);
+      futureEvents = fetchEvents(
+          searchQuery: searchQuery,
+          sortOption: sortOption,
+          locationFilter: locationFilter);
     });
   }
 
   void _sortEvents(String sort) {
     setState(() {
       sortOption = sort;
-      futureEvents = fetchEvents(searchQuery: searchQuery, sortOption: sortOption, locationFilter: locationFilter);
+      futureEvents = fetchEvents(
+          searchQuery: searchQuery,
+          sortOption: sortOption,
+          locationFilter: locationFilter);
     });
   }
 
   void _filterEvents(String location) {
     setState(() {
       locationFilter = location;
-      futureEvents = fetchEvents(searchQuery: searchQuery, sortOption: sortOption, locationFilter: locationFilter);
+      futureEvents = fetchEvents(
+          searchQuery: searchQuery,
+          sortOption: sortOption,
+          locationFilter: locationFilter);
     });
   }
 
@@ -139,7 +150,8 @@ class _EventsListScreenState extends State<EventsListScreen> {
               locationFilter: locationFilter,
               onSort: _sortEvents,
               onFilter: _filterEvents,
-            ), SizedBox(height: 8.0),
+            ),
+            SizedBox(height: 8.0),
           ],
         ),
       ),
@@ -165,7 +177,10 @@ class _EventsListScreenState extends State<EventsListScreen> {
     );
   }
 
-  Future<List<Event>> fetchEvents({String searchQuery = '', String sortOption = '', String locationFilter = ''}) async {
+  Future<List<Event>> fetchEvents(
+      {String searchQuery = '',
+      String sortOption = '',
+      String locationFilter = ''}) async {
     String url = AppConstants.APIURL + '/events?q=$searchQuery';
     if (sortOption.isNotEmpty) {
       url += '&sort=$sortOption';
@@ -173,7 +188,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
     if (locationFilter.isNotEmpty) {
       url += '&location=$locationFilter';
     }
-
+    print(url);
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
