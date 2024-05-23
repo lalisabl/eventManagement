@@ -135,7 +135,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
                     width: 40,
                     height: 40,
                     child: Image.asset(
-                      isDarkMode ? 'assets/day_logo.png' : 'assets/logo.png',
+                      !isDarkMode ? 'assets/day_logo.png' : 'assets/logo.png',
                     ),
                   ),
                   SizedBox(width: 8.0),
