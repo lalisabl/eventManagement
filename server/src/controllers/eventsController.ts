@@ -31,7 +31,7 @@ export const getEvents = async (req: Request, res: Response) => {
 // Get event by ID
 export const getEventById = async (req: Request, res: Response) => {
   try {
-    const event = await Event.findById(req.params.id);
+    const event = await Event.findById(req.params.id).populate('organiserId');
     if (!event) return res.status(404).send('Event not found');
     res.send(event);
   } catch (error) {

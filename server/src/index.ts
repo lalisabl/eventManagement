@@ -6,8 +6,8 @@ import bodyParser from 'body-parser';
 import { CreateGoogleStrategy } from './controllers/userController';
 import passport from 'passport';
 import session from 'express-session';
-import { errorHandler } from "./controllers/errorContoller"; 
-import { User } from './models/user'; 
+import { errorHandler } from './controllers/errorContoller';
+import { User } from './models/user';
 
 dotenv.config();
 
@@ -15,10 +15,7 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors({
-  origin: "http://localhost:3000",
-  credentials: true,
-}));
+app.use(cors());
 app.use(passport.initialize());
 app.use(express.json());
 app.use(bodyParser.json());
@@ -37,7 +34,7 @@ app.use(session(sessionOptions));
 
 // Route
 app.use('/api', router);
-
+app.use(express.static('src/public'));
 // Load environment variables
 dotenv.config();
 require('../config/database');
