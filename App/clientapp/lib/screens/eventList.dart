@@ -96,9 +96,25 @@ class _EventsListScreenState extends State<EventsListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bool isDarkMode = Theme.of(context).brightness == Brightness.light;
     return Scaffold(
       appBar: AppBar(
-        title: Search_Bar(onSearch: _searchEvents),
+        title: Row(
+          children: [
+            // Replace with your logo widget
+            Container(
+              width: 40,
+              height: 40,
+              child: Image.asset(
+                isDarkMode ? 'assets/day_logo.png' : 'assets/logo.png',
+              ),
+            ),
+            SizedBox(width: 8.0),
+            Expanded(
+              child: Search_Bar(onSearch: _searchEvents),
+            ),
+          ],
+        ),
       ),
       body: FutureBuilder<List<Event>>(
         future: futureEvents,
