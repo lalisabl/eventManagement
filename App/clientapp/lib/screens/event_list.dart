@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:clientapp/constants/url.dart';
 import 'package:clientapp/models/Event.dart';
+import 'package:clientapp/widgets/filter_sort.dart';
 import 'package:clientapp/widgets/search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -21,10 +22,8 @@ class EventCard extends StatelessWidget {
           Stack(
             children: [
               CachedNetworkImage(
-                imageUrl:
-                    'http://192.168.126.20:5000/thumbnails/thumbnail.jpeg',
-                placeholder: (context, url) =>
-                    Center(child: CircularProgressIndicator()),
+                imageUrl: 'http://localhost:5000/thumbnails/thumbnail.jpeg',
+                placeholder: (context, url) => Center(child: CircularProgressIndicator()),
                 errorWidget: (context, url, error) => Icon(Icons.error),
                 width: double.infinity,
                 height: 200,
@@ -59,8 +58,7 @@ class EventCard extends StatelessWidget {
                 SizedBox(height: 8),
                 Text(event.description),
                 SizedBox(height: 8),
-                Text(
-                    'Date: ${event.startDate.toLocal()} - ${event.endDate.toLocal()}'),
+                Text('Date: ${event.startDate.toLocal()} - ${event.endDate.toLocal()}'),
                 SizedBox(height: 8),
                 Text('Location: ${event.location}'),
               ],
@@ -80,6 +78,8 @@ class EventsListScreen extends StatefulWidget {
 class _EventsListScreenState extends State<EventsListScreen> {
   late Future<List<Event>> futureEvents;
   String searchQuery = '';
+  String sortOption = '';
+  String locationFilter = '';
 
   @override
   void initState() {
@@ -88,35 +88,59 @@ class _EventsListScreenState extends State<EventsListScreen> {
   }
 
   void _searchEvents(String query) {
-    print(query);
     setState(() {
       searchQuery = query;
-      futureEvents = fetchEvents(searchQuery: searchQuery);
+      futureEvents = fetchEvents(searchQuery: searchQuery, sortOption: sortOption, locationFilter: locationFilter);
+    });
+  }
+
+  void _sortEvents(String sort) {
+    setState(() {
+      sortOption = sort;
+      futureEvents = fetchEvents(searchQuery: searchQuery, sortOption: sortOption, locationFilter: locationFilter);
+    });
+  }
+
+  void _filterEvents(String location) {
+    setState(() {
+      locationFilter = location;
+      futureEvents = fetchEvents(searchQuery: searchQuery, sortOption: sortOption, locationFilter: locationFilter);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    bool isDarkMode = Theme.of(context).brightness == Brightness.light;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
-        title: Padding(
-          padding: const EdgeInsets.only(top: 14.0, bottom: 14.0),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                child: Image.asset(
-                  isDarkMode ? 'assets/day_logo.png' : 'assets/logo.png',
-                ),
+        toolbarHeight: 100,
+        title: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 14.0),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    child: Image.asset(
+                      isDarkMode ? 'assets/day_logo.png' : 'assets/logo.png',
+                    ),
+                  ),
+                  SizedBox(width: 8.0),
+                  Expanded(
+                    child: Search_Bar(onSearch: _searchEvents),
+                  ),
+                ],
               ),
-              SizedBox(width: 8.0),
-              Expanded(
-                child: Search_Bar(onSearch: _searchEvents),
-              ),
-            ],
-          ),
+            ),
+            SizedBox(height: 8.0),
+            FilterSort(
+              locationFilter: locationFilter,
+              onSort: _sortEvents,
+              onFilter: _filterEvents,
+            ), SizedBox(height: 8.0),
+          ],
         ),
       ),
       body: FutureBuilder<List<Event>>(
@@ -141,9 +165,16 @@ class _EventsListScreenState extends State<EventsListScreen> {
     );
   }
 
-  Future<List<Event>> fetchEvents({String searchQuery = ''}) async {
-    final response = await http
-        .get(Uri.parse(AppConstants.APIURL + '/events?q=$searchQuery'));
+  Future<List<Event>> fetchEvents({String searchQuery = '', String sortOption = '', String locationFilter = ''}) async {
+    String url = AppConstants.APIURL + '/events?q=$searchQuery';
+    if (sortOption.isNotEmpty) {
+      url += '&sort=$sortOption';
+    }
+    if (locationFilter.isNotEmpty) {
+      url += '&location=$locationFilter';
+    }
+
+    final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
       List<dynamic> body = jsonDecode(response.body);
