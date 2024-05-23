@@ -101,7 +101,6 @@ class _EventsListScreenState extends State<EventsListScreen> {
       appBar: AppBar(
         title: Row(
           children: [
-            // Replace with your logo widget
             Container(
               width: 40,
               height: 40,
