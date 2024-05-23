@@ -1,64 +1,45 @@
+import 'dart:convert';
+import 'package:organizerapp/constants/url.dart';
+import 'package:organizerapp/models/Event.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:intl/intl.dart';
 
 class Createevent extends StatefulWidget {
   @override
-  _CreateEventFormState createState() => _CreateEventFormState();
+  _CreateEventScreenState createState() => _CreateEventScreenState();
 }
 
-class _CreateEventFormState extends State<Createevent> {
+class _CreateEventScreenState extends State<Createevent> {
   final _formKey = GlobalKey<FormState>();
-  final _dateFormat = DateFormat('yyyy-MM-dd');
-
-  String _title = '';
-  String _description = '';
-  DateTime _startDate = DateTime.now();
-  DateTime _endDate = DateTime.now();
-  String _location = '';
-  String _organiserId = '';
-  bool _vipTicketsIncluded = false;
-  int _normalTickets = 0;
-  double _normalPrice = 0.0;
-  int _vipTickets = 0;
-  double _vipPrice = 0.0;
-  int _normalTicketsAvailable = 0;
-  int _vipTicketsAvailable = 0;
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _vipPriceController = TextEditingController();
+  DateTime? _startDate;
+  DateTime? _endDate;
 
   Future<void> _submitForm() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      _formKey.currentState?.save();
-
-      final Map<String, dynamic> eventData = {
-        'title': _title,
-        'description': _description,
-        'startDate': _dateFormat.format(_startDate),
-        'endDate': _dateFormat.format(_endDate),
-        'location': _location,
-        'organiserId': _organiserId,
-        'vipTicketsIncluded': _vipTicketsIncluded,
-        'normalTickets': _normalTickets,
-        'normalPrice': _normalPrice,
-        'vipTickets': _vipTickets,
-        'vipPrice': _vipPrice,
-        'normalTicketsAvailable': _normalTicketsAvailable,
-        'vipTicketsAvailable': _vipTicketsAvailable,
-      };
+    if (_formKey.currentState!.validate() &&
+        _startDate != null &&
+        _endDate != null) {
+      final event = Event(
+        title: _titleController.text,
+        description: _descriptionController.text,
+        location: _locationController.text,
+        vipPrice: double.parse(_vipPriceController.text),
+        startDate: _startDate!,
+        endDate: _endDate!,
+      );
 
       final response = await http.post(
-        Uri.parse('https://your-api-endpoint.com/events'),
+        Uri.parse(AppConstants.APIURL + '/events'),
         headers: {'Content-Type': 'application/json'},
-        body: json.encode(eventData),
+        body: jsonEncode(event.toJson()),
       );
 
       if (response.statusCode == 201) {
-        // Successfully created event
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Event created successfully')),
-        );
+        Navigator.pop(context, true); // Return true to indicate success
       } else {
-        // Failed to create event
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to create event')),
         );
@@ -69,172 +50,95 @@ class _CreateEventFormState extends State<Createevent> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Create New Event')),
+      appBar: AppBar(
+        title: Text('Create Event'),
+      ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: ListView(
-            children: <Widget>[
+            children: [
               TextFormField(
+                controller: _titleController,
                 decoration: InputDecoration(labelText: 'Title'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter the event title';
+                    return 'Please enter a title';
                   }
                   return null;
                 },
-                onSaved: (value) {
-                  _title = value ?? '';
-                },
               ),
               TextFormField(
+                controller: _descriptionController,
                 decoration: InputDecoration(labelText: 'Description'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter the event description';
+                    return 'Please enter a description';
                   }
                   return null;
                 },
-                onSaved: (value) {
-                  _description = value ?? '';
-                },
               ),
               TextFormField(
-                decoration:
-                    InputDecoration(labelText: 'Start Date (yyyy-MM-dd)'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the start date';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _startDate = _dateFormat.parse(value ?? '');
-                },
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'End Date (yyyy-MM-dd)'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the end date';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _endDate = _dateFormat.parse(value ?? '');
-                },
-              ),
-              TextFormField(
+                controller: _locationController,
                 decoration: InputDecoration(labelText: 'Location'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter the event location';
+                    return 'Please enter a location';
                   }
                   return null;
-                },
-                onSaved: (value) {
-                  _location = value ?? '';
                 },
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Organiser ID'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the organiser ID';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _organiserId = value ?? '';
-                },
-              ),
-              SwitchListTile(
-                title: Text('VIP Tickets Included'),
-                value: _vipTicketsIncluded,
-                onChanged: (bool value) {
-                  setState(() {
-                    _vipTicketsIncluded = value;
-                  });
-                },
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Normal Tickets'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the number of normal tickets';
-                  }
-                  return null;
-                },
+                controller: _vipPriceController,
+                decoration: InputDecoration(labelText: 'VIP Price'),
                 keyboardType: TextInputType.number,
-                onSaved: (value) {
-                  _normalTickets = int.parse(value ?? '0');
-                },
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Normal Ticket Price'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter the normal ticket price';
+                    return 'Please enter a VIP price';
+                  }
+                  if (double.tryParse(value) == null) {
+                    return 'Please enter a valid number';
                   }
                   return null;
                 },
-                keyboardType: TextInputType.number,
-                onSaved: (value) {
-                  _normalPrice = double.parse(value ?? '0.0');
+              ),
+              ListTile(
+                title: Text(_startDate == null
+                    ? 'Start Date'
+                    : 'Start Date: ${_startDate!.toLocal()}'),
+                trailing: Icon(Icons.calendar_today),
+                onTap: () async {
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime(2100),
+                  );
+                  if (pickedDate != null) {
+                    setState(() {
+                      _startDate = pickedDate;
+                    });
+                  }
                 },
               ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'VIP Tickets'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the number of VIP tickets';
+              ListTile(
+                title: Text(_endDate == null
+                    ? 'End Date'
+                    : 'End Date: ${_endDate!.toLocal()}'),
+                trailing: Icon(Icons.calendar_today),
+                onTap: () async {
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime(2100),
+                  );
+                  if (pickedDate != null) {
+                    setState(() {
+                      _endDate = pickedDate;
+                    });
                   }
-                  return null;
-                },
-                keyboardType: TextInputType.number,
-                onSaved: (value) {
-                  _vipTickets = int.parse(value ?? '0');
-                },
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'VIP Ticket Price'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the VIP ticket price';
-                  }
-                  return null;
-                },
-                keyboardType: TextInputType.number,
-                onSaved: (value) {
-                  _vipPrice = double.parse(value ?? '0.0');
-                },
-              ),
-              TextFormField(
-                decoration:
-                    InputDecoration(labelText: 'Normal Tickets Available'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the number of available normal tickets';
-                  }
-                  return null;
-                },
-                keyboardType: TextInputType.number,
-                onSaved: (value) {
-                  _normalTicketsAvailable = int.parse(value ?? '0');
-                },
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'VIP Tickets Available'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the number of available VIP tickets';
-                  }
-                  return null;
-                },
-                keyboardType: TextInputType.number,
-                onSaved: (value) {
-                  _vipTicketsAvailable = int.parse(value ?? '0');
                 },
               ),
               SizedBox(height: 20),
