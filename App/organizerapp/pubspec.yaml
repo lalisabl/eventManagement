@@ -37,9 +37,10 @@ dependencies:
   cupertino_icons: ^1.0.6
   curved_navigation_bar: ^1.0.3
   flutter_secure_storage: ^9.0.0
-  http: ^1.2.1
   image_picker: ^1.1.0  
   carousel_slider: ^4.0.0
+  http: 1.2.1
+  intl: ^0.17.0
 
 dev_dependencies:
   flutter_test:
