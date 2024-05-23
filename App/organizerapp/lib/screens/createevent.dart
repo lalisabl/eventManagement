@@ -14,7 +14,14 @@ class _CreateEventScreenState extends State<Createevent> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _thumbnailController = TextEditingController();
+  final TextEditingController _normalTicketsController =
+      TextEditingController();
+  final TextEditingController _normalPriceController = TextEditingController();
+  final TextEditingController _vipTicketsController = TextEditingController();
   final TextEditingController _vipPriceController = TextEditingController();
+  final TextEditingController _organiserIdController = TextEditingController();
+  bool _vipTicketsIncluded = false;
   DateTime? _startDate;
   DateTime? _endDate;
 
@@ -25,16 +32,27 @@ class _CreateEventScreenState extends State<Createevent> {
       final event = Event(
         title: _titleController.text,
         description: _descriptionController.text,
-        location: _locationController.text,
-        vipPrice: double.parse(_vipPriceController.text),
         startDate: _startDate!,
         endDate: _endDate!,
+        thumbnail: _thumbnailController.text,
+        location: _locationController.text,
+        vipTicketsIncluded: _vipTicketsIncluded,
+        normalTickets: int.parse(_normalTicketsController.text),
+        normalPrice: double.parse(_normalPriceController.text),
+        vipTickets:
+            _vipTicketsIncluded ? int.parse(_vipTicketsController.text) : 0,
+        vipPrice:
+            _vipTicketsIncluded ? double.parse(_vipPriceController.text) : 0.0,
+        normalTicketsAvailable: int.parse(_normalTicketsController.text),
+        vipTicketsAvailable:
+            _vipTicketsIncluded ? int.parse(_vipTicketsController.text) : 0,
+        organiserId: _organiserIdController.text,
       );
 
       final response = await http.post(
         Uri.parse(AppConstants.APIURL + '/events'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(event.toJson()),
+        body: jsonEncode(event),
       );
 
       if (response.statusCode == 201) {
@@ -90,15 +108,88 @@ class _CreateEventScreenState extends State<Createevent> {
                 },
               ),
               TextFormField(
-                controller: _vipPriceController,
-                decoration: InputDecoration(labelText: 'VIP Price'),
+                controller: _thumbnailController,
+                decoration: InputDecoration(labelText: 'Thumbnail URL'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a thumbnail URL';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _normalTicketsController,
+                decoration: InputDecoration(labelText: 'Normal Tickets'),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter a VIP price';
+                    return 'Please enter the number of normal tickets';
+                  }
+                  if (int.tryParse(value) == null) {
+                    return 'Please enter a valid number';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _normalPriceController,
+                decoration: InputDecoration(labelText: 'Normal Price'),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter the price of normal tickets';
                   }
                   if (double.tryParse(value) == null) {
-                    return 'Please enter a valid number';
+                    return 'Please enter a valid price';
+                  }
+                  return null;
+                },
+              ),
+              SwitchListTile(
+                title: Text('Include VIP Tickets'),
+                value: _vipTicketsIncluded,
+                onChanged: (bool value) {
+                  setState(() {
+                    _vipTicketsIncluded = value;
+                  });
+                },
+              ),
+              if (_vipTicketsIncluded) ...[
+                TextFormField(
+                  controller: _vipTicketsController,
+                  decoration: InputDecoration(labelText: 'VIP Tickets'),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter the number of VIP tickets';
+                    }
+                    if (int.tryParse(value) == null) {
+                      return 'Please enter a valid number';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _vipPriceController,
+                  decoration: InputDecoration(labelText: 'VIP Price'),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter the price of VIP tickets';
+                    }
+                    if (double.tryParse(value) == null) {
+                      return 'Please enter a valid price';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+              TextFormField(
+                controller: _organiserIdController,
+                decoration: InputDecoration(labelText: 'Organiser ID'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter the organiser ID';
                   }
                   return null;
                 },
@@ -106,7 +197,7 @@ class _CreateEventScreenState extends State<Createevent> {
               ListTile(
                 title: Text(_startDate == null
                     ? 'Start Date'
-                    : 'Start Date: ${_startDate!.toLocal()}'),
+                    : 'Start Date: ${_startDate!.toLocal()}'.split(' ')[0]),
                 trailing: Icon(Icons.calendar_today),
                 onTap: () async {
                   DateTime? pickedDate = await showDatePicker(
@@ -125,7 +216,7 @@ class _CreateEventScreenState extends State<Createevent> {
               ListTile(
                 title: Text(_endDate == null
                     ? 'End Date'
-                    : 'End Date: ${_endDate!.toLocal()}'),
+                    : 'End Date: ${_endDate!.toLocal()}'.split(' ')[0]),
                 trailing: Icon(Icons.calendar_today),
                 onTap: () async {
                   DateTime? pickedDate = await showDatePicker(
