@@ -25,7 +25,7 @@ class APIfeatures {
     this.queryString = queryString;
   }
   multfilter() {
-    const searchQuery = this.queryString.q || '';
+    const searchQuery = (this.queryString.q || '').toLowerCase();
     if (typeof searchQuery === 'string') {
       const regexSearch = {
         $or: [
