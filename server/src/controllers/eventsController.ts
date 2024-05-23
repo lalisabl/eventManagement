@@ -20,17 +20,17 @@ export const createEvent = async (req: Request, res: Response) => {
 class APIfeatures {
   query: any;
   queryString: any;
-  constructor(query:any, queryString:any) {
+  constructor(query: any, queryString: any) {
     this.query = query;
     this.queryString = queryString;
   }
   multfilter() {
-    const searchQuery = this.queryString.q || "";
-    if (typeof searchQuery === "string") {
+    const searchQuery = this.queryString.q || '';
+    if (typeof searchQuery === 'string') {
       const regexSearch = {
         $or: [
-          { title: { $regex: searchQuery, $options: "i" } },
-          { categories: { $regex: searchQuery, $options: "i" } },
+          { title: { $regex: searchQuery, $options: 'i' } },
+          { categories: { $regex: searchQuery, $options: 'i' } },
         ],
       };
       this.query.find(regexSearch);
@@ -40,7 +40,7 @@ class APIfeatures {
   filter() {
     //1 build query
     const queryObj = { ...this.queryString };
-    const excludedFields = ["page", "limit", "sort", "fields", "q"];
+    const excludedFields = ['page', 'limit', 'sort', 'fields', 'q'];
     excludedFields.forEach((el) => delete queryObj[el]);
     // advanced query
     let queryStr = JSON.stringify(queryObj);
@@ -53,19 +53,19 @@ class APIfeatures {
   }
   sort() {
     if (this.queryString.sort) {
-      const sortBy = this.queryString.sort.split(",").join(" ");
+      const sortBy = this.queryString.sort.split(',').join(' ');
       this.query = this.query.sort(sortBy);
     } else {
-      this.query = this.query.sort("-createdAt");
+      this.query = this.query.sort('-createdAt');
     }
     return this;
   }
   limiting() {
     if (this.queryString.fields) {
-      const selectedFields = this.queryString.fields.split(",").join(" ");
+      const selectedFields = this.queryString.fields.split(',').join(' ');
       this.query = this.query.select(selectedFields);
     } else {
-      this.query = this.query.select("-__v");
+      this.query = this.query.select('-__v');
     }
     return this;
   }
@@ -80,7 +80,13 @@ class APIfeatures {
 
 export const getEvents = async (req: Request, res: Response) => {
   try {
-    const events = await Event.find();
+    const features = new APIfeatures(Event.find(), req.query)
+      .multfilter()
+      .filter()
+      .sort()
+      .limiting()
+      .paginatinating();
+    const events = await features.query.select();
     res.send(events);
   } catch (error) {
     console.error('Error fetching events:', error);
