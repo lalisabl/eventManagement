@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:clientapp/constants/url.dart';
 import 'package:clientapp/models/Event.dart';
+import 'package:clientapp/widgets/search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
@@ -13,6 +14,7 @@ class EventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      margin: EdgeInsets.all(8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -31,8 +33,7 @@ class EventCard extends StatelessWidget {
                 top: 8,
                 left: 8,
                 child: ClipRRect(
-                  borderRadius:
-                      BorderRadius.circular(8.0), // Adjust the radius as needed
+                  borderRadius: BorderRadius.circular(8.0),
                   child: Container(
                     padding: EdgeInsets.all(8),
                     color: Colors.white,
@@ -77,6 +78,7 @@ class EventsListScreen extends StatefulWidget {
 
 class _EventsListScreenState extends State<EventsListScreen> {
   late Future<List<Event>> futureEvents;
+  String searchQuery = '';
 
   @override
   void initState() {
@@ -84,11 +86,19 @@ class _EventsListScreenState extends State<EventsListScreen> {
     futureEvents = fetchEvents();
   }
 
+  void _searchEvents(String query) {
+    print(query);
+    setState(() {
+      searchQuery = query;
+      futureEvents = fetchEvents(searchQuery: searchQuery);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Events'),
+        title: Search_Bar(onSearch: _searchEvents),
       ),
       body: FutureBuilder<List<Event>>(
         future: futureEvents,
@@ -112,8 +122,9 @@ class _EventsListScreenState extends State<EventsListScreen> {
     );
   }
 
-  Future<List<Event>> fetchEvents() async {
-    final response = await http.get(Uri.parse(AppConstants.APIURL + '/events'));
+  Future<List<Event>> fetchEvents({String searchQuery = ''}) async {
+    final response = await http
+        .get(Uri.parse(AppConstants.APIURL + '/events?q=$searchQuery'));
 
     if (response.statusCode == 200) {
       List<dynamic> body = jsonDecode(response.body);
