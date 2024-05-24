@@ -6,6 +6,7 @@ import 'package:clientapp/widgets/search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:clientapp/screens/event_detail.dart';
 
 class EventCard extends StatelessWidget {
   final Event event;
@@ -14,59 +15,69 @@ class EventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.all(8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              CachedNetworkImage(
-                imageUrl: 'http://localhost:5000/thumbnails/thumbnail.jpeg',
-                placeholder: (context, url) =>
-                    Center(child: CircularProgressIndicator()),
-                errorWidget: (context, url, error) => Icon(Icons.error),
-                width: double.infinity,
-                height: 200,
-                fit: BoxFit.cover,
-              ),
-              Positioned(
-                top: 8,
-                left: 8,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: Container(
-                    padding: EdgeInsets.all(8),
-                    color: Colors.white,
-                    child: Text(
-                      '\$${event.vipPrice.toString()}',
-                      style: TextStyle(color: Colors.black),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EventDetailScreen(event: event),
+          ),
+        );
+      },
+      child: Card(
+        margin: EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              children: [
+                CachedNetworkImage(
+                  imageUrl: 'http://localhost:5000/thumbnails/thumbnail.jpeg',
+                  placeholder: (context, url) =>
+                      Center(child: CircularProgressIndicator()),
+                  errorWidget: (context, url, error) => Icon(Icons.error),
+                  width: double.infinity,
+                  height: 200,
+                  fit: BoxFit.cover,
+                ),
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: Container(
+                      padding: EdgeInsets.all(8),
+                      color: Colors.white,
+                      child: Text(
+                        '\$${event.vipPrice.toString()}',
+                        style: TextStyle(color: Colors.black),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  event.title,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 8),
-                Text(event.description),
-                SizedBox(height: 8),
-                Text(
-                    'Date: ${event.startDate.toLocal()} - ${event.endDate.toLocal()}'),
-                SizedBox(height: 8),
-                Text('Location: ${event.location}'),
               ],
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    event.title,
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 8),
+                  Text(event.description),
+                  SizedBox(height: 8),
+                  Text(
+                      'Date: ${event.startDate.toLocal()} - ${event.endDate.toLocal()}'),
+                  SizedBox(height: 8),
+                  Text('Location: ${event.location}'),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
