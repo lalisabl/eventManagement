@@ -1,13 +1,43 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import Event, { validateEvent } from '../models/events';
+import multer from 'multer';
+import sharp from 'sharp';
 
+const multerStorage = multer.memoryStorage();
+const multerFilter = (req: Request, file: any, cb: any) => {
+  if (file.mimetype.startsWith('image')) {
+    cb(null, true);
+  } else {
+    cb(Error('Not an image! Please upload only images.'), false);
+  }
+};
+
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+});
+export const uploadThumbnailPhoto = upload.single('thumbnail');
+export const resizeThumbnailPhoto = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  if (!req.file) return next();
+  req.file.filename = `thumbnail-${req.body?.title}.jpeg`;
+  await sharp(req.file.buffer)
+    .resize(500, 500)
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toFile(`src/public/thumbnails/${req.file.filename}`);
+  next();
+};
 // Create a new event
 export const createEvent = async (req: Request, res: Response) => {
   try {
     const { error } = validateEvent(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
-    const event = new Event(req.body);
+    const event = new Event({ ...req.body, thumbnail: req?.file?.filename });
     await event.save();
     res.status(201).send(event);
   } catch (error) {
