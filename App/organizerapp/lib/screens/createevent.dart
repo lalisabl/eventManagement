@@ -14,13 +14,11 @@ class _CreateEventScreenState extends State<Createevent> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
-  final TextEditingController _thumbnailController = TextEditingController();
   final TextEditingController _normalTicketsController =
       TextEditingController();
   final TextEditingController _normalPriceController = TextEditingController();
   final TextEditingController _vipTicketsController = TextEditingController();
   final TextEditingController _vipPriceController = TextEditingController();
-  final TextEditingController _organiserIdController = TextEditingController();
   bool _vipTicketsIncluded = false;
   DateTime? _startDate;
   DateTime? _endDate;
@@ -34,7 +32,6 @@ class _CreateEventScreenState extends State<Createevent> {
         description: _descriptionController.text,
         startDate: _startDate!,
         endDate: _endDate!,
-        thumbnail: _thumbnailController.text,
         location: _locationController.text,
         vipTicketsIncluded: _vipTicketsIncluded,
         normalTickets: int.parse(_normalTicketsController.text),
@@ -43,10 +40,6 @@ class _CreateEventScreenState extends State<Createevent> {
             _vipTicketsIncluded ? int.parse(_vipTicketsController.text) : 0,
         vipPrice:
             _vipTicketsIncluded ? double.parse(_vipPriceController.text) : 0.0,
-        normalTicketsAvailable: int.parse(_normalTicketsController.text),
-        vipTicketsAvailable:
-            _vipTicketsIncluded ? int.parse(_vipTicketsController.text) : 0,
-        organiserId: _organiserIdController.text,
       );
 
       final response = await http.post(
@@ -103,16 +96,6 @@ class _CreateEventScreenState extends State<Createevent> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a location';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _thumbnailController,
-                decoration: InputDecoration(labelText: 'Thumbnail URL'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a thumbnail URL';
                   }
                   return null;
                 },
@@ -184,16 +167,6 @@ class _CreateEventScreenState extends State<Createevent> {
                   },
                 ),
               ],
-              TextFormField(
-                controller: _organiserIdController,
-                decoration: InputDecoration(labelText: 'Organiser ID'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the organiser ID';
-                  }
-                  return null;
-                },
-              ),
               ListTile(
                 title: Text(_startDate == null
                     ? 'Start Date'
