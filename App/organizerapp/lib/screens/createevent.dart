@@ -3,6 +3,7 @@ import 'package:organizerapp/constants/url.dart';
 import 'package:organizerapp/models/Event.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:organizerapp/themes/colors.dart';
 
 class Createevent extends StatefulWidget {
   @override
@@ -61,15 +62,26 @@ class _CreateEventScreenState extends State<Createevent> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Create Event'),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
+              Image.asset(
+                'assets/day_logo.png',
+                height: 120,
+                width: 50,
+              ),
+              Center(
+                child: Text(
+                  "Create Event",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primaryColor,
+                  ),
+                ),
+              ),
               TextFormField(
                 controller: _titleController,
                 decoration: InputDecoration(labelText: 'Title'),
