@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
           '/register': (context) => SignUpScreen(),
           '/myevents': (context) => Myevents(),
           '/createEvent': (context) => Createevent(),
-          '/profile': (context) => Profile(),
+          '/profile': (context) => ProfileScreen(),
           '/home': (context) => OwnerBottomNavigationBar(),
           '/packages': (context) => Packages(),
           '/editevent': (context) => Editevent(),
