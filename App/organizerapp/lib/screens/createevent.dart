@@ -68,11 +68,7 @@ class _CreateEventScreenState extends State<Createevent> {
           key: _formKey,
           child: ListView(
             children: [
-              Image.asset(
-                'assets/day_logo.png',
-                height: 120,
-                width: 50,
-              ),
+              SizedBox(height: 20),
               Center(
                 child: Text(
                   "Create Event",
@@ -82,9 +78,29 @@ class _CreateEventScreenState extends State<Createevent> {
                   ),
                 ),
               ),
+              SizedBox(height: 20),
               TextFormField(
                 controller: _titleController,
-                decoration: InputDecoration(labelText: 'Title'),
+                decoration: InputDecoration(
+                  labelText: 'Title',
+                  filled: true,
+                  fillColor: AppColors.primaryColor.withOpacity(0.3),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  suffixIcon: Container(
+                    height: 55,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.0),
+                      color: AppColors.secondaryColor,
+                    ),
+                    child: Icon(
+                      Icons.title,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a title';
@@ -92,9 +108,29 @@ class _CreateEventScreenState extends State<Createevent> {
                   return null;
                 },
               ),
+              SizedBox(height: 20),
               TextFormField(
                 controller: _descriptionController,
-                decoration: InputDecoration(labelText: 'Description'),
+                decoration: InputDecoration(
+                  labelText: 'Description',
+                  filled: true,
+                  fillColor: AppColors.primaryColor.withOpacity(0.3),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  suffixIcon: Container(
+                    height: 55,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.0),
+                      color: AppColors.secondaryColor,
+                    ),
+                    child: Icon(
+                      Icons.description,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a description';
@@ -102,9 +138,29 @@ class _CreateEventScreenState extends State<Createevent> {
                   return null;
                 },
               ),
+              SizedBox(height: 20),
               TextFormField(
                 controller: _locationController,
-                decoration: InputDecoration(labelText: 'Location'),
+                decoration: InputDecoration(
+                  labelText: 'Location',
+                  filled: true,
+                  fillColor: AppColors.primaryColor.withOpacity(0.3),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  suffixIcon: Container(
+                    height: 55,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.0),
+                      color: AppColors.secondaryColor,
+                    ),
+                    child: Icon(
+                      Icons.location_city,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a location';
@@ -112,9 +168,29 @@ class _CreateEventScreenState extends State<Createevent> {
                   return null;
                 },
               ),
+              SizedBox(height: 20),
               TextFormField(
                 controller: _normalTicketsController,
-                decoration: InputDecoration(labelText: 'Normal Tickets'),
+                decoration: InputDecoration(
+                  labelText: 'Normal Tickets',
+                  filled: true,
+                  fillColor: AppColors.primaryColor.withOpacity(0.3),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  suffixIcon: Container(
+                    height: 55,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.0),
+                      color: AppColors.secondaryColor,
+                    ),
+                    child: Icon(
+                      Icons.airplane_ticket,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -126,9 +202,29 @@ class _CreateEventScreenState extends State<Createevent> {
                   return null;
                 },
               ),
+              SizedBox(height: 20),
               TextFormField(
                 controller: _normalPriceController,
-                decoration: InputDecoration(labelText: 'Normal Price'),
+                decoration: InputDecoration(
+                  labelText: 'Normal Price',
+                  filled: true,
+                  fillColor: AppColors.primaryColor.withOpacity(0.3),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  suffixIcon: Container(
+                    height: 55,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.0),
+                      color: AppColors.secondaryColor,
+                    ),
+                    child: Icon(
+                      Icons.money,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -149,10 +245,30 @@ class _CreateEventScreenState extends State<Createevent> {
                   });
                 },
               ),
+              SizedBox(height: 20),
               if (_vipTicketsIncluded) ...[
                 TextFormField(
                   controller: _vipTicketsController,
-                  decoration: InputDecoration(labelText: 'VIP Tickets'),
+                  decoration: InputDecoration(
+                    labelText: 'VIP Tickets',
+                    filled: true,
+                    fillColor: AppColors.primaryColor.withOpacity(0.3),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    suffixIcon: Container(
+                      height: 55,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.0),
+                        color: AppColors.secondaryColor,
+                      ),
+                      child: Icon(
+                        Icons.airplane_ticket,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -164,9 +280,29 @@ class _CreateEventScreenState extends State<Createevent> {
                     return null;
                   },
                 ),
+                SizedBox(height: 20),
                 TextFormField(
                   controller: _vipPriceController,
-                  decoration: InputDecoration(labelText: 'VIP Price'),
+                  decoration: InputDecoration(
+                    labelText: 'VIP Price',
+                    filled: true,
+                    fillColor: AppColors.primaryColor.withOpacity(0.3),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    suffixIcon: Container(
+                      height: 55,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.0),
+                        color: AppColors.secondaryColor,
+                      ),
+                      child: Icon(
+                        Icons.money,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -220,7 +356,19 @@ class _CreateEventScreenState extends State<Createevent> {
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _submitForm,
-                child: Text('Create Event'),
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                    AppColors.primaryColor,
+                  ),
+                ),
+                child: const Text(
+                  'Create Event',
+                  style: TextStyle(
+                    height: 3.5,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ],
           ),
