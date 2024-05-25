@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:organizerapp/constants/url.dart';
 import 'package:organizerapp/screens/authentication/register.dart';
+import 'package:organizerapp/services/user_data.dart';
 import 'package:organizerapp/themes/colors.dart';
 import 'package:organizerapp/widgets/bottom_bar.dart';
 import 'package:flutter/material.dart';
@@ -31,22 +32,23 @@ class LoginScreen extends StatelessWidget {
       );
 
       if (response.statusCode == 200) {
-        final storage = FlutterSecureStorage();
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
-
         // Ensure the response contains the token and user fields
         if (responseBody.containsKey('token') &&
             responseBody.containsKey('user')) {
-          await storage.write(key: 'token', value: responseBody['token']);
-          final userJson = jsonEncode(responseBody['user']);
-          await storage.write(key: 'user', value: userJson);
-
+          final String token = responseBody['token'];
+          final String userId = responseBody['user']['_id'];
+          
+          // Store user ID and token
+          await storeUserData(userId, token);
+            
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => OwnerBottomNavigationBar()),
             (Route<dynamic> route) => false,
           );
-        } else {
+            }
+         else {
           throw Exception('Missing token or user in response');
         }
       } else {

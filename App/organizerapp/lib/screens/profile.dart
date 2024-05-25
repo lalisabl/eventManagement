@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:organizerapp/constants/url.dart';
 import 'package:organizerapp/themes/colors.dart';
+import 'package:organizerapp/services/user_data.dart';  // Import the user data management file
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -22,18 +22,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> fetchUserProfile() async {
+    Map<String, String?> userData = await getUserData();
+    String? userId = userData['userId'];
+    String? token = userData['token'];
+print(userData);
+    if (userId == null || token == null) {
+      // Handle the case where the user is not logged in or data is missing
+      print('User ID or token is missing');
+      return;
+    }
+
     final response = await http.get(
-        Uri.parse('${AppConstants.APIURL}/me'),
+      Uri.parse('http://127.0.0.1:5000/api/profile'),
       headers: <String, String>{
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer YOUR_TOKEN_HERE', // Replace with actual token
+        'Authorization': 'Bearer $token',
       },
     );
-
-    // Log response
-    print('Response status code: ${response.statusCode}');
+    // debugging
+    print('statusCode: ${response.statusCode}');
     print('Response body: ${response.body}');
-
     if (response.statusCode == 200) {
       final Map<String, dynamic> userData = jsonDecode(response.body);
       setState(() {
