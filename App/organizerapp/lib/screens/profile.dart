@@ -18,7 +18,7 @@ class ProfileScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                ),            ),
+                ),),
           ),
         ),
         toolbarHeight: 100, // Increase the height of the AppBar to accommodate the padding
