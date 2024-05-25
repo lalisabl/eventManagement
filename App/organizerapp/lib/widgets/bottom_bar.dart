@@ -19,7 +19,7 @@ class _OwnerBottomNavigationBarState extends State<OwnerBottomNavigationBar> {
     Myevents(),
     Createevent(),
     Packages(),
-    Profile(),
+    ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {

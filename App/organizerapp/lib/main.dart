@@ -22,13 +22,13 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.red,
         ),
-        initialRoute: '/home',
+        initialRoute: '/login',
         routes: {
-          '/login': (context) => Login(),
-          '/register': (context) => RegisterScreen(),
+          '/login': (context) => LoginScreen(),
+          '/register': (context) => SignUpScreen(),
           '/myevents': (context) => Myevents(),
           '/createEvent': (context) => Createevent(),
-          '/profile': (context) => Profile(),
+          '/profile': (context) => ProfileScreen(),
           '/home': (context) => OwnerBottomNavigationBar(),
           '/packages': (context) => Packages(),
           '/editevent': (context) => Editevent(),
