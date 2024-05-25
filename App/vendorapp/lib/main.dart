@@ -19,13 +19,13 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.red,
         ),
-        initialRoute: '/home',
+        initialRoute: '/login',
         routes: {
-          '/login': (context) => Login(),
-          '/register': (context) => RegisterScreen(),
+          '/login': (context) => LoginScreen(),
+          '/register': (context) => SignUpScreen(),
           '/mypackages': (context) => Mypackages(),
           '/createpackage': (context) => Createpackage(),
-          '/myprofile': (context) => Myprofile(),
+          '/myprofile': (context) => ProfileScreen(),
           '/home': (context) => OwnerBottomNavigationBar(),
         });
   }
