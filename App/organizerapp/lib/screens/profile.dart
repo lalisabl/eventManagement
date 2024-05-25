@@ -30,6 +30,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       },
     );
 
+    // Log response
+    print('Response status code: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
     if (response.statusCode == 200) {
       final Map<String, dynamic> userData = jsonDecode(response.body);
       setState(() {

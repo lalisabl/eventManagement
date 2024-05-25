@@ -30,10 +30,6 @@ class LoginScreen extends StatelessWidget {
         }),
       );
 
-      // Print response for debugging
-      print("status: ${response.statusCode}");
-      print("response body: ${response.body}");
-
       if (response.statusCode == 200) {
         final storage = FlutterSecureStorage();
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
