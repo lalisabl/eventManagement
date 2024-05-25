@@ -16,8 +16,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmpasswordController =
       TextEditingController();
-  String selectedRole = 'renter'; // Default role
-
   Future<void> signUpUser(BuildContext context) async {
     // Get user input
     String email = emailController.text.trim();
@@ -51,7 +49,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       body: jsonEncode(<String, String>{
         'email': email,
         'password': password,
-        'role': selectedRole, // Include the selected role
       }),
     );
 
