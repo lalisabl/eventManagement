@@ -1,4 +1,3 @@
-// event_model.dart
 class Event {
   final String title;
   final String description;
@@ -24,18 +23,18 @@ class Event {
     required this.vipPrice,
   });
 
-  factory Event.fromJson(Map<String, dynamic> json) {
-    return Event(
-      title: json['title'],
-      description: json['description'],
-      startDate: DateTime.parse(json['startDate']),
-      endDate: DateTime.parse(json['endDate']),
-      location: json['location'],
-      vipTicketsIncluded: json['vipTicketsIncluded'],
-      normalTickets: json['normalTickets'],
-      normalPrice: json['normalPrice'].toDouble(),
-      vipTickets: json['vipTickets'],
-      vipPrice: json['vipPrice'].toDouble(),
-    );
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'description': description,
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate.toIso8601String(),
+      'location': location,
+      'vipTicketsIncluded': vipTicketsIncluded,
+      'normalTickets': normalTickets,
+      'normalPrice': normalPrice,
+      'vipTickets': vipTickets,
+      'vipPrice': vipPrice,
+    };
   }
 }

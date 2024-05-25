@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:organizerapp/constants/url.dart';
 import 'package:organizerapp/models/Event.dart';
 import 'package:flutter/material.dart';
@@ -23,11 +25,24 @@ class _CreateEventScreenState extends State<Createevent> {
   bool _vipTicketsIncluded = false;
   DateTime? _startDate;
   DateTime? _endDate;
+  File? _selectedImage;
+
+  Future<void> _pickImage() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      setState(() {
+        _selectedImage = File(image.path);
+      });
+    }
+  }
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate() &&
         _startDate != null &&
-        _endDate != null) {
+        _endDate != null &&
+        _selectedImage != null) {
       final event = Event(
         title: _titleController.text,
         description: _descriptionController.text,
@@ -43,11 +58,19 @@ class _CreateEventScreenState extends State<Createevent> {
             _vipTicketsIncluded ? double.parse(_vipPriceController.text) : 0.0,
       );
 
-      final response = await http.post(
+      final request = http.MultipartRequest(
+        'POST',
         Uri.parse(AppConstants.APIURL + '/events'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(event),
       );
+
+      request.headers['Content-Type'] = 'application/json';
+      request.fields['event'] = jsonEncode(event.toJson());
+      request.files.add(await http.MultipartFile.fromPath(
+        'thumbnail',
+        _selectedImage!.path,
+      ));
+
+      final response = await request.send();
 
       if (response.statusCode == 201) {
         Navigator.pop(context, true); // Return true to indicate success
@@ -56,6 +79,10 @@ class _CreateEventScreenState extends State<Createevent> {
           SnackBar(content: Text('Failed to create event')),
         );
       }
+    } else if (_selectedImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please select an image')),
+      );
     }
   }
 
@@ -353,6 +380,23 @@ class _CreateEventScreenState extends State<Createevent> {
                   }
                 },
               ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _pickImage,
+                child: const Text(
+                  'Pick Cover Image',
+                  style: TextStyle(
+                    color: Color.fromRGBO(230, 93, 30, 1.0),
+                  ),
+                ),
+              ),
+              if (_selectedImage != null)
+                Image.file(
+                  _selectedImage!,
+                  height: 200,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _submitForm,
