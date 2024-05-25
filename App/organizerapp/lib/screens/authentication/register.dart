@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:organizerapp/constants/url.dart';
-import 'package:organizerapp/screens/screen1.dart';
+import 'package:organizerapp/widgets/bottom_bar.dart';
 import 'package:organizerapp/themes/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -67,7 +67,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => Screen1()),
+        MaterialPageRoute(builder: (context) => OwnerBottomNavigationBar()),
         (Route<dynamic> route) => false,
       );
     } else {
