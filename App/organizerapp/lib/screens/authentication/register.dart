@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:organizerapp/constants/url.dart';
+import 'package:organizerapp/services/user_data.dart';
 import 'package:organizerapp/widgets/bottom_bar.dart';
 import 'package:organizerapp/themes/colors.dart';
 import 'package:flutter/material.dart';
@@ -51,20 +52,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
         'password': password,
       }),
     );
-
-    // Log response
-    print('Response status code: ${response.statusCode}');
     print('Response body: ${response.body}');
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      final storage = FlutterSecureStorage();
-      await storage.write(
-          key: 'token', value: jsonDecode(response.body)['token']);
-
-      // Save the user object locally
-      final userJson = jsonEncode(jsonDecode(response.body)['user']);
-      await storage.write(key: 'user', value: userJson);
-
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        // Ensure the response contains the token and user fields
+        if (responseBody.containsKey('token') &&
+            responseBody.containsKey('user')) {
+          final String token = responseBody['token'];
+          final String userId = responseBody['user']['_id'];
+          // Store user ID and token
+          await storeUserData(userId, token);
+            
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => OwnerBottomNavigationBar()),
+            (Route<dynamic> route) => false,
+          );
+            }
+         else {
+          throw Exception('Missing token or user in response');
+        }
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => OwnerBottomNavigationBar()),
