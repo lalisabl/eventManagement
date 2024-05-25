@@ -17,7 +17,7 @@ class _OwnerBottomNavigationBarState extends State<OwnerBottomNavigationBar> {
   final List<Widget> _screens = [
     Mypackages(),
     Createpackage(),
-    Myprofile(),
+    ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {
