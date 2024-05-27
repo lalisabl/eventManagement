@@ -40,7 +40,7 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
       bottomNavigationBar: CurvedNavigationBar(
         items: <Widget>[
           Icon(Icons.home, color: iconColor, size: 30),
-          Icon(Icons.add_shopping_cart_sharp, color: iconColor, size: 30),
+          Icon(Icons.bookmark, color: iconColor, size: 30),
           Icon(Icons.message, color: iconColor, size: 30),
           Icon(Icons.notifications, color: iconColor, size: 30),
         ],
