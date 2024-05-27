@@ -1,5 +1,6 @@
 // event_model.dart
 class Event {
+   final String id;
   final String title;
   final String description;
   final DateTime startDate;
@@ -16,6 +17,7 @@ class Event {
   final String organiserId;
 
   Event({
+    required this.id,
     required this.title,
     required this.description,
     required this.startDate,
@@ -34,6 +36,7 @@ class Event {
 
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
+      id:json['_id'],
       title: json['title'],
       description: json['description'],
       startDate: DateTime.parse(json['startDate']),

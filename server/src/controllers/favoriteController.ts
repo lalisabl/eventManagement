@@ -1,24 +1,31 @@
 import { Request, Response } from 'express';
 import { UserDocument } from '../models/user';
-const { Favorite } = require('../models/favorite');
 const { User } = require('../models/user');
-import Event, { validateEvent } from '../models/events';
+import Event from '../models/events';
+import Favorite from '../models/favorite';
 
 // Create a new favorite
-exports.createFavorite = async (req: Request, res: Response) => {
+export const add_remove = async (req: Request, res: Response) => {
   try {
-    const { userId, propertyId } = req.body;
+    const { userId, eventId } = req.body;
+
     // Check if user exists
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    // Check if property exists
-    const property = await Event.findById(propertyId);
-    if (!property)
-      return res.status(404).json({ message: 'Property not found' });
+    // Check if event exists
+    const event = await Event.findById(eventId);
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+
+    // Check if the favorite already exists
+    const favoriteExist = await Favorite.findOne({ userId, eventId });
+    if (favoriteExist) {
+      await Favorite.findByIdAndDelete(favoriteExist?._id);
+      return res.status(204).json({ message: 'Favorite removed' });
+    }
 
     // Create new favorite
-    const favorite = new Favorite({ userId, propertyId });
+    const favorite = new Favorite({ userId, eventId });
     await favorite.save();
 
     res.status(201).json(favorite);
@@ -28,10 +35,10 @@ exports.createFavorite = async (req: Request, res: Response) => {
 };
 
 // Get all favorites
-exports.getAllFavorites = async (req: Request, res: Response) => {
+export const getAllFavorites = async (req: Request, res: Response) => {
   try {
     const user = req.user as UserDocument;
-    const userId = req.user ? user._id : '';
+    const userId = req.user ? user._id : '664c71c508677fd5c52b6023';
     const userFavorites = await Favorite.find({ userId });
 
     res.json(userFavorites);
@@ -41,7 +48,7 @@ exports.getAllFavorites = async (req: Request, res: Response) => {
 };
 
 // Get a favorite by ID
-exports.getFavoriteById = async (req: Request, res: Response) => {
+export const getFavoriteById = async (req: Request, res: Response) => {
   try {
     const favorite = await Favorite.findById(req.params.id);
     if (!favorite)
@@ -54,7 +61,7 @@ exports.getFavoriteById = async (req: Request, res: Response) => {
 };
 
 // Update a favorite
-exports.updateFavorite = async (req: Request, res: Response) => {
+export const updateFavorite = async (req: Request, res: Response) => {
   try {
     const { userId, propertyId } = req.body;
 
@@ -83,13 +90,13 @@ exports.updateFavorite = async (req: Request, res: Response) => {
 };
 
 // Delete a favorite
-exports.deleteFavorite = async (req: Request, res: Response) => {
+export const deleteFavorite = async (req: Request, res: Response) => {
   try {
     const favorite = await Favorite.findById(req.params.id);
     if (!favorite)
       return res.status(404).json({ message: 'Favorite not found' });
 
-    await favorite.remove();
+    // await favorite.remove();
     res.json({ message: 'Favorite deleted successfully' });
   } catch (error: any) {
     res.status(500).json({ message: error.message });

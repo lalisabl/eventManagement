@@ -56,13 +56,20 @@ import {
   updateTicket,
 } from '../controllers/ticketController';
 import { tryChapa } from '../controllers/transactionController';
+import {
+  add_remove,
+  deleteFavorite,
+  getAllFavorites,
+  getFavoriteById,
+  updateFavorite,
+} from '../controllers/favoriteController';
 
 const router = express.Router();
 
 // Routes with controller functions
 router.post('/users/create', registerUser);
 router.get('/users', getAllUsers);
-router.get('/profile', protect,getMe,getUserById);
+router.get('/profile', protect, getMe, getUserById);
 router.get('/users/:id', getUserById);
 router.put('/users/:id', updateUserById);
 router.delete('/users/:id', deleteUserById);
@@ -111,8 +118,23 @@ router.get('/events/:id', getEventById);
 
 // API
 router.post('/events', uploadThumbnailPhoto, resizeThumbnailPhoto, createEvent);
-router.put('/events/:id',uploadThumbnailPhoto, resizeThumbnailPhoto, updateEvent);
+router.put(
+  '/events/:id',
+  uploadThumbnailPhoto,
+  resizeThumbnailPhoto,
+  updateEvent
+);
 router.delete('/events/:id', deleteEvent);
+
+// favorites routes
+// VIEW
+router.get('/favorites',protect, getAllFavorites);
+router.get('/favorites/:id', getFavoriteById);
+
+// API
+router.post('/favorites', add_remove);
+router.put('/favorites/:id', updateFavorite);
+router.delete('/favorites/:id', deleteFavorite);
 
 // TICKET routes
 // VIEW

@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:clientapp/constants/url.dart';
 import 'package:clientapp/models/Event.dart';
+import 'package:clientapp/screens/authentication/login.dart';
 import 'package:clientapp/widgets/filter_sort.dart';
 import 'package:clientapp/widgets/search_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:clientapp/screens/event_detail.dart';
@@ -19,6 +21,41 @@ class EventCard extends StatefulWidget {
 
 class _EventCardState extends State<EventCard> {
   bool isFavorite = false;
+  final storage = FlutterSecureStorage();
+
+  void toggleFavorite() async {
+    final userData = await storage.read(key: 'user');
+    if (userData != null) {
+      final user = jsonDecode(userData);
+      final userId = user['_id'];
+      final eventId = widget.event.id; // Assuming event has an id property
+      print(eventId + " user: " + userId);
+      final response = await http.post(
+        Uri.parse(AppConstants.APIURL + '/favorites'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'userId': userId,
+          'eventId': eventId,
+        }),
+      );
+      print(response.statusCode);
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        setState(() {
+          isFavorite = true;
+        });
+      } else if (response.statusCode == 204) {
+        setState(() {
+          isFavorite = false;
+        });
+      } else {
+        print('Failed to update favorite');
+      }
+    } else {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => LoginScreen()));
+      print('User not found in storage');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,11 +107,7 @@ class _EventCardState extends State<EventCard> {
                       isFavorite ? Icons.favorite : Icons.favorite_border,
                       color: isFavorite ? Theme.of(context).primaryColor : null,
                     ),
-                    onPressed: () {
-                      setState(() {
-                        isFavorite = !isFavorite;
-                      });
-                    },
+                    onPressed: toggleFavorite,
                   ),
                 ),
               ],
