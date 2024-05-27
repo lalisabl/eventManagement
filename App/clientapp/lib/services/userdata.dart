@@ -23,7 +23,7 @@ class StorageService {
       userMap['token'] = token;
 
       return userMap;
-    } catch (e) {
+    } catch (e) { 
       print('Error reading user data from storage: $e');
       return null;
     }
