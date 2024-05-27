@@ -59,25 +59,17 @@ class APIfeatures {
   multfilter() {
     const searchQuery = (this.queryString.q || '').toLowerCase();
     if (typeof searchQuery === 'string') {
-      const regexSearch: any = {
-        // Use 'any' type assertion
+      const regexSearch = {
         $or: [
           { title: { $regex: searchQuery, $options: 'i' } },
           { description: { $regex: searchQuery, $options: 'i' } },
           { location: { $regex: searchQuery, $options: 'i' } },
         ],
       };
-      // Exclude searching for userId
-      if (!this.queryString.userId) {
-        regexSearch.$or.push({
-          userId: { $regex: searchQuery, $options: 'i' },
-        });
-      }
       this.query.find(regexSearch);
     }
     return this;
   }
-
   filter() {
     //1 build query
     const queryObj = { ...this.queryString };
@@ -122,8 +114,10 @@ class APIfeatures {
 export const getEvents = async (req: Request, res: Response) => {
   try {
     const userId = req.query?.userId ? req.query?.userId : '';
-    console.log(userId);
-    const features = new APIfeatures(Event.find(), req.query)
+
+    const { userId: _, ...queryParams } = req.query;
+
+    const features = new APIfeatures(Event.find(), queryParams)
       .multfilter()
       .filter()
       .sort()
@@ -132,6 +126,7 @@ export const getEvents = async (req: Request, res: Response) => {
     const events = await features.query.select();
 
     if (userId) {
+      // Fetch user's favorite events
       const favoriteEvents = await Favorite.find({ userId }).select('eventId');
 
       const favoriteEventIds = new Set(
@@ -155,7 +150,6 @@ export const getEvents = async (req: Request, res: Response) => {
           favorite: false,
         })
       );
-      console.log(eventsWithFavorite);
       res.send(eventsWithFavorite);
     }
   } catch (error) {

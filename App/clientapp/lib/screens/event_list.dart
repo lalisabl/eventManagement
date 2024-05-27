@@ -27,8 +27,7 @@ class _EventCardState extends State<EventCard> {
   @override
   void initState() {
     super.initState();
-    isFavorite = widget.event
-        .favorite;
+    isFavorite = widget.event.favorite;
   }
 
   void toggleFavorite() async {
@@ -251,35 +250,34 @@ class _EventsListScreenState extends State<EventsListScreen> {
     );
   }
 
-Future<List<Event>> fetchEvents({
-  String searchQuery = '',
-  String sortOption = '',
-  String locationFilter = '',
-}) async {
-  final StorageService storageService = StorageService();
-  final userData = await storageService.getUserData();
-  final userId = userData?['_id']; 
+  Future<List<Event>> fetchEvents({
+    String searchQuery = '',
+    String sortOption = '',
+    String locationFilter = '',
+  }) async {
+    final StorageService storageService = StorageService();
+    final userData = await storageService.getUserData();
+    final userId = userData?['_id'];
+    print(userId);
+    String url = AppConstants.APIURL + '/events?q=$searchQuery';
+    if (sortOption.isNotEmpty) {
+      url += '&sort=$sortOption';
+    }
+    if (locationFilter.isNotEmpty) {
+      url += '&location=$locationFilter';
+    }
+    if (userId != null && userId.isNotEmpty) {
+      url += '&userId=$userId';
+    }
 
-  String url = AppConstants.APIURL + '/events?q=$searchQuery';
-  if (sortOption.isNotEmpty) {
-    url += '&sort=$sortOption';
-  }
-  if (locationFilter.isNotEmpty) {
-    url += '&location=$locationFilter';
-  }
-  if (userId != null && userId.isNotEmpty) {
-    url += '&userId=$userId';
-  }
+    print(url);
+    final response = await http.get(Uri.parse(url));
 
-  print(url);
-  final response = await http.get(Uri.parse(url));
-
-  if (response.statusCode == 200) {
-    List<dynamic> body = jsonDecode(response.body);
-    return body.map((dynamic item) => Event.fromJson(item)).toList();
-  } else {
-    throw Exception('Failed to load events');
+    if (response.statusCode == 200) {
+      List<dynamic> body = jsonDecode(response.body);
+      return body.map((dynamic item) => Event.fromJson(item)).toList();
+    } else {
+      throw Exception('Failed to load events');
+    }
   }
 }
-
-
