@@ -8,10 +8,21 @@ import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:clientapp/screens/event_detail.dart';
 
-class EventCard extends StatelessWidget {
+class EventCard extends StatefulWidget {
   final Event event;
 
   const EventCard({Key? key, required this.event}) : super(key: key);
+
+  @override
+  _EventCardState createState() => _EventCardState();
+}
+
+class _EventCardState extends State<EventCard> {
+  void _toggleFavorite() {
+    setState(() {
+      widget.event.favorite = !widget.event.favorite;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +31,7 @@ class EventCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => EventDetailScreen(event: event),
+            builder: (context) => EventDetailScreen(event: widget.event),
           ),
         );
       },
@@ -49,10 +60,25 @@ class EventCard extends StatelessWidget {
                       padding: EdgeInsets.all(8),
                       color: Colors.white,
                       child: Text(
-                        '\$${event.vipPrice.toString()}',
+                        '\$${widget.event.vipPrice.toString()}',
                         style: TextStyle(color: Colors.black),
                       ),
                     ),
+                  ),
+                ),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: IconButton(
+                    icon: Icon(
+                      widget.event.favorite
+                          ? Icons.favorite
+                          : Icons.favorite_border,
+                      color: widget.event.favorite
+                          ? Theme.of(context).primaryColor
+                          : Colors.white,
+                    ),
+                    onPressed: _toggleFavorite,
                   ),
                 ),
               ],
@@ -63,16 +89,16 @@ class EventCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    event.title,
+                    widget.event.title,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 8),
-                  Text(event.description),
+                  Text(widget.event.description),
                   SizedBox(height: 8),
                   Text(
-                      'Date: ${event.startDate.toLocal()} - ${event.endDate.toLocal()}'),
+                      'Date: ${widget.event.startDate.toLocal()} - ${widget.event.endDate.toLocal()}'),
                   SizedBox(height: 8),
-                  Text('Location: ${event.location}'),
+                  Text('Location: ${widget.event.location}'),
                 ],
               ),
             ),
