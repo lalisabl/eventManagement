@@ -145,7 +145,7 @@ export const getEvents = async (req: Request, res: Response) => {
       // If myfavorite=true, filter events to only include favorites
       if (myfavorite) {
         eventsWithFavorite = eventsWithFavorite.filter(
-          (event) => event.favorite
+          (event: { favorite: any }) => event.favorite
         );
       }
 
