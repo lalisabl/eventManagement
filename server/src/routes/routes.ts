@@ -60,9 +60,9 @@ import { tryChapa } from '../controllers/transactionController';
 const router = express.Router();
 
 // Routes with controller functions
-router.post('/users/register-user', registerUser);
+router.post('/users/create', registerUser);
 router.get('/users', getAllUsers);
-router.get('/me', protect);
+router.get('/profile', protect,getMe,getUserById);
 router.get('/users/:id', getUserById);
 router.put('/users/:id', updateUserById);
 router.delete('/users/:id', deleteUserById);
