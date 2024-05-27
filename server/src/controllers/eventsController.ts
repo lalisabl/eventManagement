@@ -2,6 +2,8 @@ import { NextFunction, Request, Response } from 'express';
 import Event, { validateEvent } from '../models/events';
 import multer from 'multer';
 import sharp from 'sharp';
+import Favorite from '../models/favorite';
+import { UserDocument } from '../models/user';
 
 const multerStorage = multer.memoryStorage();
 const multerFilter = (req: Request, file: any, cb: any) => {
@@ -111,6 +113,9 @@ class APIfeatures {
 
 export const getEvents = async (req: Request, res: Response) => {
   try {
+    const user = req.user as UserDocument;
+    const userId = req.user ? user._id : '';
+    console.log(userId);
     const features = new APIfeatures(Event.find(), req.query)
       .multfilter()
       .filter()
@@ -118,7 +123,35 @@ export const getEvents = async (req: Request, res: Response) => {
       .limiting()
       .paginatinating();
     const events = await features.query.select();
-    res.send(events);
+
+    if (userId) {
+      // Fetch user's favorite events
+      const favoriteEvents = await Favorite.find({ userId }).select('eventId');
+
+      const favoriteEventIds = new Set(
+        favoriteEvents.map((fav) => fav.eventId.toString())
+      );
+
+      // Add the favorite field to each event
+      const eventsWithFavorite = events.map(
+        (event: { toObject: () => any; _id: { toString: () => string } }) => ({
+          ...event.toObject(),
+          favorite: favoriteEventIds.has(event._id.toString()),
+        })
+      );
+
+      res.send(eventsWithFavorite);
+    } else {
+      // If no userId, just send the events without the favorite field
+      const eventsWithFavorite = events.map(
+        (event: { toObject: () => any }) => ({
+          ...event.toObject(),
+          favorite: false,
+        })
+      );
+      console.log(eventsWithFavorite);
+      res.send(eventsWithFavorite);
+    }
   } catch (error) {
     console.error('Error fetching events:', error);
     res.status(500).send('Server error');

@@ -20,8 +20,15 @@ class EventCard extends StatefulWidget {
 }
 
 class _EventCardState extends State<EventCard> {
-  bool isFavorite = false;
+  late bool isFavorite;
   final storage = FlutterSecureStorage();
+
+  @override
+  void initState() {
+    super.initState();
+    isFavorite = widget.event
+        .favorite;
+  }
 
   void toggleFavorite() async {
     final userData = await storage.read(key: 'user');
@@ -244,6 +251,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
   }
 
   Future<List<Event>> fetchEvents(
+    
       {String searchQuery = '',
       String sortOption = '',
       String locationFilter = ''}) async {
@@ -265,3 +273,4 @@ class _EventsListScreenState extends State<EventsListScreen> {
     }
   }
 }
+

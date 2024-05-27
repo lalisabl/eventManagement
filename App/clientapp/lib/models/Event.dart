@@ -1,6 +1,6 @@
 // event_model.dart
 class Event {
-   final String id;
+  final String id;
   final String title;
   final String description;
   final DateTime startDate;
@@ -15,6 +15,7 @@ class Event {
   final int normalTicketsAvailable;
   final int vipTicketsAvailable;
   final String organiserId;
+  final bool favorite;
 
   Event({
     required this.id,
@@ -27,6 +28,7 @@ class Event {
     required this.vipTicketsIncluded,
     required this.normalTickets,
     required this.normalPrice,
+    required this.favorite,
     required this.vipTickets,
     required this.vipPrice,
     required this.normalTicketsAvailable,
@@ -36,8 +38,9 @@ class Event {
 
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
-      id:json['_id'],
+      id: json['_id'],
       title: json['title'],
+      favorite: json['favorite'],
       description: json['description'],
       startDate: DateTime.parse(json['startDate']),
       endDate: DateTime.parse(json['endDate']),
