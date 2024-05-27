@@ -1,4 +1,4 @@
-import 'package:clientapp/screens/eventList.dart';
+import 'package:clientapp/screens/event_list.dart';
 import 'package:clientapp/screens/screen2.dart';
 import 'package:clientapp/screens/screen3.dart';
 import 'package:clientapp/screens/screen4.dart';

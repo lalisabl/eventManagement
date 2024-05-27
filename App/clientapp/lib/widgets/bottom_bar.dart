@@ -1,4 +1,4 @@
-import 'package:clientapp/screens/eventList.dart';
+import 'package:clientapp/screens/event_list.dart';
 import 'package:clientapp/screens/screen1.dart';
 import 'package:clientapp/themes/colors.dart';
 import 'package:flutter/material.dart';
