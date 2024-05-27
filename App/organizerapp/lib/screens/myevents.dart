@@ -10,7 +10,7 @@ class Myevents extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'my events',
+              'packages',
               style: TextStyle(fontSize: 24),
             ),
           ],

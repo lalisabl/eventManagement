@@ -385,9 +385,6 @@ class _CreateEventScreenState extends State<Createevent> {
                 onPressed: _pickImage,
                 child: const Text(
                   'Pick Cover Image',
-                  style: TextStyle(
-                    color: Color.fromRGBO(230, 93, 30, 1.0),
-                  ),
                 ),
               ),
               if (_selectedImage != null)
