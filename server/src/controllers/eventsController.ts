@@ -113,9 +113,10 @@ class APIfeatures {
 
 export const getEvents = async (req: Request, res: Response) => {
   try {
-    const userId = req.query?.userId ? req.query?.userId : '';
+    const userId = req.query?.userId ? req.query?.userId.toString() : '';
+    const myfavorite = req.query?.myfavorite === 'true';
 
-    const { userId: _, ...queryParams } = req.query;
+    const { userId: _, myfavorite: __, ...queryParams } = req.query;
 
     const features = new APIfeatures(Event.find(), queryParams)
       .multfilter()
@@ -134,12 +135,19 @@ export const getEvents = async (req: Request, res: Response) => {
       );
 
       // Add the favorite field to each event
-      const eventsWithFavorite = events.map(
+      let eventsWithFavorite = events.map(
         (event: { toObject: () => any; _id: { toString: () => string } }) => ({
           ...event.toObject(),
           favorite: favoriteEventIds.has(event._id.toString()),
         })
       );
+
+      // If myfavorite=true, filter events to only include favorites
+      if (myfavorite) {
+        eventsWithFavorite = eventsWithFavorite.filter(
+          (event) => event.favorite
+        );
+      }
 
       res.send(eventsWithFavorite);
     } else {

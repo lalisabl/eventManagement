@@ -1,400 +1,147 @@
 import 'dart:convert';
+
+import 'package:clientapp/constants/url.dart';
+import 'package:clientapp/models/Event.dart';
+import 'package:clientapp/screens/event_list.dart';
+import 'package:clientapp/services/userdata.dart';
+import 'package:clientapp/widgets/filter_sort.dart';
+import 'package:clientapp/widgets/search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class _FavoriteListScreenState extends State<FavoriteListScreen> {
-  late List<Property> properties = [];
-  late TextEditingController _searchController;
-  String selectedType = '';
-  bool isLoading = false;
-  String errorMessage = '';
-  String userId = '';
+class FavoritesListScreen extends StatefulWidget {
+  @override
+  _FavoritesListScreenState createState() => _FavoritesListScreenState();
+}
 
-  // Define the list of filter options
-  final List<String> filterOptions = [
-    "Apartment",
-    "Condo",
-    "House",
-    "Studio Apartment",
-    "Villa",
-    "Bedsitter",
-    "Block of Flats",
-    "Chalet",
-    "Duplex",
-    "Farm House",
-    "Mansion",
-    "Penthouse",
-    "Room & Parlour",
-    "Shared Apartment",
-    "Townhouse / Terrace",
-  ];
+class _FavoritesListScreenState extends State<FavoritesListScreen> {
+  late Future<List<Event>> futureEvents;
+  String searchQuery = '';
+  String sortOption = '';
+  String locationFilter = '';
 
   @override
   void initState() {
     super.initState();
-    _searchController = TextEditingController();
-    fetchData();
-    getUserId();
+    futureEvents = fetchEvents();
   }
 
-  Future<void> getUserId() async {
-    final storage = FlutterSecureStorage();
-    final String? userData = await storage.read(key: 'user');
-
-    if (userData != null) {
-      final user = jsonDecode(userData);
-      userId = user['_id'];
-    }
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  Future<void> fetchData() async {
+  void _searchEvents(String query) {
     setState(() {
-      isLoading = true;
-    });
-    try {
-      final storage = FlutterSecureStorage();
-      final token = await storage.read(key: 'token');
-      final response = await http.get(
-        Uri.parse(
-          '${AppConstants.APIURL}/favorites${_buildQueryParams()}',
-        ),
-        headers: <String, String>{
-          'Authorization': 'Bearer $token', // Include token in the header
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final List<dynamic> responseData = jsonDecode(response.body);
-        setState(() {
-          properties = responseData
-              .map((data) => Property(
-                  id: data['_id'],
-                  owner_Id: data['userId'],
-                  description: data['description'],
-                  title: data['title'],
-                  type: data['type'],
-                  roomNumber: data['roomNumber'],
-                  bedRoomNum: data['bedRoomNum'],
-                  propertySize: data['propertySize'],
-                  address: data['address'],
-                  files: List<String>.from(data['files']),
-                  price: data['price'],
-                  favorite: data['favorite']))
-              .toList();
-          errorMessage =
-              ''; // Clear error message if data is loaded successfully
-        });
-      } else {
-        throw Exception('Failed to load properties: ${response.statusCode}');
-      }
-    } catch (e) {
-      setState(() {
-        properties = [];
-        errorMessage =
-            'Failed to load properties. Please check your internet connection and try again.';
-      });
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-  Future<void> addFavorite(String propertyId) async {
-    try {
-      final response = await http.post(
-        Uri.parse('${AppConstants.APIURL}/favorites'),
-        headers: <String, String>{
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(<String, String>{
-          'userId': userId,
-          'propertyId': propertyId,
-        }),
-      );
-      if (response.statusCode == 201) {
-        // Favorite added successfully
-        print('Favorite added for property: $propertyId');
-      } else {
-        throw Exception('Failed to add favorite: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error adding favorite: $e');
-    }
-  }
-
-  void search() {
-    setState(() {
-      fetchData();
+      searchQuery = query;
+      futureEvents = fetchEvents(
+          searchQuery: searchQuery,
+          sortOption: sortOption,
+          locationFilter: locationFilter);
     });
   }
 
-  String _buildQueryParams() {
-    String queryParams = '';
-    if (_searchController.text.isNotEmpty) {
-      queryParams = '?q=${_searchController.text}';
-    }
-    if (selectedType.isNotEmpty) {
-      queryParams +=
-          '${_searchController.text.isEmpty ? '?' : '&'}type=$selectedType';
-    }
-    return queryParams;
+  void _sortEvents(String sort) {
+    setState(() {
+      sortOption = sort;
+      futureEvents = fetchEvents(
+          searchQuery: searchQuery,
+          sortOption: sortOption,
+          locationFilter: locationFilter);
+    });
+  }
+
+  void _filterEvents(String location) {
+    setState(() {
+      locationFilter = location;
+      futureEvents = fetchEvents(
+          searchQuery: searchQuery,
+          sortOption: sortOption,
+          locationFilter: locationFilter);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(120),
-        child: AppBar(
-          bottom: PreferredSize(
-            preferredSize: Size.fromHeight(60),
-            child: Column(
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  margin: EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryColor.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primaryColor.withOpacity(0.01),
-                        spreadRadius: 2,
-                        blurRadius: 5,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _searchController,
-                          decoration: InputDecoration(
-                            hintText: 'Search...',
-                            border: InputBorder.none,
-                          ),
-                          onSubmitted: (_) => search(),
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.search),
-                        onPressed: search,
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 10),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: filterOptions
-                        .map((filter) => Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 4.0),
-                              child: FilterChip(
-                                label: Text(filter),
-                                selected: selectedType == filter,
-                                onSelected: (isSelected) {
-                                  setState(() {
-                                    selectedType = isSelected ? filter : '';
-                                  });
-                                  fetchData();
-                                },
-                              ),
-                            ))
-                        .toList(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : errorMessage.isNotEmpty
-              ? Center(
-                  child: Text(errorMessage),
-                )
-              : properties.isEmpty
-                  ? Center(
-                      child: Text('No data found.'),
-                    )
-                  : ListView.builder(
-                      itemCount: properties.length,
-                      itemBuilder: (context, index) {
-                        return PropertyListItem(
-                          property: properties[index],
-                          onFavoriteTap: () {
-                            addFavorite(properties[index].id);
-                          },
-                        );
-                      },
+      appBar: AppBar(
+        toolbarHeight: 100,
+        title: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 14.0),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    child: Image.asset(
+                      !isDarkMode ? 'assets/day_logo.png' : 'assets/logo.png',
                     ),
-    );
-  }
-}
-
-class PropertyListItem extends StatefulWidget {
-  final Property property;
-  final VoidCallback? onFavoriteTap;
-
-  const PropertyListItem({Key? key, required this.property, this.onFavoriteTap})
-      : super(key: key);
-
-  @override
-  _PropertyListItemState createState() => _PropertyListItemState();
-}
-
-class _PropertyListItemState extends State<PropertyListItem> {
-  bool isFavorite = false;
-
-  @override
-  void initState() {
-    super.initState();
-    isFavorite = widget.property.favorite;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                PropertyDetailScreen(property: widget.property),
-          ),
-        );
-      },
-      child: Container(
-        margin: EdgeInsets.all(4.0),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10.0),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primaryColor.withOpacity(0.5),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: Offset(0, 3),
+                  ),
+                  SizedBox(width: 8.0),
+                  Expanded(
+                    child: Search_Bar(onSearch: _searchEvents),
+                  ),
+                ],
+              ),
             ),
+            SizedBox(height: 8.0),
+            FilterSort(
+              locationFilter: locationFilter,
+              onSort: _sortEvents,
+              onFilter: _filterEvents,
+            ),
+            SizedBox(height: 8.0),
           ],
-          color: Colors.white, // Set the background color to white
         ),
-        child: Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width * 0.6,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            widget.property.title,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 4),
-                    Text('${widget.property.address}'),
-                    SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(Icons.apartment),
-                        Text('${widget.property.roomNumber}'),
-                        SizedBox(width: 6),
-                        Icon(Icons.king_bed),
-                        Text('${widget.property.bedRoomNum}'),
-                      ],
-                    ),
-                    SizedBox(width: 4),
-                    Row(
-                      children: [
-                        Icon(Icons.fullscreen),
-                        Text('${widget.property.propertySize}'),
-                        SizedBox(width: 4),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        TextButton(
-                          onPressed: () {}, // Add your action here
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                                AppColors.primaryColor),
-                            foregroundColor:
-                                MaterialStateProperty.all<Color>(Colors.white),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5.0),
-                                side: BorderSide(color: AppColors.primaryColor),
-                              ),
-                            ),
-                            shadowColor: MaterialStateProperty.all<Color>(
-                                Colors.black.withOpacity(0.2)),
-                            elevation: MaterialStateProperty.all<double>(3.0),
-                          ),
-                          child: Text('${widget.property.price} BIRR'),
-                        ),
-                        SizedBox(width: 4),
-                        IconButton(
-                          onPressed: () {
-                            setState(() {
-                              isFavorite = !isFavorite;
-                            });
-                            if (widget.onFavoriteTap != null) {
-                              widget.onFavoriteTap!();
-                            }
-                          },
-                          icon: Icon(
-                            isFavorite
-                                ? Icons.favorite
-                                : Icons.favorite_outline,
-                            color: AppColors.secondaryColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(width: 16),
-              Image.network(
-                '${AppConstants.BASEURL}/${widget.property.files[0]}',
-                width: 100,
-                height: 100,
-                fit: BoxFit.cover,
-              ),
-            ],
-          ),
-        ),
+      ),
+      body: FutureBuilder<List<Event>>(
+        future: futureEvents,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No events found'));
+          } else {
+            return ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                return EventCard(event: snapshot.data![index]);
+              },
+            );
+          }
+        },
       ),
     );
   }
-}
 
-class FavoriteListScreen extends StatefulWidget {
-  @override
-  _FavoriteListScreenState createState() => _FavoriteListScreenState();
+  Future<List<Event>> fetchEvents({
+    String searchQuery = '',
+    String sortOption = '',
+    String locationFilter = '',
+  }) async {
+    final StorageService storageService = StorageService();
+    final userData = await storageService.getUserData();
+    final userId = userData?['_id'];
+    print(userId);
+    String url = AppConstants.APIURL + '/events?q=$searchQuery';
+    if (sortOption.isNotEmpty) {
+      url += '&sort=$sortOption';
+    }
+    if (locationFilter.isNotEmpty) {
+      url += '&location=$locationFilter';
+    }
+    if (userId != null && userId.isNotEmpty) {
+      url += '&userId=$userId';
+    }
+
+    print(url);
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      List<dynamic> body = jsonDecode(response.body);
+      return body.map((dynamic item) => Event.fromJson(item)).toList();
+    } else {
+      throw Exception('Failed to load events');
+    }
+  }
 }

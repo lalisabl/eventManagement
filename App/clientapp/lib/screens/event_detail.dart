@@ -61,13 +61,6 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     }
   }
 
-  void removeFromFavorites() {
-    // TODO: Implement logic to remove event from favorites
-    // For now, just set isFavorite to false
-    setState(() {
-      isFavorite = false;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
