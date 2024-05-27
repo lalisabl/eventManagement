@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:clientapp/constants/url.dart';
 import 'package:clientapp/models/Event.dart';
 import 'package:clientapp/screens/authentication/login.dart';
+import 'package:clientapp/services/userdata.dart';
 import 'package:clientapp/widgets/filter_sort.dart';
 import 'package:clientapp/widgets/search_bar.dart';
 import 'package:flutter/material.dart';
@@ -250,27 +251,35 @@ class _EventsListScreenState extends State<EventsListScreen> {
     );
   }
 
-  Future<List<Event>> fetchEvents(
-    
-      {String searchQuery = '',
-      String sortOption = '',
-      String locationFilter = ''}) async {
-    String url = AppConstants.APIURL + '/events?q=$searchQuery';
-    if (sortOption.isNotEmpty) {
-      url += '&sort=$sortOption';
-    }
-    if (locationFilter.isNotEmpty) {
-      url += '&location=$locationFilter';
-    }
-    print(url);
-    final response = await http.get(Uri.parse(url));
+Future<List<Event>> fetchEvents({
+  String searchQuery = '',
+  String sortOption = '',
+  String locationFilter = '',
+}) async {
+  final StorageService storageService = StorageService();
+  final userData = await storageService.getUserData();
+  final userId = userData?['_id']; 
 
-    if (response.statusCode == 200) {
-      List<dynamic> body = jsonDecode(response.body);
-      return body.map((dynamic item) => Event.fromJson(item)).toList();
-    } else {
-      throw Exception('Failed to load events');
-    }
+  String url = AppConstants.APIURL + '/events?q=$searchQuery';
+  if (sortOption.isNotEmpty) {
+    url += '&sort=$sortOption';
+  }
+  if (locationFilter.isNotEmpty) {
+    url += '&location=$locationFilter';
+  }
+  if (userId != null && userId.isNotEmpty) {
+    url += '&userId=$userId';
+  }
+
+  print(url);
+  final response = await http.get(Uri.parse(url));
+
+  if (response.statusCode == 200) {
+    List<dynamic> body = jsonDecode(response.body);
+    return body.map((dynamic item) => Event.fromJson(item)).toList();
+  } else {
+    throw Exception('Failed to load events');
   }
 }
+
 

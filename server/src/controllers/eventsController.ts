@@ -59,17 +59,25 @@ class APIfeatures {
   multfilter() {
     const searchQuery = (this.queryString.q || '').toLowerCase();
     if (typeof searchQuery === 'string') {
-      const regexSearch = {
+      const regexSearch: any = {
+        // Use 'any' type assertion
         $or: [
           { title: { $regex: searchQuery, $options: 'i' } },
           { description: { $regex: searchQuery, $options: 'i' } },
           { location: { $regex: searchQuery, $options: 'i' } },
         ],
       };
+      // Exclude searching for userId
+      if (!this.queryString.userId) {
+        regexSearch.$or.push({
+          userId: { $regex: searchQuery, $options: 'i' },
+        });
+      }
       this.query.find(regexSearch);
     }
     return this;
   }
+
   filter() {
     //1 build query
     const queryObj = { ...this.queryString };
@@ -113,8 +121,7 @@ class APIfeatures {
 
 export const getEvents = async (req: Request, res: Response) => {
   try {
-    const user = req.user as UserDocument;
-    const userId = req.user ? user._id : '';
+    const userId = req.query?.userId ? req.query?.userId : '';
     console.log(userId);
     const features = new APIfeatures(Event.find(), req.query)
       .multfilter()
@@ -125,7 +132,6 @@ export const getEvents = async (req: Request, res: Response) => {
     const events = await features.query.select();
 
     if (userId) {
-      // Fetch user's favorite events
       const favoriteEvents = await Favorite.find({ userId }).select('eventId');
 
       const favoriteEventIds = new Set(
