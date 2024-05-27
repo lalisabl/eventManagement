@@ -123,7 +123,7 @@ class _FavoritesListScreenState extends State<FavoritesListScreen> {
     final userData = await storageService.getUserData();
     final userId = userData?['_id'];
     print(userId);
-    String url = AppConstants.APIURL + '/events?q=$searchQuery';
+    String url = AppConstants.APIURL + '/events?myfavorite=true&q=$searchQuery';
     if (sortOption.isNotEmpty) {
       url += '&sort=$sortOption';
     }
