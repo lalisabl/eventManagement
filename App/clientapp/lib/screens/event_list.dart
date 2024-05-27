@@ -18,11 +18,7 @@ class EventCard extends StatefulWidget {
 }
 
 class _EventCardState extends State<EventCard> {
-  void _toggleFavorite() {
-    setState(() {
-      widget.event.favorite = !widget.event.favorite;
-    });
-  }
+  bool isFavorite = false;
 
   @override
   Widget build(BuildContext context) {
@@ -71,14 +67,14 @@ class _EventCardState extends State<EventCard> {
                   right: 8,
                   child: IconButton(
                     icon: Icon(
-                      widget.event.favorite
-                          ? Icons.favorite
-                          : Icons.favorite_border,
-                      color: widget.event.favorite
-                          ? Theme.of(context).primaryColor
-                          : Colors.white,
+                      isFavorite ? Icons.favorite : Icons.favorite_border,
+                      color: isFavorite ? Theme.of(context).primaryColor : null,
                     ),
-                    onPressed: _toggleFavorite,
+                    onPressed: () {
+                      setState(() {
+                        isFavorite = !isFavorite;
+                      });
+                    },
                   ),
                 ),
               ],
