@@ -35,7 +35,7 @@ class _EventCardState extends State<EventCard> {
     if (userData != null) {
       final user = jsonDecode(userData);
       final userId = user['_id'];
-      final eventId = widget.event.id; // Assuming event has an id property
+      final eventId = widget.event.id;
       print(eventId + " user: " + userId);
       final response = await http.post(
         Uri.parse(AppConstants.APIURL + '/favorites'),
@@ -111,7 +111,7 @@ class _EventCardState extends State<EventCard> {
                   right: 8,
                   child: IconButton(
                     icon: Icon(
-                      isFavorite ? Icons.favorite : Icons.favorite_border,
+                      isFavorite ? Icons.bookmark : Icons.bookmark_add_outlined,
                       color: isFavorite ? Theme.of(context).primaryColor : null,
                     ),
                     onPressed: toggleFavorite,
