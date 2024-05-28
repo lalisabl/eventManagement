@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:clientapp/screens/WebViewScreen.dart';
 import 'package:clientapp/screens/ticket_detail.dart';
 import 'package:clientapp/themes/colors.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +7,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:clientapp/models/ticket.dart';
 import 'package:clientapp/constants/url.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 class MyTicketsScreen extends StatefulWidget {
   @override
@@ -50,13 +50,23 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
     });
   }
 
-  void _launchWebView(String checkoutUrl) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => WebViewScreen(url: checkoutUrl),
-      ),
-    );
+  Future<void> _handleCheckout(String checkoutUrl) async {
+    if (checkoutUrl.isNotEmpty) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => WebViewScreen(url: checkoutUrl),
+        ),
+      );
+    } else {
+      print('Checkout URL is empty');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Checkout URL is empty'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -81,11 +91,18 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
                       ),
                       child: ListTile(
                         contentPadding: EdgeInsets.all(10),
+                        leading: Image.network(
+                          AppConstants.BASEURL + '/thumbnails/thumbnail.jpeg',
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.cover,
+                        ),
                         title: Text(
-                          ticket.type.toUpperCase(),
+                          ticket.eventId.title,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
+                            color: Theme.of(context).primaryColor,
                           ),
                         ),
                         subtitle: Column(
@@ -112,32 +129,27 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            SizedBox(height: 5),
-                            Image.network(
-                              ticket.eventId.thumbnail,
-                              height: 100,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
                           ],
                         ),
                         trailing: ticket.status == 'pending'
                             ? ElevatedButton(
+                                onPressed: () async {
+                                  await _handleCheckout(
+                                      ticket.transactionId.checkoutUrl);
+                                },
                                 style: ElevatedButton.styleFrom(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 32, vertical: 12),
+                                  textStyle: TextStyle(fontSize: 18),
                                   backgroundColor: AppColors.primaryColor,
                                 ),
-                                onPressed: () {
-                                  if (ticket
-                                      .transactionId.checkoutUrl.isNotEmpty) {
-                                    _launchWebView(
-                                        ticket.transactionId.checkoutUrl);
-                                  } else {
-                                    print('Checkout URL is empty');
-                                  }
-                                },
                                 child: Text(
                                   'Checkout',
-                                  style: TextStyle(color: Colors.white),
+                                  style: TextStyle(
+                                    height: 3.5,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               )
                             : Icon(
@@ -157,25 +169,6 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
                     );
                   },
                 ),
-    );
-  }
-}
-
-class WebViewScreen extends StatelessWidget {
-  final String url;
-
-  WebViewScreen({required this.url});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Checkout'),
-      ),
-      body: WebViewScreen(
-        initialUrl: url,
-        javascriptMode: JavascriptMode.unrestricted,
-      ),
     );
   }
 }

@@ -40,6 +40,7 @@ dependencies:
   cached_network_image: ^3.3.1
   url_launcher: ^6.2.6
   webview_flutter: ^4.8.0
+  flutter_webview_plugin: ^0.4.0
 
 dev_dependencies:
   flutter_test:
