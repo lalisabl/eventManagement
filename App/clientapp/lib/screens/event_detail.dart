@@ -1,12 +1,13 @@
 import 'dart:convert';
-
-import 'package:clientapp/constants/url.dart';
 import 'package:clientapp/screens/authentication/login.dart';
+import 'package:clientapp/themes/colors.dart';
+import 'package:http/http.dart' as http;
+import 'package:clientapp/constants/url.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:clientapp/models/Event.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
+import 'package:clientapp/screens/booking_screen.dart'; // Import the BookingScreen
 
 class EventDetailScreen extends StatefulWidget {
   final Event event;
@@ -18,7 +19,7 @@ class EventDetailScreen extends StatefulWidget {
 }
 
 class _EventDetailScreenState extends State<EventDetailScreen> {
-  bool isFavorite = false; // Track the favorite status
+  bool isFavorite = false;
   final storage = FlutterSecureStorage();
 
   @override
@@ -61,6 +62,13 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     }
   }
 
+  void bookNow() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => BookingScreen(event: widget.event)),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,9 +92,22 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 fit: BoxFit.cover,
               ),
               SizedBox(height: 16.0),
-              Text(
-                widget.event.title,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    widget.event.title,
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  IconButton(
+                    onPressed: toggleFavorite,
+                    icon: Icon(
+                      isFavorite ? Icons.bookmark : Icons.bookmark_add_outlined,
+                      color: isFavorite ? AppColors.primaryColor : null,
+                      size: 28,
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: 8.0),
               Text(
@@ -104,14 +125,14 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 style: TextStyle(fontSize: 16),
               ),
               SizedBox(height: 16.0),
-              // Favorite button
-              IconButton(
-                onPressed: () {
-                  toggleFavorite();
-                },
-                icon: Icon(
-                  isFavorite ? Icons.bookmark : Icons.bookmark_add_outlined,
-                  color: isFavorite ? Colors.red : null,
+              Center(
+                child: ElevatedButton(
+                  onPressed: bookNow,
+                  child: Text('Book Now'),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    textStyle: TextStyle(fontSize: 18),
+                  ),
                 ),
               ),
             ],
