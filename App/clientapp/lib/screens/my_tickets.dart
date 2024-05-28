@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:clientapp/screens/ticket_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
@@ -13,6 +14,7 @@ class MyTicketsScreen extends StatefulWidget {
 class _MyTicketsScreenState extends State<MyTicketsScreen> {
   final storage = FlutterSecureStorage();
   List<Ticket> tickets = [];
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -30,7 +32,6 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
 
       if (response.statusCode == 200) {
         final responseBody = response.body;
-        print(responseBody); // Debugging: print the response body
         final List<dynamic> ticketJson = jsonDecode(responseBody);
         setState(() {
           tickets = ticketJson.map((json) => Ticket.fromJson(json)).toList();
@@ -41,6 +42,10 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
     } else {
       print('User not found in storage');
     }
+
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -49,18 +54,72 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
       appBar: AppBar(
         title: Text('My Tickets'),
       ),
-      body: ListView.builder(
-        itemCount: tickets.length,
-        itemBuilder: (context, index) {
-          final ticket = tickets[index];
-          return ListTile(
-            title: Text(ticket.type),
-            subtitle:
-                Text('Status: ${ticket.status}\nPrice: \$${ticket.price}'),
-            trailing: Text('Ticket Code: ${ticket.ticketCode}'),
-          );
-        },
-      ),
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : tickets.isEmpty
+              ? Center(child: Text('No tickets found'))
+              : ListView.builder(
+                  itemCount: tickets.length,
+                  itemBuilder: (context, index) {
+                    final ticket = tickets[index];
+                    return Card(
+                      margin: EdgeInsets.all(10),
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: ListTile(
+                        contentPadding: EdgeInsets.all(10),
+                        title: Text(
+                          ticket.type.toUpperCase(),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 5),
+                            Text(
+                              'Status: ${ticket.status}',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                            Text(
+                              'Price: \$${ticket.price}',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                            SizedBox(height: 5),
+                            Text(
+                              'Ticket Code: ${ticket.ticketCode}',
+                              style: TextStyle(
+                                color: Colors.grey[800],
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        trailing: Icon(
+                          Icons.chevron_right,
+                          color: Colors.grey[600],
+                        ),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  TicketDetailScreen(ticket: ticket),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
     );
   }
 }
