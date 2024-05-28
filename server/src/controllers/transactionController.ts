@@ -10,7 +10,7 @@ export const tryChapa = async (req: Request, res: Response) => {
     lastName: 'bb',
     email: 'akshdl@gafs.com',
     amount: 300,
-    userId: '66156bca84efea7cc169ec68',
+    userId: '664c71c508677fd5c52b6023',
   };
   const resp = await generateTransactionGateway(transaction);
   console.log(resp);

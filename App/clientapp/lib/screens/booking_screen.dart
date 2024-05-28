@@ -1,12 +1,11 @@
 import 'dart:convert';
-
-import 'package:clientapp/screens/authentication/login.dart';
-import 'package:clientapp/themes/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:clientapp/constants/url.dart';
 import 'package:clientapp/models/Event.dart';
+import 'package:clientapp/screens/authentication/login.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
 class BookingScreen extends StatefulWidget {
   final Event event;
@@ -64,14 +63,13 @@ class _BookingScreenState extends State<BookingScreen> {
             'firstName': firstNameController.text,
             'lastName': lastNameController.text,
             'type': ticketType,
-            'price': price,
+           // 'price': price,//
           }),
         );
+        print(response.statusCode);
         if (response.statusCode == 201) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Booking successful')),
-          );
-          Navigator.pop(context);
+          final responseData = jsonDecode(response.body);
+          _showCheckoutDialog(responseData['tranx']['checkout_url']);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Failed to book event')),
@@ -83,6 +81,37 @@ class _BookingScreenState extends State<BookingScreen> {
           MaterialPageRoute(builder: (context) => LoginScreen()),
         );
       }
+    }
+  }
+
+  void _showCheckoutDialog(String checkoutUrl) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Booking Successful'),
+        content: Text('Do you want to proceed to payment now?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('No'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _launchURL(checkoutUrl);
+            },
+            child: Text('Yes'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
     }
   }
 
@@ -105,7 +134,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   decoration: InputDecoration(
                     labelText: 'Email',
                     filled: true,
-                    fillColor: AppColors.primaryColor.withOpacity(0.3),
+                    fillColor: Colors.grey.withOpacity(0.3),
                     border: OutlineInputBorder(
                       borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(10.0),
@@ -114,7 +143,7 @@ class _BookingScreenState extends State<BookingScreen> {
                       height: 55,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10.0),
-                        color: AppColors.secondaryColor,
+                        color: Theme.of(context).primaryColor,
                       ),
                       child: Icon(
                         Icons.email,
@@ -135,7 +164,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   decoration: InputDecoration(
                     labelText: 'First Name',
                     filled: true,
-                    fillColor:AppColors.primaryColor.withOpacity(0.3),
+                    fillColor: Colors.grey.withOpacity(0.3),
                     border: OutlineInputBorder(
                       borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(10.0),
@@ -144,7 +173,7 @@ class _BookingScreenState extends State<BookingScreen> {
                       height: 55,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10.0),
-                        color: AppColors.secondaryColor,
+                        color: Theme.of(context).primaryColor,
                       ),
                       child: Icon(
                         Icons.person,
@@ -165,7 +194,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   decoration: InputDecoration(
                     labelText: 'Last Name',
                     filled: true,
-                    fillColor: AppColors.primaryColor.withOpacity(0.3),
+                    fillColor: Colors.grey.withOpacity(0.3),
                     border: OutlineInputBorder(
                       borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(10.0),
@@ -174,7 +203,7 @@ class _BookingScreenState extends State<BookingScreen> {
                       height: 55,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10.0),
-                        color: AppColors.secondaryColor,
+                        color: Theme.of(context).primaryColor,
                       ),
                       child: Icon(
                         Icons.person,
@@ -205,7 +234,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 ListTile(
                   title: Text('VIP Ticket (\$${widget.event.vipPrice})'),
                   leading: Radio<String>(
-                    value: 'vip',
+                    value: 'VIP',
                     groupValue: ticketType,
                     onChanged: (value) {
                       setState(() {
