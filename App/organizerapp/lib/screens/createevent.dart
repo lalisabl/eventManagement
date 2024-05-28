@@ -15,6 +15,7 @@ class Createevent extends StatefulWidget {
 class _CreateEventScreenState extends State<Createevent> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _ = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _normalTicketsController =
