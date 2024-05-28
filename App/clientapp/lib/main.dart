@@ -1,5 +1,4 @@
 import 'package:clientapp/screens/event_list.dart';
-import 'package:clientapp/screens/screen3.dart';
 import 'package:clientapp/screens/screen4.dart';
 import 'package:clientapp/themes/themes.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +50,6 @@ class MyApp extends StatelessWidget {
               '/login': (context) => LoginScreen(),
               '/register': (context) => SignUpScreen(),
             
-              '/screen3': (context) => Screen3(),
               '/screen4': (context) => Screen4(),
             },
           );
