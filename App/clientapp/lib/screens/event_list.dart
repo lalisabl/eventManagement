@@ -81,7 +81,7 @@ class _EventCardState extends State<EventCard> {
             Stack(
               children: [
                 CachedNetworkImage(
-                  imageUrl: 'http://localhost:5000/thumbnails/thumbnail.jpeg',
+                  imageUrl: AppConstants.BASEURL+'/thumbnails/thumbnail.jpeg',
                   placeholder: (context, url) =>
                       Center(child: CircularProgressIndicator()),
                   errorWidget: (context, url, error) => Icon(Icons.error),

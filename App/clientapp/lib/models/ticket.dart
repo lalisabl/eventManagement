@@ -1,3 +1,5 @@
+import 'package:clientapp/models/Event.dart';
+
 class Transaction {
   final String id;
   final String userId;
@@ -7,6 +9,7 @@ class Transaction {
   final String tranxRef;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String checkoutUrl;
 
   Transaction({
     required this.id,
@@ -16,26 +19,34 @@ class Transaction {
     required this.status,
     required this.tranxRef,
     required this.createdAt,
+    required this.checkoutUrl,
     required this.updatedAt,
   });
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
     return Transaction(
       id: json['_id'] ?? '',
+      checkoutUrl: json['checkout_url'] ?? '',
       userId: json['userId'] ?? '',
       amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
       paymentMethod: json['paymentMethod'] ?? '',
       status: json['status'] ?? '',
       tranxRef: json['tranxRef'] ?? '',
-      createdAt: json.containsKey('createdAt') ? DateTime.parse(json['createdAt']) : DateTime.now(),
-      updatedAt: json.containsKey('updatedAt') ? DateTime.parse(json['updatedAt']) : DateTime.now(),
+      createdAt: json.containsKey('createdAt')
+          ? DateTime.parse(json['createdAt'])
+          : DateTime.now(),
+      updatedAt: json.containsKey('updatedAt')
+          ? DateTime.parse(json['updatedAt'])
+          : DateTime.now(),
     );
   }
 }
 
+
+
 class Ticket {
   final String id;
-  final String eventId;
+  final Event eventId;
   final String userId;
   final Transaction transactionId;
   final String email;
@@ -67,7 +78,7 @@ class Ticket {
   factory Ticket.fromJson(Map<String, dynamic> json) {
     return Ticket(
       id: json['_id'] ?? '',
-      eventId: json['eventId'] ?? '',
+      eventId: Event.fromJson(json['transactionId']),
       userId: json['userId'] ?? '',
       transactionId: Transaction.fromJson(json['transactionId']),
       email: json['email'] ?? '',
@@ -77,8 +88,12 @@ class Ticket {
       price: (json['price'] as num?)?.toDouble() ?? 0.0,
       status: json['status'] ?? '',
       ticketCode: json['ticketCode'] ?? '',
-      createdAt: json.containsKey('createdAt') ? DateTime.parse(json['createdAt']) : DateTime.now(),
-      updatedAt: json.containsKey('updatedAt') ? DateTime.parse(json['updatedAt']) : DateTime.now(),
+      createdAt: json.containsKey('createdAt')
+          ? DateTime.parse(json['createdAt'])
+          : DateTime.now(),
+      updatedAt: json.containsKey('updatedAt')
+          ? DateTime.parse(json['updatedAt'])
+          : DateTime.now(),
     );
   }
 }

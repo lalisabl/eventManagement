@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'package:clientapp/screens/ticket_detail.dart';
+import 'package:clientapp/themes/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:clientapp/models/ticket.dart';
 import 'package:clientapp/constants/url.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class MyTicketsScreen extends StatefulWidget {
   @override
@@ -46,6 +48,15 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
     setState(() {
       isLoading = false;
     });
+  }
+
+  void _launchWebView(String checkoutUrl) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => WebViewScreen(url: checkoutUrl),
+      ),
+    );
   }
 
   @override
@@ -101,12 +112,38 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
+                            SizedBox(height: 5),
+                            Image.network(
+                              ticket.eventId.thumbnail,
+                              height: 100,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
                           ],
                         ),
-                        trailing: Icon(
-                          Icons.chevron_right,
-                          color: Colors.grey[600],
-                        ),
+                        trailing: ticket.status == 'pending'
+                            ? ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primaryColor,
+                                ),
+                                onPressed: () {
+                                  if (ticket
+                                      .transactionId.checkoutUrl.isNotEmpty) {
+                                    _launchWebView(
+                                        ticket.transactionId.checkoutUrl);
+                                  } else {
+                                    print('Checkout URL is empty');
+                                  }
+                                },
+                                child: Text(
+                                  'Checkout',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              )
+                            : Icon(
+                                Icons.check_circle,
+                                color: Colors.green,
+                              ),
                         onTap: () {
                           Navigator.push(
                             context,
@@ -120,6 +157,25 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
                     );
                   },
                 ),
+    );
+  }
+}
+
+class WebViewScreen extends StatelessWidget {
+  final String url;
+
+  WebViewScreen({required this.url});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Checkout'),
+      ),
+      body: WebViewScreen(
+        initialUrl: url,
+        javascriptMode: JavascriptMode.unrestricted,
+      ),
     );
   }
 }

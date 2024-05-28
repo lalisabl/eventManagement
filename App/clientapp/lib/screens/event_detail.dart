@@ -83,7 +83,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CachedNetworkImage(
-                imageUrl: 'http://localhost:5000/thumbnails/thumbnail.jpeg',
+                imageUrl: AppConstants.BASEURL+'/thumbnails/thumbnail.jpeg',
                 placeholder: (context, url) =>
                     Center(child: CircularProgressIndicator()),
                 errorWidget: (context, url, error) => Icon(Icons.error),
@@ -132,6 +132,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                     textStyle: TextStyle(fontSize: 18),
+                    backgroundColor: AppColors.primaryColor
                   ),
                 ),
               ),
