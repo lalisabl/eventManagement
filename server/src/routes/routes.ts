@@ -51,6 +51,7 @@ import {
 import {
   createTicket,
   deleteTicket,
+  getMyTickets,
   getTicketById,
   getTickets,
   updateTicket,
@@ -140,6 +141,7 @@ router.delete('/favorites/:id', deleteFavorite);
 // VIEW
 router.get('/tickets', getTickets);
 router.get('/tickets/:id', getTicketById);
+router.get('/mytickets/:id', getMyTickets);
 
 // API
 router.post('/tickets', createTicket);

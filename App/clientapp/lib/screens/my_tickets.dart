@@ -27,7 +27,7 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
     if (userData != null) {
       final user = jsonDecode(userData);
       final userId = user['_id'];
-      final response = await http.get(Uri.parse(AppConstants.APIURL + '/tickets/$userId'));
+      final response = await http.get(Uri.parse(AppConstants.APIURL + '/mytickets/$userId'));
 
       if (response.statusCode == 200) {
         final List<dynamic> ticketJson = jsonDecode(response.body);
