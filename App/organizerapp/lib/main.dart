@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:organizerapp/screens/authentication/register.dart';
+import 'package:organizerapp/themes/colors.dart';
 import 'package:organizerapp/widgets/bottom_bar.dart';
 import 'package:organizerapp/screens/myevents.dart';
 import 'package:organizerapp/screens/profile.dart';
@@ -19,9 +20,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
-        theme: ThemeData(
-          primarySwatch: Colors.red,
-        ),
+        theme: AppThemes.lightTheme,
+        darkTheme: AppThemes.darkTheme,
+        themeMode: ThemeMode.system,
         initialRoute: '/login',
         routes: {
           '/login': (context) => LoginScreen(),

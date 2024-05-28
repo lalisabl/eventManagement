@@ -1,9 +1,8 @@
 import 'package:clientapp/screens/event_list.dart';
-import 'package:clientapp/screens/screen1.dart';
+import 'package:clientapp/screens/favorite_list.dart';
 import 'package:clientapp/themes/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:clientapp/screens/screen2.dart';
 import 'package:clientapp/screens/screen3.dart';
 import 'package:clientapp/screens/screen4.dart';
 
@@ -17,7 +16,7 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
 
   final List<Widget> _screens = [
     EventsListScreen(),
-    Screen2(),
+    FavoritesListScreen(),
     Screen3(),
     Screen4(),
   ];
@@ -34,13 +33,14 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
     bool isDarkMode = Theme.of(context).brightness == Brightness.light;
 
     // Set icon colors based on the theme
-    Color iconColor = isDarkMode ? Colors.white : Color.fromRGBO(40, 40, 43, 1.0);
+    Color iconColor =
+        isDarkMode ? Colors.white : Color.fromRGBO(40, 40, 43, 1.0);
     return Scaffold(
       body: _screens[_selectedIndex],
       bottomNavigationBar: CurvedNavigationBar(
         items: <Widget>[
           Icon(Icons.home, color: iconColor, size: 30),
-          Icon(Icons.add_shopping_cart_sharp, color: iconColor, size: 30),
+          Icon(Icons.bookmark, color: iconColor, size: 30),
           Icon(Icons.message, color: iconColor, size: 30),
           Icon(Icons.notifications, color: iconColor, size: 30),
         ],

@@ -3,7 +3,7 @@
 import express from 'express';
 import passport from 'passport';
 // user routes
-import { User,UserDocument, } from '../models/user';
+import { User, UserDocument } from '../models/user';
 import {
   getAllUsers,
   getUserById,
@@ -26,7 +26,9 @@ import {
   deleteEvent,
   getEventById,
   getEvents,
+  resizeThumbnailPhoto,
   updateEvent,
+  uploadThumbnailPhoto,
 } from '../controllers/eventsController';
 
 // Product Route
@@ -54,32 +56,42 @@ import {
   updateTicket,
 } from '../controllers/ticketController';
 import { tryChapa } from '../controllers/transactionController';
+import {
+  add_remove,
+  deleteFavorite,
+  getAllFavorites,
+  getFavoriteById,
+  updateFavorite,
+} from '../controllers/favoriteController';
 
 const router = express.Router();
 
 // Routes with controller functions
 router.post('/users/create', registerUser);
 router.get('/users', getAllUsers);
-router.get('/profile', protect,getMe,getUserById);
+router.get('/profile', protect, getMe, getUserById);
 router.get('/users/:id', getUserById);
 router.put('/users/:id', updateUserById);
 router.delete('/users/:id', deleteUserById);
 router.patch(
-  "/updateProfile",
-protect,
-uploadUserPhoto,
-resizeUserPhoto,
-updateProfile
+  '/updateProfile',
+  protect,
+  uploadUserPhoto,
+  resizeUserPhoto,
+  updateProfile
 );
-router.post("/forgotPassword",forgotPassword);
-router.patch("/resetPassword/:token",resetPassword);
+router.post('/forgotPassword', forgotPassword);
+router.patch('/resetPassword/:token', resetPassword);
 
 // AUTHENTICATION
 //login
 router.post('/users/login', loginUser);
 
 // Google OAuth login route
-router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get(
+  '/auth/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
 
 // Google OAuth callback route
 
@@ -87,8 +99,8 @@ router.get(
   '/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
-   // Redirect the user to the home page upon successful authentication
-   res.redirect('http://localhost:3000/home');
+    // Redirect the user to the home page upon successful authentication
+    res.redirect('http://localhost:3000/home');
   }
 );
 
@@ -105,9 +117,24 @@ router.get('/events', getEvents);
 router.get('/events/:id', getEventById);
 
 // API
-router.post('/events', createEvent);
-router.put('/events/:id', updateEvent);
+router.post('/events', uploadThumbnailPhoto, resizeThumbnailPhoto, createEvent);
+router.put(
+  '/events/:id',
+  uploadThumbnailPhoto,
+  resizeThumbnailPhoto,
+  updateEvent
+);
 router.delete('/events/:id', deleteEvent);
+
+// favorites routes
+// VIEW
+router.get('/favorites',protect, getAllFavorites);
+router.get('/favorites/:id', getFavoriteById);
+
+// API
+router.post('/favorites', add_remove);
+router.put('/favorites/:id', updateFavorite);
+router.delete('/favorites/:id', deleteFavorite);
 
 // TICKET routes
 // VIEW

@@ -1,72 +1,145 @@
 import 'dart:convert';
 import 'package:clientapp/constants/url.dart';
 import 'package:clientapp/models/Event.dart';
+import 'package:clientapp/screens/authentication/login.dart';
+import 'package:clientapp/services/userdata.dart';
 import 'package:clientapp/widgets/filter_sort.dart';
 import 'package:clientapp/widgets/search_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:clientapp/screens/event_detail.dart';
 
-class EventCard extends StatelessWidget {
+class EventCard extends StatefulWidget {
   final Event event;
 
   const EventCard({Key? key, required this.event}) : super(key: key);
 
   @override
+  _EventCardState createState() => _EventCardState();
+}
+
+class _EventCardState extends State<EventCard> {
+  late bool isFavorite;
+  final storage = FlutterSecureStorage();
+
+  @override
+  void initState() {
+    super.initState();
+    isFavorite = widget.event.favorite;
+  }
+
+  void toggleFavorite() async {
+    final userData = await storage.read(key: 'user');
+    if (userData != null) {
+      final user = jsonDecode(userData);
+      final userId = user['_id'];
+      final eventId = widget.event.id;
+      print(eventId + " user: " + userId);
+      final response = await http.post(
+        Uri.parse(AppConstants.APIURL + '/favorites'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'userId': userId,
+          'eventId': eventId,
+        }),
+      );
+      print(response.statusCode);
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        setState(() {
+          isFavorite = true;
+        });
+      } else if (response.statusCode == 204) {
+        setState(() {
+          isFavorite = false;
+        });
+      } else {
+        print('Failed to update favorite');
+      }
+    } else {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => LoginScreen()));
+      print('User not found in storage');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.all(8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              CachedNetworkImage(
-                imageUrl: 'http://localhost:5000/thumbnails/thumbnail.jpeg',
-                placeholder: (context, url) =>
-                    Center(child: CircularProgressIndicator()),
-                errorWidget: (context, url, error) => Icon(Icons.error),
-                width: double.infinity,
-                height: 200,
-                fit: BoxFit.cover,
-              ),
-              Positioned(
-                top: 8,
-                left: 8,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: Container(
-                    padding: EdgeInsets.all(8),
-                    color: Colors.white,
-                    child: Text(
-                      '\$${event.vipPrice.toString()}',
-                      style: TextStyle(color: Colors.black),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EventDetailScreen(event: widget.event),
+          ),
+        );
+      },
+      child: Card(
+        margin: EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              children: [
+                CachedNetworkImage(
+                  imageUrl: 'http://localhost:5000/thumbnails/thumbnail.jpeg',
+                  placeholder: (context, url) =>
+                      Center(child: CircularProgressIndicator()),
+                  errorWidget: (context, url, error) => Icon(Icons.error),
+                  width: double.infinity,
+                  height: 200,
+                  fit: BoxFit.cover,
+                ),
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: Container(
+                      padding: EdgeInsets.all(8),
+                      color: Colors.white,
+                      child: Text(
+                        '\$${widget.event.vipPrice.toString()}',
+                        style: TextStyle(color: Colors.black),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  event.title,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: IconButton(
+                    icon: Icon(
+                      isFavorite ? Icons.bookmark : Icons.bookmark_add_outlined,
+                      color: isFavorite ? Theme.of(context).primaryColor : null,
+                    ),
+                    onPressed: toggleFavorite,
+                  ),
                 ),
-                SizedBox(height: 8),
-                Text(event.description),
-                SizedBox(height: 8),
-                Text(
-                    'Date: ${event.startDate.toLocal()} - ${event.endDate.toLocal()}'),
-                SizedBox(height: 8),
-                Text('Location: ${event.location}'),
               ],
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.event.title,
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 8),
+                  Text(widget.event.description),
+                  SizedBox(height: 8),
+                  Text(
+                      'Date: ${widget.event.startDate.toLocal()} - ${widget.event.endDate.toLocal()}'),
+                  SizedBox(height: 8),
+                  Text('Location: ${widget.event.location}'),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -177,10 +250,15 @@ class _EventsListScreenState extends State<EventsListScreen> {
     );
   }
 
-  Future<List<Event>> fetchEvents(
-      {String searchQuery = '',
-      String sortOption = '',
-      String locationFilter = ''}) async {
+  Future<List<Event>> fetchEvents({
+    String searchQuery = '',
+    String sortOption = '',
+    String locationFilter = '',
+  }) async {
+    final StorageService storageService = StorageService();
+    final userData = await storageService.getUserData();
+    final userId = userData?['_id'];
+    print(userId);
     String url = AppConstants.APIURL + '/events?q=$searchQuery';
     if (sortOption.isNotEmpty) {
       url += '&sort=$sortOption';
@@ -188,6 +266,10 @@ class _EventsListScreenState extends State<EventsListScreen> {
     if (locationFilter.isNotEmpty) {
       url += '&location=$locationFilter';
     }
+    if (userId != null && userId.isNotEmpty) {
+      url += '&userId=$userId';
+    }
+
     print(url);
     final response = await http.get(Uri.parse(url));
 
