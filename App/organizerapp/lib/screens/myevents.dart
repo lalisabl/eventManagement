@@ -1,12 +1,13 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:organizerapp/constants/url.dart';
 import 'package:organizerapp/models/Event.dart';
 import 'package:organizerapp/screens/manageattendant.dart';
 import 'package:organizerapp/services/user_data.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:organizerapp/screens/event_detail.dart';
 
 class EventCard extends StatefulWidget {
   final Event event;
@@ -28,7 +29,7 @@ class _EventCardState extends State<EventCard> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => Manageattendant(),
+            builder: (context) => EventDetailScreen(event: widget.event),
           ),
         );
       },
@@ -153,24 +154,11 @@ class _EventsListScreenState extends State<Myevents> {
     );
   }
 
-  Future<List<Event>> fetchEvents({
-    String searchQuery = '',
-    String sortOption = '',
-    String locationFilter = '',
-  }) async {
+  Future<List<Event>> fetchEvents() async {
     final userData = await getUserData();
     final userId = userData['userId'];
     print(userId);
-    String url = AppConstants.APIURL + '/events?q=$searchQuery';
-    if (sortOption.isNotEmpty) {
-      url += '&sort=$sortOption';
-    }
-    if (locationFilter.isNotEmpty) {
-      url += '&location=$locationFilter';
-    }
-    if (userId != null && userId.isNotEmpty) {
-      url += '&userId=$userId';
-    }
+    String url = AppConstants.APIURL + '/events?userId=$userId';
 
     print(url);
     final response = await http.get(Uri.parse(url));
