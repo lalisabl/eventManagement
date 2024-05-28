@@ -121,6 +121,42 @@ export const getTickets = async (req: Request, res: Response) => {
   }
 };
 
+export const getMyTickets = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
+
+    // Fetch all tickets for the user
+    const tickets = await Ticket.find({ userId }).populate(
+      'transactionId',
+      '-checkout_url -__v'
+    );
+
+    if (!tickets.length) {
+      return res
+        .status(404)
+        .json({ message: 'No tickets found for this user' });
+    }
+
+    // Verify transactions for each ticket
+    for (let ticket of tickets) {
+      let transaction: any = ticket.transactionId;
+      if (transaction.status !== 'completed') {
+        await verifyTransaction(transaction._id);
+      }
+    }
+
+    // Re-fetch tickets to get updated transaction status
+    const updatedTickets = await Ticket.find({ userId }).populate(
+      'transactionId',
+      '-checkout_url -__v'
+    );
+
+    res.json(updatedTickets);
+  } catch (error) {
+    console.error('Error fetching tickets for user:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 // Get ticket by ID
 export const getTicketById = async (req: Request, res: Response) => {
   try {
