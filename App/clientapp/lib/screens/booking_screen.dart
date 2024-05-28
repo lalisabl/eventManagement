@@ -66,7 +66,6 @@ class _BookingScreenState extends State<BookingScreen> {
            // 'price': price,//
           }),
         );
-        print(response.statusCode);
         if (response.statusCode == 201) {
           final responseData = jsonDecode(response.body);
           _showCheckoutDialog(responseData['tranx']['checkout_url']);

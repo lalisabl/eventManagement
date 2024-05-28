@@ -1,11 +1,9 @@
-// lib/screens/my_tickets_screen.dart
 import 'dart:convert';
-import 'package:clientapp/screens/ticket_detail.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:clientapp/constants/url.dart';
-import 'package:clientapp/models/ticket.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import 'package:clientapp/models/ticket.dart';
+import 'package:clientapp/constants/url.dart';
 
 class MyTicketsScreen extends StatefulWidget {
   @override
@@ -27,10 +25,13 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
     if (userData != null) {
       final user = jsonDecode(userData);
       final userId = user['_id'];
-      final response = await http.get(Uri.parse(AppConstants.APIURL + '/mytickets/$userId'));
+      final response =
+          await http.get(Uri.parse(AppConstants.APIURL + '/mytickets/$userId'));
 
       if (response.statusCode == 200) {
-        final List<dynamic> ticketJson = jsonDecode(response.body);
+        final responseBody = response.body;
+        print(responseBody); // Debugging: print the response body
+        final List<dynamic> ticketJson = jsonDecode(responseBody);
         setState(() {
           tickets = ticketJson.map((json) => Ticket.fromJson(json)).toList();
         });
@@ -48,27 +49,18 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
       appBar: AppBar(
         title: Text('My Tickets'),
       ),
-      body: tickets.isEmpty
-          ? Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: tickets.length,
-              itemBuilder: (context, index) {
-                final ticket = tickets[index];
-                return ListTile(
-                  title: Text('${ticket.firstName} ${ticket.lastName}'),
-                  subtitle: Text('Type: ${ticket.type} - Status: ${ticket.status}'),
-                  trailing: Text('\$${ticket.price}'),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TicketDetailScreen(ticket: ticket),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+      body: ListView.builder(
+        itemCount: tickets.length,
+        itemBuilder: (context, index) {
+          final ticket = tickets[index];
+          return ListTile(
+            title: Text(ticket.type),
+            subtitle:
+                Text('Status: ${ticket.status}\nPrice: \$${ticket.price}'),
+            trailing: Text('Ticket Code: ${ticket.ticketCode}'),
+          );
+        },
+      ),
     );
   }
 }
