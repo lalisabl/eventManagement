@@ -1,16 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:organizerapp/models/Event.dart';
+import 'package:organizerapp/screens/event_detail.dart';
 
-class Editevent extends StatelessWidget {
+class EditEventScreen extends StatelessWidget {
+  final Event event;
+
+  const EditEventScreen({Key? key, required this.event}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
+      appBar: AppBar(
+        leading: BackButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => EventDetailScreen(event: event),
+              ),
+            );
+          },
+        ),
+        title: Text('Edit Event'),
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'edit event',
+              'This is the Edit event page',
               style: TextStyle(fontSize: 24),
             ),
           ],

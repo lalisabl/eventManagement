@@ -1,12 +1,16 @@
 import 'dart:convert';
-
 import 'package:organizerapp/constants/url.dart';
 import 'package:organizerapp/screens/authentication/login.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:organizerapp/models/Event.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:organizerapp/themes/colors.dart';
 import 'package:http/http.dart' as http;
+
+// Import the necessary screens
+import 'package:organizerapp/screens/editevent.dart';
+import 'package:organizerapp/screens/eventattendance.dart';
 
 class EventDetailScreen extends StatefulWidget {
   final Event event;
@@ -18,12 +22,30 @@ class EventDetailScreen extends StatefulWidget {
 }
 
 class _EventDetailScreenState extends State<EventDetailScreen> {
-  bool isFavorite = false; // Track the favorite status
   final storage = FlutterSecureStorage();
 
   @override
   void initState() {
     super.initState();
+  }
+
+  void _editEvent() {
+    // Navigate to EditEventScreen
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditEventScreen(event: widget.event),
+      ),
+    );
+  }
+
+  void _attendEvent() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EventAttendanceScreen(),
+      ),
+    );
   }
 
   @override
@@ -67,8 +89,44 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 widget.event.description,
                 style: TextStyle(fontSize: 16),
               ),
+
+              // Add the new buttons here
               SizedBox(height: 16.0),
-              // Favorite button
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: _editEvent,
+                    icon: Icon(
+                      Icons.edit,
+                      color: AppColors.primaryColor,
+                    ),
+                    label: Text(
+                      'Edit Event',
+                      style: TextStyle(
+                        height: 3.5,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: _attendEvent,
+                    icon: Icon(
+                      Icons.event_available,
+                      color: AppColors.primaryColor,
+                    ),
+                    label: Text(
+                      'Attend Event',
+                      style: TextStyle(
+                        height: 3.5,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),

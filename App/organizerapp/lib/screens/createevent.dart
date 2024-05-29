@@ -15,7 +15,7 @@ class Createevent extends StatefulWidget {
 class _CreateEventScreenState extends State<Createevent> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _ = TextEditingController();
+  final TextEditingController _OrganizerIdController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _normalTicketsController =
@@ -61,7 +61,7 @@ class _CreateEventScreenState extends State<Createevent> {
 
       final request = http.MultipartRequest(
         'POST',
-        Uri.parse(AppConstants.APIURL + '/events'),
+        Uri.parse(AppConstants.APIURL + '/events' + 'createEvent'),
       );
 
       request.headers['Content-Type'] = 'application/json';

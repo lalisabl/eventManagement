@@ -8,6 +8,7 @@ import 'package:organizerapp/models/Event.dart';
 import 'package:organizerapp/screens/manageattendant.dart';
 import 'package:organizerapp/services/user_data.dart';
 import 'package:organizerapp/screens/event_detail.dart';
+import 'package:organizerapp/themes/colors.dart';
 
 class EventCard extends StatefulWidget {
   final Event event;
@@ -126,6 +127,15 @@ class _EventsListScreenState extends State<Myevents> {
                     ),
                   ),
                   SizedBox(width: 8.0),
+                  Center(
+                    child: Text(
+                      "My Events",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primaryColor,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

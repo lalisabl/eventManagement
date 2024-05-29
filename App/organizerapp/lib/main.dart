@@ -32,7 +32,6 @@ class MyApp extends StatelessWidget {
           '/profile': (context) => ProfileScreen(),
           '/home': (context) => OwnerBottomNavigationBar(),
           '/packages': (context) => Packages(),
-          '/editevent': (context) => Editevent(),
           '/manageattendant': (context) => Manageattendant(),
         });
   }
