@@ -139,14 +139,13 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
                                 },
                                 style: ElevatedButton.styleFrom(
                                   padding: EdgeInsets.symmetric(
-                                      horizontal: 32, vertical: 12),
+                                      horizontal: 32, vertical: 5),
                                   textStyle: TextStyle(fontSize: 18),
                                   backgroundColor: AppColors.primaryColor,
                                 ),
                                 child: Text(
                                   'Checkout',
                                   style: TextStyle(
-                                    height: 3.5,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
                                   ),
