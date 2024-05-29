@@ -21,8 +21,8 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: AppThemes.lightTheme,
-        darkTheme: AppThemes.darkTheme,
-        themeMode: ThemeMode.system,
+        // darkTheme: AppThemes.darkTheme,
+        // themeMode: ThemeMode.system,
         initialRoute: '/login',
         routes: {
           '/login': (context) => LoginScreen(),

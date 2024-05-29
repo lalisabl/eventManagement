@@ -19,6 +19,7 @@ import {
   forgotPassword,
   resetPassword,
   googleSignInRedirect,
+  logoutUser,
 } from '../controllers/userController';
 // event routes
 import {
@@ -87,6 +88,8 @@ router.patch('/resetPassword/:token', resetPassword);
 // AUTHENTICATION
 //login
 router.post('/users/login', loginUser);
+// logout
+router.post('/users/logout',logoutUser); 
 
 // Google OAuth login route
 router.get(
@@ -110,7 +113,6 @@ router.get(
 //   passport.authenticate('google', { failureRedirect: '/login' }),googleSignInRedirect
 // );
 
-router.post('/users/logout'); //finish logout here
 
 // event routes
 // VIEW
