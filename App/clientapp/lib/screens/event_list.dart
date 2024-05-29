@@ -36,7 +36,6 @@ class _EventCardState extends State<EventCard> {
       final user = jsonDecode(userData);
       final userId = user['_id'];
       final eventId = widget.event.id;
-      print(eventId + " user: " + userId);
       final response = await http.post(
         Uri.parse(AppConstants.APIURL + '/favorites'),
         headers: {'Content-Type': 'application/json'},
@@ -45,7 +44,6 @@ class _EventCardState extends State<EventCard> {
           'eventId': eventId,
         }),
       );
-      print(response.statusCode);
       if (response.statusCode == 201 || response.statusCode == 200) {
         setState(() {
           isFavorite = true;

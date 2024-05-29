@@ -1,5 +1,4 @@
 import 'package:clientapp/screens/event_list.dart';
-import 'package:clientapp/screens/screen2.dart';
 import 'package:clientapp/screens/screen3.dart';
 import 'package:clientapp/screens/screen4.dart';
 import 'package:clientapp/themes/themes.dart';
@@ -8,7 +7,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:clientapp/screens/authentication/login.dart';
 import 'package:clientapp/screens/authentication/register.dart';
 import 'package:clientapp/widgets/bottom_bar.dart';
-import 'package:clientapp/screens/screen1.dart';
 
 void main() {
   runApp(MyApp());
@@ -52,7 +50,7 @@ class MyApp extends StatelessWidget {
               '/eventlist': (context) => EventsListScreen(),
               '/login': (context) => LoginScreen(),
               '/register': (context) => SignUpScreen(),
-              '/screen2': (context) => Screen2(),
+            
               '/screen3': (context) => Screen3(),
               '/screen4': (context) => Screen4(),
             },
