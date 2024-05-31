@@ -1,4 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vendorapp/constants/url.dart';
 import 'package:vendorapp/screens/add_product_screen.dart';
 import 'package:vendorapp/themes/colors.dart';
 
@@ -12,11 +18,95 @@ class _CreatePackageScreenState extends State<CreatePackageScreen> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _priceController = TextEditingController();
+  File? _imageFile;
+  bool _isLoading = false;
 
-  void _submitForm() {
+  Future<void> _pickImage() async {
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+      if (pickedFile != null) {
+        setState(() {
+          _imageFile = File(pickedFile.path);
+        });
+      }
+    } catch (e) {
+      print('An error occurred while picking the image: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('An error occurred while picking the image: $e')),
+      );
+    }
+  }
+
+  Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      // Handle package creation logic
-      Navigator.of(context).pop();
+      setState(() {
+        _isLoading = true;
+      });
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+      String? userId = prefs.getString('userId');
+
+      if (token == null || userId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('User not authenticated')),
+        );
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
+      // Debug statements to ensure userId and token are correct
+      print('Token: $token');
+      print('UserId: $userId');
+
+      try {
+        final request = http.MultipartRequest(
+            'POST', Uri.parse('${AppConstants.APIURL}/package'))
+          ..fields['name'] = _nameController.text
+          ..fields['description'] = _descriptionController.text
+          ..fields['price'] = _priceController.text
+          ..fields['vendorId'] = userId
+          ..headers['Authorization'] = 'Bearer $token';
+
+        if (_imageFile != null) {
+          request.files.add(await http.MultipartFile.fromPath(
+              'packageImage', _imageFile!.path));
+        }
+
+        final streamedResponse = await request.send();
+        final response = await http.Response.fromStream(streamedResponse);
+
+        if (response.statusCode == 201) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Package created successfully')),
+          );
+          _nameController.clear();
+          _descriptionController.clear();
+          _priceController.clear();
+          setState(() {
+            _imageFile = null;
+          });
+        } else {
+          final errorMsg = json.decode(response.body)['message'];
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $errorMsg')),
+          );
+        }
+      } catch (e) {
+        print('An error occurred while submitting the form: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('An error occurred: $e')),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -59,6 +149,18 @@ class _CreatePackageScreenState extends State<CreatePackageScreen> {
                 key: _formKey,
                 child: Column(
                   children: <Widget>[
+                    if (_imageFile != null)
+                      Image.file(
+                        _imageFile!,
+                        height: 150,
+                        width: 150,
+                      ),
+                    TextButton.icon(
+                      icon: Icon(Icons.image),
+                      label: Text('Pick Image'),
+                      onPressed: _pickImage,
+                    ),
+                    SizedBox(height: 20),
                     TextFormField(
                       controller: _nameController,
                       decoration: InputDecoration(
@@ -160,14 +262,20 @@ class _CreatePackageScreenState extends State<CreatePackageScreen> {
                           AppColors.primaryColor,
                         ),
                       ),
-                      child: const Text(
-                        'Create Package',
-                        style: TextStyle(
-                          height: 3.5,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
+                      child: _isLoading
+                          ? CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            )
+                          : Text(
+                              'Create Package',
+                              style: TextStyle(
+                                height: 3.5,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
                     ),
                   ],
                 ),

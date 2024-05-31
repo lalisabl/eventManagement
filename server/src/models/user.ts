@@ -1,17 +1,17 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import Joi from 'joi';
 import bcrypt from 'bcrypt';
-import crypto from "crypto";
+import crypto from 'crypto';
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 
 // Define interface for User document
 interface UserDocument extends Document {
   _id: string;
   firstName: string;
-  lastName:string;
+  lastName: string;
   username: string;
   email: string;
-  password:string;  
+  password: string;
   profileImage: string;
   jobTitle?: string;
   company?: string;
@@ -23,30 +23,32 @@ interface UserDocument extends Document {
   createdAt: Date;
   updatedAt: Date;
   comparePassword: (password: string) => Promise<boolean>; // Ensure correct method definition
-  passwordResetToken?: String,
-  passwordResetExpires?: Date,
-  createPasswordResetToken:()=>String,
-}
+  passwordResetToken?: String;
+  passwordResetExpires?: Date;
+  createPasswordResetToken: () => String;
 
+  // Define id as an optional property
+  // id: string;
+}
 
 // UserSchema
 const UserSchema: Schema = new Schema(
   {
-    
+    // id: { type: String },
     firstName: { type: String },
     lastName: { type: String },
     username: { type: String, unique: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String},
+    password: { type: String },
     profileImage: { type: String },
     jobTitle: { type: String },
     company: { type: String },
     phoneNumber: { type: String },
-    passwordResetToken: {type:String},
-    passwordResetExpires: {type:Date},
+    passwordResetToken: { type: String },
+    passwordResetExpires: { type: Date },
   },
   { timestamps: true }
-); 
+);
 
 // Joi validation schema for User
 const userValidationSchema = Joi.object({
@@ -64,8 +66,8 @@ const userValidationSchema = Joi.object({
   jobTitle: Joi.string().allow(null, ''),
   company: Joi.string().allow(null, ''),
   phoneNumber: Joi.string().allow(null, ''),
-  passwordResetToken:Joi.string().allow(''),
-  passwordResetExpires:Joi.date().allow(''),
+  passwordResetToken: Joi.string().allow(''),
+  passwordResetExpires: Joi.date().allow(''),
 });
 
 UserSchema.pre<UserDocument>('save', async function (next) {
@@ -75,7 +77,7 @@ UserSchema.pre<UserDocument>('save', async function (next) {
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(this.password, salt);
       this.password = hashedPassword;
-    } catch (error:any) {
+    } catch (error: any) {
       return next(error);
     }
   }
@@ -92,11 +94,11 @@ const validateUser = (user: UserDocument) => {
 };
 // password reset token
 UserSchema.methods.createPasswordResetToken = function () {
-  const resetToken = crypto.randomBytes(32).toString("hex");
+  const resetToken = crypto.randomBytes(32).toString('hex');
   this.passwordResetToken = crypto
-    .createHash("sha256")
+    .createHash('sha256')
     .update(resetToken)
-    .digest("hex");
+    .digest('hex');
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
   return resetToken;
 };

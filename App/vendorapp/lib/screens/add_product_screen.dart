@@ -1,7 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:vendorapp/themes/colors.dart';
+import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vendorapp/constants/url.dart';
+import 'package:vendorapp/themes/colors.dart';
 
 class AddProductScreen extends StatefulWidget {
   @override
@@ -14,41 +18,94 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _descriptionController = TextEditingController();
   final _priceController = TextEditingController();
   File? _selectedImage;
-  bool _isImageLoading = false;
+  bool _isLoading = false;
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _descriptionController.dispose();
-    _priceController.dispose();
-    super.dispose();
-  }
-
-  void _submitForm(BuildContext context) {
-    if (_formKey.currentState!.validate()) {
-      // Handle product creation logic
-      Navigator.of(context).pop();
-    }
-  }
-
-  Future<void> _pickImage(BuildContext context) async {
-    final picker = ImagePicker();
+  Future<void> _pickImage() async {
     try {
+      final picker = ImagePicker();
       final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
       if (pickedFile != null) {
         setState(() {
           _selectedImage = File(pickedFile.path);
         });
-      } else {
-        // Handle errors if image is not picked
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No image selected')),
-        );
       }
     } catch (e) {
+      print('An error occurred while picking the image: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to pick image: $e')),
+        SnackBar(
+            content: Text('An error occurred while picking the image: $e')),
       );
+    }
+  }
+
+  Future<void> _submitForm() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+      String? userId = prefs.getString('userId');
+
+      if (token == null || userId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('User not authenticated')),
+        );
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
+      // Debug statements to ensure userId and token are correct
+      print('Token: $token');
+      print('UserId: $userId');
+
+      try {
+        final request = http.MultipartRequest(
+            'POST', Uri.parse('${AppConstants.APIURL}/product'))
+          ..fields['name'] = _nameController.text
+          ..fields['description'] = _descriptionController.text
+          ..fields['price'] = _priceController.text
+          ..fields['vendorId'] = userId
+          ..headers['Authorization'] = 'Bearer $token';
+
+        if (_selectedImage != null) {
+          request.files.add(await http.MultipartFile.fromPath(
+              'productImage', _selectedImage!.path));
+        }
+
+        final streamedResponse = await request.send();
+        final response = await http.Response.fromStream(streamedResponse);
+
+        if (response.statusCode == 201) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Product created successfully')),
+          );
+          _nameController.clear();
+          _descriptionController.clear();
+          _priceController.clear();
+          setState(() {
+            _selectedImage = null;
+          });
+        } else {
+          final errorMsg = json.decode(response.body)['message'];
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $errorMsg')),
+          );
+        }
+      } catch (e) {
+        print('An error occurred while submitting the form: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('An error occurred: $e')),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -80,22 +137,16 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 key: _formKey,
                 child: Column(
                   children: <Widget>[
-                    GestureDetector(
-                      onTap: () => _pickImage(context),
-                      child: Container(
-                        height: 200,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryColor.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        child: _isImageLoading
-                            ? Center(child: CircularProgressIndicator())
-                            : _selectedImage == null
-                                ? Center(child: Text('Tap to select an image'))
-                                : Image.file(_selectedImage!,
-                                    fit: BoxFit.cover),
+                    if (_selectedImage != null)
+                      Image.file(
+                        _selectedImage!,
+                        height: 150,
+                        width: 150,
                       ),
+                    TextButton.icon(
+                      icon: Icon(Icons.image),
+                      label: Text('Pick Image'),
+                      onPressed: _pickImage,
                     ),
                     SizedBox(height: 20),
                     TextFormField(
@@ -193,20 +244,28 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     ),
                     SizedBox(height: 30),
                     ElevatedButton(
-                      onPressed: () => _submitForm(context),
+                      onPressed: _submitForm,
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all<Color>(
                           AppColors.primaryColor,
                         ),
                       ),
-                      child: const Text(
-                        'Add Product',
-                        style: TextStyle(
-                          height: 3.5,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
+                      child: _isLoading
+                          ? CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                AppColors.secondaryColor,
+                              ),
+                            )
+                          : Text(
+                              'Create Product',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: isDarkMode
+                                    ? Colors.black
+                                    : AppColors.secondaryColor,
+                              ),
+                            ),
                     ),
                   ],
                 ),

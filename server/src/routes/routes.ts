@@ -2,8 +2,11 @@
 // comments
 import express from 'express';
 import passport from 'passport';
+import multer from 'multer';
+import path from 'path';
+
 // user routes
-import { User,UserDocument, } from '../models/user';
+import { User, UserDocument } from '../models/user';
 import {
   getAllUsers,
   getUserById,
@@ -41,6 +44,7 @@ import {
 import {
   createPackage,
   getAllPackages,
+  getMyPackages,
   getPackageById,
   updatePackageById,
   deletePackageById,
@@ -55,31 +59,46 @@ import {
 } from '../controllers/ticketController';
 import { tryChapa } from '../controllers/transactionController';
 
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'src/public/packages-product/'); // Set the destination directory for uploaded files
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    cb(null, `${Date.now()}${ext}`); // Set the filename for uploaded files (use timestamp to avoid conflicts)
+  },
+});
+
+const upload = multer({ storage: storage });
+
 const router = express.Router();
 
 // Routes with controller functions
 router.post('/users/create', registerUser);
 router.get('/users', getAllUsers);
-router.get('/profile', protect,getMe,getUserById);
+router.get('/profile', protect, getMe, getUserById);
 router.get('/users/:id', getUserById);
 router.put('/users/:id', updateUserById);
 router.delete('/users/:id', deleteUserById);
 router.patch(
-  "/updateProfile",
-protect,
-uploadUserPhoto,
-resizeUserPhoto,
-updateProfile
+  '/updateProfile',
+  protect,
+  uploadUserPhoto,
+  resizeUserPhoto,
+  updateProfile
 );
-router.post("/forgotPassword",forgotPassword);
-router.patch("/resetPassword/:token",resetPassword);
+router.post('/forgotPassword', forgotPassword);
+router.patch('/resetPassword/:token', resetPassword);
 
 // AUTHENTICATION
 //login
 router.post('/users/login', loginUser);
 
 // Google OAuth login route
-router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get(
+  '/auth/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
 
 // Google OAuth callback route
 
@@ -87,8 +106,8 @@ router.get(
   '/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
-   // Redirect the user to the home page upon successful authentication
-   res.redirect('http://localhost:3000/home');
+    // Redirect the user to the home page upon successful authentication
+    res.redirect('http://localhost:3000/home');
   }
 );
 
@@ -124,7 +143,7 @@ router.delete('/tickets/:id', deleteTicket);
 router.get('/product', getAllProducts);
 router.get('/product/:id', getProductById);
 // API
-router.post('/product', createProduct);
+router.post('/product', protect, upload.single('productImage'), createProduct);
 router.put('/product/:id', updateProductById);
 router.delete('/product/:id', deleteProductById);
 
@@ -132,9 +151,10 @@ router.delete('/product/:id', deleteProductById);
 // package routes
 //views
 router.get('/package', getAllPackages);
+router.get('/myPackage', protect, getMyPackages);
 router.get('/package/:id', getPackageById);
 // Routes for Package CRUD operations
-router.post('/package', createPackage);
+router.post('/package', protect, upload.single('packageImage'), createPackage);
 router.put('/package/:id', updatePackageById);
 router.delete('/package/:id', deletePackageById);
 
