@@ -106,7 +106,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                       style: TextStyle(
                         height: 3.5,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: AppColors.primaryColor,
                       ),
                     ),
                   ),
@@ -117,11 +117,11 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                       color: AppColors.primaryColor,
                     ),
                     label: Text(
-                      'Attend Event',
+                      'Event Attendance',
                       style: TextStyle(
                         height: 3.5,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: AppColors.primaryColor,
                       ),
                     ),
                   ),
