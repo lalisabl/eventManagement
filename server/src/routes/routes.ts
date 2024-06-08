@@ -45,6 +45,7 @@ import {
   createPackage,
   getAllPackages,
   getMyPackages,
+  getMyPackageById,
   getPackageById,
   updatePackageById,
   deletePackageById,
@@ -152,6 +153,7 @@ router.delete('/product/:id', deleteProductById);
 //views
 router.get('/package', getAllPackages);
 router.get('/myPackage', protect, getMyPackages);
+router.get('/myPackage/:id', protect, getMyPackageById);
 router.get('/package/:id', getPackageById);
 // Routes for Package CRUD operations
 router.post('/package', protect, upload.single('packageImage'), createPackage);

@@ -112,7 +112,6 @@ class APIfeatures {
 
 // Get all packages
 export const getAllPackages = async (req: Request, res: Response) => {
-  
   try {
     const features = new APIfeatures(Package.find(), req.query)
       .multfilter()
@@ -131,9 +130,16 @@ export const getAllPackages = async (req: Request, res: Response) => {
 export const getMyPackages = async (req: Request, res: Response) => {
   try {
     const userId = (req.user as UserDocument)._id; // Assuming user ID is available in req.user
-    const packages = await Package.find({ vendorId: userId }).populate(
-      'vendorId'
-    ); // Assuming 'vendorId' field references the User model
+    const packages = await Package.find({ vendorId: userId }).populate([
+      {
+        path: 'vendorId',
+        select: 'username email', // Fields to select for vendorId
+      },
+      {
+        path: 'includedServices',
+        select: 'name description price productImage', // Fields to select for includedServices
+      },
+    ]);
 
     res.status(200).json({ packages });
   } catch (error) {
@@ -141,6 +147,43 @@ export const getMyPackages = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to fetch packages' });
   }
 };
+
+// Controller function to get a single package by ID
+export const getMyPackageById = async (req: Request, res: Response) => {
+  try {
+    const packageId = req.params.id;
+    const userId = (req.user as UserDocument)._id;
+
+    //  console.log(`Received request for packageId: ${packageId}`);
+
+    const packagep = await Package.findOne({
+      _id: packageId,
+      vendorId: userId,
+    }).populate([
+      {
+        path: 'vendorId',
+        select: 'username email',
+      },
+      {
+        path: 'includedServices',
+        select: 'name description price productImage',
+      },
+    ]);
+
+    if (!packagep) {
+      return res.status(404).json({ message: 'Package not found' });
+    }
+
+    // console.log(`Found package: ${packagep}`);
+
+    res.status(200).json({ packagep });
+  } catch (error) {
+    console.error('Error fetching package:', error);
+    res.status(500).json({ error: 'Failed to fetch package' });
+  }
+};
+
+// Route for fetching a single package by ID
 
 // Get a single package by ID
 export const getPackageById = async (req: Request, res: Response) => {

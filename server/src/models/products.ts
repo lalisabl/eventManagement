@@ -8,6 +8,7 @@ interface IProduct extends Document {
   description: string;
   price: number;
   productImage: string; // Updated to productImage
+  packageId: mongoose.Types.ObjectId; // Add packageId
 }
 
 // Define the schema for the product
@@ -18,6 +19,7 @@ const ProductSchema: Schema = new Schema(
     description: { type: String, required: true },
     price: { type: Number, required: true },
     productImage: { type: String, required: true }, // Updated to productImage
+    packageId: { type: Schema.Types.ObjectId, ref: 'Package' }, // Add packageId
   },
   { timestamps: true }
 );
@@ -29,6 +31,7 @@ const productJoiSchema = Joi.object({
   description: Joi.string().required(),
   price: Joi.number().required(),
   productImage: Joi.string().required(), // Updated to productImage
+  packageId: Joi.string(), // Add packageId to validation schema
 });
 
 // Validate product data against Joi schema

@@ -1,29 +1,30 @@
 import { Request, Response } from 'express';
 import Product, { validateProduct } from '../models/products';
+import Package from '../models/packageModel';
 import { User, UserDocument } from '../models/user';
 // Controller functions for Product CRUD operations
 
 // Create a new product
 export const createProduct = async (req: Request, res: Response) => {
-  const { name, description, price } = req.body;
+  const { name, description, price, packageId } = req.body;
 
-  // Ensure user is authenticated
   if (!req.user || !(req.user as UserDocument)._id) {
     return res.status(401).json({ message: 'User not authenticated' });
   }
 
-  // Convert vendorId to string
   const vendorId = (req.user as UserDocument)._id.toString();
 
-  console.log('VendorId:', vendorId); // Debug log
+  if (!packageId) {
+    return res.status(400).json({ message: 'Package ID is required' });
+  }
 
-  // Validate the extracted fields
   const { error } = validateProduct({
     vendorId,
     name,
     description,
     price,
     productImage: req.file?.path,
+    packageId, // Validate packageId
   });
 
   if (error) {
@@ -38,11 +39,18 @@ export const createProduct = async (req: Request, res: Response) => {
     description,
     price,
     productImage: req.file ? req.file.path : '',
+    packageId, // Set packageId
   };
 
   try {
     const product = new Product(productData);
     const savedProduct = await product.save();
+
+    // Update the package's includedServices field
+    await Package.findByIdAndUpdate(packageId, {
+      $push: { includedServices: savedProduct._id },
+    });
+
     res.status(201).json({
       status: 'success',
       product: savedProduct,

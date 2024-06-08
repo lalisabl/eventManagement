@@ -40,6 +40,8 @@ class _CreatePackageScreenState extends State<CreatePackageScreen> {
     }
   }
 
+  //  String? packageId; // Define packageId variable
+
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -82,9 +84,18 @@ class _CreatePackageScreenState extends State<CreatePackageScreen> {
         final response = await http.Response.fromStream(streamedResponse);
 
         if (response.statusCode == 201) {
+          final responseData = json.decode(response.body);
+          final packageId = responseData['_id'];
+
+          // Store the package ID in SharedPreferences
+          await prefs.setString('packageId', packageId);
+
+          print('packageID: $packageId');
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Package created successfully')),
           );
+
           _nameController.clear();
           _descriptionController.clear();
           _priceController.clear();

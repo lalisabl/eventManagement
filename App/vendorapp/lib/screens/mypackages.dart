@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vendorapp/constants/url.dart';
 import 'package:vendorapp/themes/colors.dart';
+import 'package:vendorapp/screens/package_detail_screen.dart'; // Import the new detail screen
 
 class PackagesScreen extends StatefulWidget {
   @override
@@ -130,6 +131,38 @@ class _PackagesScreenState extends State<PackagesScreen> {
                                   package['description'],
                                   style: TextStyle(
                                       fontSize: 14), // Adjust font size
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0), // Reduce padding
+                                child: Text(
+                                  'Price = ${package!['price'].toString()}',
+                                  // package!['price'].toString(),
+                                  style: TextStyle(
+                                    fontSize: 14, // Adjust font size
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.all(8.0), // Add padding
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    print(
+                                        'Navigating to PackageDetailScreen with packageId: ${package['_id']}');
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            PackageDetailScreen(
+                                                packageId: package['_id']),
+
+                                        //  print('packageId: $packageId');
+                                      ),
+                                    );
+                                  },
+                                  child: Text('See Detail'),
                                 ),
                               ),
                             ],

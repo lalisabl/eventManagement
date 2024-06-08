@@ -48,10 +48,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
       String? userId = prefs.getString('userId');
+      String? packageId = prefs.getString('packageId');
 
-      if (token == null || userId == null) {
+      if (token == null || userId == null || packageId == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('User not authenticated')),
+          SnackBar(content: Text('Package ID or user not authenticated')),
         );
         setState(() {
           _isLoading = false;
@@ -62,6 +63,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       // Debug statements to ensure userId and token are correct
       print('Token: $token');
       print('UserId: $userId');
+      print('packageID: $packageId');
 
       try {
         final request = http.MultipartRequest(
@@ -69,6 +71,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           ..fields['name'] = _nameController.text
           ..fields['description'] = _descriptionController.text
           ..fields['price'] = _priceController.text
+          ..fields['packageId'] = packageId
           ..fields['vendorId'] = userId
           ..headers['Authorization'] = 'Bearer $token';
 
