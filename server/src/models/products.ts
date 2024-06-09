@@ -43,4 +43,4 @@ function validateProduct(productData: any) {
 const Product = mongoose.model<IProduct>('Product', ProductSchema);
 
 export default Product;
-export { validateProduct };
+export { validateProduct, IProduct };

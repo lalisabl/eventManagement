@@ -26,9 +26,6 @@ interface UserDocument extends Document {
   passwordResetToken?: String;
   passwordResetExpires?: Date;
   createPasswordResetToken: () => String;
-
-  // Define id as an optional property
-  // id: string;
 }
 
 // UserSchema

@@ -36,9 +36,11 @@ import {
 import {
   createProduct,
   getAllProducts,
+  getMyProducts,
   getProductById,
   updateProductById,
   deleteProductById,
+  getMyProductById,
 } from '../controllers/productController';
 // package routes
 import {
@@ -143,9 +145,21 @@ router.delete('/tickets/:id', deleteTicket);
 //VIEWs
 router.get('/product', getAllProducts);
 router.get('/product/:id', getProductById);
+router.get('/myProduct', protect, getMyProducts);
+router.get(
+  '/myProduct/:id',
+  protect,
+
+  getMyProductById
+);
 // API
 router.post('/product', protect, upload.single('productImage'), createProduct);
-router.put('/product/:id', updateProductById);
+router.put(
+  '/myProduct/:id',
+  protect,
+  upload.single('productImage'),
+  updateProductById
+);
 router.delete('/product/:id', deleteProductById);
 
 // attendant routes
@@ -157,7 +171,12 @@ router.get('/myPackage/:id', protect, getMyPackageById);
 router.get('/package/:id', getPackageById);
 // Routes for Package CRUD operations
 router.post('/package', protect, upload.single('packageImage'), createPackage);
-router.put('/package/:id', updatePackageById);
+router.put(
+  '/package/:id',
+  protect,
+  upload.single('packageImage'),
+  updatePackageById
+);
 router.delete('/package/:id', deletePackageById);
 
 export default router;

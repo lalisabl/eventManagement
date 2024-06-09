@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vendorapp/constants/url.dart';
+import 'package:vendorapp/screens/edit_package_screen.dart';
 
 class PackageDetailScreen extends StatefulWidget {
   final String packageId;
@@ -65,6 +66,66 @@ class _PackageDetailScreenState extends State<PackageDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('An error occurred: $e')),
       );
+    }
+  }
+
+  Future<void> _deletePackage() async {
+    bool confirmDelete = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirm Delete'),
+          content: Text('Are you sure you want to delete this package?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmDelete != null && confirmDelete) {
+      // Proceed with deletion
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+
+      if (token == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('User not authenticated')),
+        );
+        return;
+      }
+
+      try {
+        final response = await http.delete(
+          Uri.parse('${AppConstants.APIURL}/Package/${widget.packageId}'),
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        );
+
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Package deleted successfully')),
+          );
+          Navigator.pop(context);
+        } else {
+          final errorMsg = json.decode(response.body)['message'];
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $errorMsg')),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('An error occurred: $e')),
+        );
+      }
     }
   }
 
@@ -195,6 +256,29 @@ class _PackageDetailScreenState extends State<PackageDetailScreen> {
                                   ),
                                 ))
                             .toList(),
+                        SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditPackageScreen(
+                                  packageDetails: _packageDetails!,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Text('Edit Package'),
+                        ),
+                        SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: _deletePackage,
+                          child: Text('Delete Package'),
+                          style: ElevatedButton.styleFrom(
+                              //  primary: Colors.red, // Background color
+                              // color:Colors.red,
+                              ),
+                        ),
                       ],
                     ),
                   ),

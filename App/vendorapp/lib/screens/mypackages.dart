@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vendorapp/constants/url.dart';
 import 'package:vendorapp/themes/colors.dart';
 import 'package:vendorapp/screens/package_detail_screen.dart'; // Import the new detail screen
+import 'package:vendorapp/screens/my_products.dart'; // Import My Products Screen
 
 class PackagesScreen extends StatefulWidget {
   @override
@@ -65,115 +66,128 @@ class _PackagesScreenState extends State<PackagesScreen> {
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('My Packages'),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Vendor App'),
+          bottom: TabBar(
+            tabs: [
+              Tab(text: 'My Packages', icon: Icon(Icons.local_shipping)),
+              Tab(text: 'My Products', icon: Icon(Icons.shopping_bag)),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            _buildPackagesScreen(screenHeight),
+            MyProductsScreen(),
+          ],
+        ),
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: screenHeight,
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: _packages.length,
-                      itemBuilder: (context, index) {
-                        final package = _packages[index];
-                        String packageImage = package['packageImage'];
-                        packageImage = packageImage.replaceAll('\\', '/');
-                        packageImage =
-                            packageImage.replaceFirst('src/public/', '');
-                        final imageUrl =
-                            '${AppConstants.APIURL.split('/api')[0]}/$packageImage';
-
-                        return Card(
-                          margin: EdgeInsets.all(10.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              AspectRatio(
-                                aspectRatio: 4 /
-                                    3.5, // Adjust the aspect ratio as needed
-                                child: package['packageImage'] != null
-                                    ? Image.network(
-                                        imageUrl,
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                        fit: BoxFit.cover,
-                                      )
-                                    : Container(
-                                        color: Colors.grey,
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                        child: Icon(
-                                          Icons.image_not_supported,
-                                          size: 50,
-                                        ),
-                                      ),
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.all(8.0), // Reduce padding
-                                child: Text(
-                                  package['name'],
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16, // Adjust font size
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8.0), // Reduce padding
-                                child: Text(
-                                  package['description'],
-                                  style: TextStyle(
-                                      fontSize: 14), // Adjust font size
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8.0), // Reduce padding
-                                child: Text(
-                                  'Price = ${package!['price'].toString()}',
-                                  // package!['price'].toString(),
-                                  style: TextStyle(
-                                    fontSize: 14, // Adjust font size
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.all(8.0), // Add padding
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    print(
-                                        'Navigating to PackageDetailScreen with packageId: ${package['_id']}');
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            PackageDetailScreen(
-                                                packageId: package['_id']),
-
-                                        //  print('packageId: $packageId');
-                                      ),
-                                    );
-                                  },
-                                  child: Text('See Detail'),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
     );
+  }
+
+  Widget _buildPackagesScreen(double screenHeight) {
+    return _isLoading
+        ? Center(child: CircularProgressIndicator())
+        : SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(
+                  height: screenHeight,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _packages.length,
+                    itemBuilder: (context, index) {
+                      final package = _packages[index];
+                      String packageImage = package['packageImage'];
+                      packageImage = packageImage.replaceAll('\\', '/');
+                      packageImage =
+                          packageImage.replaceFirst('src/public/', '');
+                      final imageUrl =
+                          '${AppConstants.APIURL.split('/api')[0]}/$packageImage';
+
+                      return Card(
+                        margin: EdgeInsets.all(10.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            AspectRatio(
+                              aspectRatio:
+                                  4 / 3.5, // Adjust the aspect ratio as needed
+                              child: package['packageImage'] != null
+                                  ? Image.network(
+                                      imageUrl,
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Container(
+                                      color: Colors.grey,
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      child: Icon(
+                                        Icons.image_not_supported,
+                                        size: 50,
+                                      ),
+                                    ),
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.all(8.0), // Reduce padding
+                              child: Text(
+                                package['name'],
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16, // Adjust font size
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0), // Reduce padding
+                              child: Text(
+                                package['description'],
+                                style:
+                                    TextStyle(fontSize: 14), // Adjust font size
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0), // Reduce padding
+                              child: Text(
+                                'Price = ${package!['price'].toString()}',
+                                style: TextStyle(
+                                  fontSize: 14, // Adjust font size
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0), // Add padding
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  print(
+                                      'Navigating to PackageDetailScreen with packageId: ${package['_id']}');
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => PackageDetailScreen(
+                                          packageId: package['_id']),
+                                    ),
+                                  );
+                                },
+                                child: Text('See Detail'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
   }
 }
