@@ -1,12 +1,25 @@
 import 'dart:convert';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vendorapp/constants/url.dart';
 import 'package:vendorapp/themes/colors.dart';
-import 'package:vendorapp/screens/product_detail_screen.dart'; // Import the new detail screen
+import 'package:vendorapp/screens/product_detail_screen.dart';
 
 class MyProductsScreen extends StatefulWidget {
+  final String? searchQuery;
+
+  MyProductsScreen({this.searchQuery});
+
+  static Function(String)? searchProductsCallback;
+
+  static void searchProducts(String query) {
+    if (searchProductsCallback != null) {
+      searchProductsCallback!(query);
+    }
+  }
+
   @override
   _MyProductsScreenState createState() => _MyProductsScreenState();
 }
@@ -14,11 +27,17 @@ class MyProductsScreen extends StatefulWidget {
 class _MyProductsScreenState extends State<MyProductsScreen> {
   bool _isLoading = true;
   List _products = [];
+  String _searchQuery = "";
+  Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
+    if (widget.searchQuery != null) {
+      _searchQuery = widget.searchQuery!;
+    }
     _fetchProducts();
+    MyProductsScreen.searchProductsCallback = _onSearchChanged;
   }
 
   Future<void> _fetchProducts() async {
@@ -34,7 +53,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
 
     try {
       final response = await http.get(
-        Uri.parse('${AppConstants.APIURL}/myProduct'),
+        Uri.parse('${AppConstants.APIURL}/myProduct?q=$_searchQuery'),
         headers: {
           'Authorization': 'Bearer $token',
         },
@@ -59,116 +78,129 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
     }
   }
 
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(Duration(milliseconds: 500), () {
+      setState(() {
+        _searchQuery = query;
+        _isLoading = true;
+      });
+      _fetchProducts();
+    });
+  }
+
+  void _clearSearch() {
+    setState(() {
+      _searchQuery = "";
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     double screenHeight = MediaQuery.of(context).size.height;
-    double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: screenHeight,
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: _products.length,
-                      itemBuilder: (context, index) {
-                        final product = _products[index];
-                        final productImage = (product['productImage'] ?? '')
-                            .replaceAll('\\', '/')
-                            .replaceFirst('src/public/', '');
-                        final imageUrl =
-                            '${AppConstants.APIURL.split('/api')[0]}/$productImage';
-                        final productName =
-                            product['name'] ?? 'No name available';
-                        final productDescription = product['description'] ??
-                            'No description available';
-                        final productPrice = product['price'] != null
-                            ? product['price'].toString()
-                            : 'No price available';
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: screenHeight,
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: _products.length,
+                        itemBuilder: (context, index) {
+                          final product = _products[index];
+                          String productImage = product['productImage'];
+                          productImage = productImage.replaceAll('\\', '/');
+                          productImage =
+                              productImage.replaceFirst('src/public/', '');
+                          String imageUrl =
+                              '${AppConstants.APIURL.split('/api')[0]}/$productImage';
 
-                        return Card(
-                          margin: EdgeInsets.all(10.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              AspectRatio(
-                                aspectRatio: 4 /
-                                    3.5, // Adjust the aspect ratio as needed
-                                child: product['productImage'] != null
-                                    ? Image.network(
-                                        imageUrl,
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                        fit: BoxFit.cover,
-                                      )
-                                    : Container(
-                                        color: Colors.grey,
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                        child: Icon(
-                                          Icons.image_not_supported,
-                                          size: 50,
+                          return Card(
+                            margin: EdgeInsets.all(10.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                AspectRatio(
+                                  aspectRatio: 4 / 3.5,
+                                  child: product['productImage'] != null
+                                      ? Image.network(
+                                          imageUrl,
+                                          width: double.infinity,
+                                          height: double.infinity,
+                                          fit: BoxFit.cover,
+                                        )
+                                      : Container(
+                                          color: Colors.grey,
+                                          width: double.infinity,
+                                          height: double.infinity,
+                                          child: Icon(
+                                            Icons.image_not_supported,
+                                            size: 50,
+                                          ),
                                         ),
-                                      ),
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.all(8.0), // Reduce padding
-                                child: Text(
-                                  productName,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16, // Adjust font size
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    product['name'],
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8.0), // Reduce padding
-                                child: Text(
-                                  productDescription,
-                                  style: TextStyle(
-                                      fontSize: 14), // Adjust font size
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
+                                  child: Text(
+                                    product['description'],
+                                    style: TextStyle(fontSize: 14),
+                                  ),
                                 ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8.0), // Reduce padding
-                                child: Text(
-                                  'Price: $productPrice',
-                                  style: TextStyle(
-                                      fontSize: 14), // Adjust font size
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
+                                  child: Text(
+                                    'Price = ${product['price'].toString()}',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
                                 ),
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.all(8.0), // Add padding
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            ProductDetailScreen(
-                                                productId: product['_id']),
-                                      ),
-                                    );
-                                  },
-                                  child: Text('See Detail'),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              ProductDetailScreen(
+                                                  productId: product['_id']),
+                                        ),
+                                      );
+                                    },
+                                    child: Text('See Detail'),
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
     );

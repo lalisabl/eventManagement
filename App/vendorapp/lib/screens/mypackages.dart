@@ -1,11 +1,12 @@
 import 'dart:convert';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vendorapp/constants/url.dart';
 import 'package:vendorapp/themes/colors.dart';
-import 'package:vendorapp/screens/package_detail_screen.dart'; // Import the new detail screen
-import 'package:vendorapp/screens/my_products.dart'; // Import My Products Screen
+import 'package:vendorapp/screens/package_detail_screen.dart';
+import 'package:vendorapp/screens/my_products.dart';
 
 class PackagesScreen extends StatefulWidget {
   @override
@@ -14,15 +15,19 @@ class PackagesScreen extends StatefulWidget {
 
 class _PackagesScreenState extends State<PackagesScreen> {
   bool _isLoading = true;
-  List _packages = [];
+  List _data = [];
+  String _searchQuery = "";
+  Timer? _debounce;
+  int _activeTabIndex = 0; // 0 for Packages, 1 for Products
+  TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _fetchPackages();
+    _fetchData();
   }
 
-  Future<void> _fetchPackages() async {
+  Future<void> _fetchData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
@@ -33,9 +38,10 @@ class _PackagesScreenState extends State<PackagesScreen> {
       return;
     }
 
+    String endpoint = _activeTabIndex == 0 ? '/myPackage' : '/myProduct';
     try {
       final response = await http.get(
-        Uri.parse('${AppConstants.APIURL}/myPackage'),
+        Uri.parse('${AppConstants.APIURL}$endpoint?q=$_searchQuery'),
         headers: {
           'Authorization': 'Bearer $token',
         },
@@ -44,7 +50,7 @@ class _PackagesScreenState extends State<PackagesScreen> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
-          _packages = data['packages'];
+          _data = _activeTabIndex == 0 ? data['packages'] : data['products'];
           _isLoading = false;
         });
       } else {
@@ -60,134 +66,223 @@ class _PackagesScreenState extends State<PackagesScreen> {
     }
   }
 
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(Duration(milliseconds: 500), () {
+      setState(() {
+        _searchQuery = query;
+        _isLoading = true;
+      });
+      if (_activeTabIndex == 0) {
+        _fetchData();
+      } else {
+        MyProductsScreen.searchProducts(query);
+      }
+    });
+  }
+
+  void _clearSearch() {
+    setState(() {
+      _searchQuery = "";
+      _searchController.clear();
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _searchController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     double screenHeight = MediaQuery.of(context).size.height;
-    double screenWidth = MediaQuery.of(context).size.width;
 
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
           title: Text('Vendor App'),
-          bottom: TabBar(
-            tabs: [
-              Tab(text: 'My Packages', icon: Icon(Icons.local_shipping)),
-              Tab(text: 'My Products', icon: Icon(Icons.shopping_bag)),
-            ],
+          bottom: PreferredSize(
+            preferredSize: Size.fromHeight(110.0),
+            child: Column(
+              children: [
+                _buildSearchBar(),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom:
+                          BorderSide(color: AppColors.primaryColor, width: 2),
+                    ),
+                  ),
+                  child: TabBar(
+                    onTap: (index) {
+                      setState(() {
+                        _activeTabIndex = index;
+                        _clearSearch(); // Clear search query and text field when switching tabs
+                        _fetchData(); // Fetch data based on active tab
+                      });
+                    },
+                    labelColor: AppColors.primaryColor,
+                    unselectedLabelColor: Colors.grey,
+                    indicatorColor: AppColors.primaryColor,
+                    indicatorWeight: 4.0,
+                    tabs: [
+                      Tab(text: 'My Packages'),
+                      Tab(text: 'My Products'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         body: TabBarView(
           children: [
-            _buildPackagesScreen(screenHeight),
-            MyProductsScreen(),
+            _buildListView(screenHeight),
+            MyProductsScreen(
+                searchQuery:
+                    _searchQuery), // Pass search query to MyProductsScreen
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPackagesScreen(double screenHeight) {
+  Widget _buildListView(double screenHeight) {
     return _isLoading
         ? Center(child: CircularProgressIndicator())
         : SingleChildScrollView(
-            child: Column(
-              children: [
-                SizedBox(
-                  height: screenHeight,
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: _packages.length,
-                    itemBuilder: (context, index) {
-                      final package = _packages[index];
-                      String packageImage = package['packageImage'];
-                      packageImage = packageImage.replaceAll('\\', '/');
-                      packageImage =
-                          packageImage.replaceFirst('src/public/', '');
-                      final imageUrl =
-                          '${AppConstants.APIURL.split('/api')[0]}/$packageImage';
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: screenHeight,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: _data.length,
+                      itemBuilder: (context, index) {
+                        final item = _data[index];
+                        String imageUrl;
+                        if (_activeTabIndex == 0) {
+                          String packageImage = item['packageImage'];
+                          packageImage = packageImage.replaceAll('\\', '/');
+                          packageImage =
+                              packageImage.replaceFirst('src/public/', '');
+                          imageUrl =
+                              '${AppConstants.APIURL.split('/api')[0]}/$packageImage';
+                        } else {
+                          String productImage = item['productImage'];
+                          productImage = productImage.replaceAll('\\', '/');
+                          productImage =
+                              productImage.replaceFirst('src/public/', '');
+                          imageUrl =
+                              '${AppConstants.APIURL.split('/api')[0]}/$productImage';
+                        }
 
-                      return Card(
-                        margin: EdgeInsets.all(10.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            AspectRatio(
-                              aspectRatio:
-                                  4 / 3.5, // Adjust the aspect ratio as needed
-                              child: package['packageImage'] != null
-                                  ? Image.network(
-                                      imageUrl,
-                                      width: double.infinity,
-                                      height: double.infinity,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : Container(
-                                      color: Colors.grey,
-                                      width: double.infinity,
-                                      height: double.infinity,
-                                      child: Icon(
-                                        Icons.image_not_supported,
-                                        size: 50,
+                        return Card(
+                          margin: EdgeInsets.all(10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              AspectRatio(
+                                aspectRatio: 4 / 3.5,
+                                child: item['packageImage'] != null ||
+                                        item['productImage'] != null
+                                    ? Image.network(
+                                        imageUrl,
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Container(
+                                        color: Colors.grey,
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                        child: Icon(
+                                          Icons.image_not_supported,
+                                          size: 50,
+                                        ),
                                       ),
-                                    ),
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.all(8.0), // Reduce padding
-                              child: Text(
-                                package['name'],
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16, // Adjust font size
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  item['name'],
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8.0), // Reduce padding
-                              child: Text(
-                                package['description'],
-                                style:
-                                    TextStyle(fontSize: 14), // Adjust font size
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8.0), // Reduce padding
-                              child: Text(
-                                'Price = ${package!['price'].toString()}',
-                                style: TextStyle(
-                                  fontSize: 14, // Adjust font size
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Text(
+                                  item['description'],
+                                  style: TextStyle(fontSize: 14),
                                 ),
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0), // Add padding
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  print(
-                                      'Navigating to PackageDetailScreen with packageId: ${package['_id']}');
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => PackageDetailScreen(
-                                          packageId: package['_id']),
-                                    ),
-                                  );
-                                },
-                                child: Text('See Detail'),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Text(
+                                  'Price = ${item['price'].toString()}',
+                                  style: TextStyle(fontSize: 14),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    if (_activeTabIndex == 0) {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              PackageDetailScreen(
+                                                  packageId: item['_id']),
+                                        ),
+                                      );
+                                    } else {
+                                      // Handle product detail navigation
+                                    }
+                                  },
+                                  child: Text('See Detail'),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
+  }
+
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: TextField(
+        controller: _searchController,
+        onChanged: _onSearchChanged,
+        decoration: InputDecoration(
+          labelText:
+              _activeTabIndex == 0 ? 'Search Packages' : 'Search Products',
+          filled: true,
+          fillColor: AppColors.primaryColor.withOpacity(0.3),
+          border: OutlineInputBorder(
+            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          prefixIcon: Icon(Icons.search),
+        ),
+      ),
+    );
   }
 }

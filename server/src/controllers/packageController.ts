@@ -57,7 +57,9 @@ class APIfeatures {
   }
   multfilter() {
     const searchQuery = (this.queryString.q || '').toLowerCase();
-    if (typeof searchQuery === 'string') {
+
+    console.log('Search Query:', searchQuery); // Log the search query
+    if (typeof searchQuery === 'string' && searchQuery.length > 0) {
       const regexSearch = {
         $or: [
           { name: { $regex: searchQuery, $options: 'i' } },
@@ -65,8 +67,11 @@ class APIfeatures {
           // { price: { $regex: searchQuery, $options: 'i' } },
         ],
       };
-      this.query.find(regexSearch);
+
+      this.query = this.query.find(regexSearch);
     }
+
+    //  console.log('Query after applying regex search:', this.query); // Log the query
     return this;
   }
   filter() {
@@ -119,7 +124,12 @@ export const getAllPackages = async (req: Request, res: Response) => {
       .sort()
       .limiting()
       .paginatinating();
+
+    console.log('Final Query:', features.query); // Log the final query
     const packages = await features.query.select();
+
+    console.log('Packages:', packages); // Log the fetched packages
+
     res.send(packages);
   } catch (error) {
     console.error('Error fetching events:', error);
@@ -130,7 +140,15 @@ export const getAllPackages = async (req: Request, res: Response) => {
 export const getMyPackages = async (req: Request, res: Response) => {
   try {
     const userId = (req.user as UserDocument)._id; // Assuming user ID is available in req.user
-    const packages = await Package.find({ vendorId: userId }).populate([
+
+    // Initialize API features for filtering and searching
+    const features = new APIfeatures(
+      Package.find({ vendorId: userId }),
+      req.query
+    ).multfilter();
+
+    // console.log('Final Query:', features.query); // Log the final query
+    const packages = await features.query.populate([
       {
         path: 'vendorId',
         select: 'username email', // Fields to select for vendorId
@@ -140,6 +158,8 @@ export const getMyPackages = async (req: Request, res: Response) => {
         select: 'name description price productImage', // Fields to select for includedServices
       },
     ]);
+
+    // console.log('Packages:', packages); // Log the fetched packages
 
     res.status(200).json({ packages });
   } catch (error) {
@@ -198,6 +218,8 @@ export const getPackageById = async (req: Request, res: Response) => {
   }
 };
 
+// Update a package by ID
+
 export const updatePackageById = async (req: Request, res: Response) => {
   try {
     const packageId = req.params.id.trim();
@@ -228,8 +250,6 @@ export const updatePackageById = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Server Error' });
   }
 };
-
-// Update a package by ID
 
 // Delete a package by ID
 export const deletePackageById = async (req: Request, res: Response) => {

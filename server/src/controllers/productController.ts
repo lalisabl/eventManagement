@@ -5,15 +5,83 @@ import Product, { validateProduct } from '../models/products';
 import { IProduct } from '../models/products';
 import Package from '../models/packageModel';
 import { User, UserDocument } from '../models/user';
-interface UpdateFields {
-  name?: string;
-  description?: string;
-  price?: number;
-  productImage?: string;
-}
+// interface UpdateFields {
+//   name?: string;
+//   description?: string;
+//   price?: number;
+//   productImage?: string;
+// }
 // Controller functions for Product CRUD operations
 
 // Create a new product
+
+class APIfeatures {
+  query: any;
+  queryString: any;
+  constructor(query: any, queryString: any) {
+    this.query = query;
+    this.queryString = queryString;
+  }
+  multfilter() {
+    const searchQuery = (this.queryString.q || '').toLowerCase();
+
+    console.log('Search Query:', searchQuery); // Log the search query
+    if (typeof searchQuery === 'string' && searchQuery.length > 0) {
+      const regexSearch = {
+        $or: [
+          { name: { $regex: searchQuery, $options: 'i' } },
+          { description: { $regex: searchQuery, $options: 'i' } },
+          // { price: { $regex: searchQuery, $options: 'i' } },
+        ],
+      };
+
+      this.query = this.query.find(regexSearch);
+    }
+
+    //  console.log('Query after applying regex search:', this.query); // Log the query
+    return this;
+  }
+  filter() {
+    //1 build query
+    const queryObj = { ...this.queryString };
+    const excludedFields = ['page', 'limit', 'sort', 'fields', 'q'];
+    excludedFields.forEach((el) => delete queryObj[el]);
+    // advanced query
+    let queryStr = JSON.stringify(queryObj);
+    queryStr = queryStr.replace(
+      /\b(gte|gt|lte|lt|eq)\b/g,
+      (match) => `$${match}`
+    );
+    this.query = this.query.find(JSON.parse(queryStr));
+    return this;
+  }
+  sort() {
+    if (this.queryString.sort) {
+      const sortBy = this.queryString.sort.split(',').join(' ');
+      this.query = this.query.sort(sortBy);
+    } else {
+      this.query = this.query.sort('-createdAt');
+    }
+    return this;
+  }
+  limiting() {
+    if (this.queryString.fields) {
+      const selectedFields = this.queryString.fields.split(',').join(' ');
+      this.query = this.query.select(selectedFields);
+    } else {
+      this.query = this.query.select('-__v');
+    }
+    return this;
+  }
+  paginatinating() {
+    const page = this.queryString.page * 1 || 1;
+    const limit = this.queryString.limit * 1 || 10;
+    const skip = (page - 1) * limit;
+    this.query = this.query.skip(skip).limit(limit);
+    return this;
+  }
+}
+
 export const createProduct = async (req: Request, res: Response) => {
   const { name, description, price, packageId } = req.body;
 
@@ -73,7 +141,14 @@ export const createProduct = async (req: Request, res: Response) => {
 export const getMyProducts = async (req: Request, res: Response) => {
   try {
     const userId = (req.user as UserDocument)._id; // Assuming user ID is available in req.user
-    const products = await Product.find({ vendorId: userId }).populate([
+    // Initialize API features for filtering and searching
+    const features = new APIfeatures(
+      Product.find({ vendorId: userId }),
+      req.query
+    ).multfilter();
+
+    // console.log('Final Query:', features.query); // Log the final query
+    const products = await features.query.populate([
       {
         path: 'vendorId',
         select: 'username email', // Fields to select for vendorId
@@ -82,8 +157,8 @@ export const getMyProducts = async (req: Request, res: Response) => {
 
     res.status(200).json({ products });
   } catch (error) {
-    console.error('Error fetching packages:', error);
-    res.status(500).json({ error: 'Failed to fetch packages' });
+    console.error('Error fetching products:', error);
+    res.status(500).json({ error: 'Failed to fetch products' });
   }
 };
 

@@ -146,12 +146,7 @@ router.delete('/tickets/:id', deleteTicket);
 router.get('/product', getAllProducts);
 router.get('/product/:id', getProductById);
 router.get('/myProduct', protect, getMyProducts);
-router.get(
-  '/myProduct/:id',
-  protect,
-
-  getMyProductById
-);
+router.get('/myProduct/:id', protect, getMyProductById);
 // API
 router.post('/product', protect, upload.single('productImage'), createProduct);
 router.put(
