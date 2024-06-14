@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:clientapp/constants/url.dart';
-import 'package:clientapp/screens/screen1.dart';
 import 'package:clientapp/themes/colors.dart';
+import 'package:clientapp/widgets/bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -68,11 +68,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
       final userJson = jsonEncode(jsonDecode(response.body)['user']);
       await storage.write(key: 'user', value: userJson);
 
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => Screen1()),
-        (Route<dynamic> route) => false,
-      );
+     Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => MyBottomNavigationBar()),
+            (Route<dynamic> route) => false,
+          );
     } else {
       // If signUp fails, show error message
       showDialog(

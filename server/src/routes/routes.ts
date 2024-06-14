@@ -22,6 +22,7 @@ import {
   forgotPassword,
   resetPassword,
   googleSignInRedirect,
+  logoutUser,
 } from '../controllers/userController';
 // event routes
 import {
@@ -29,7 +30,9 @@ import {
   deleteEvent,
   getEventById,
   getEvents,
+  resizeThumbnailPhoto,
   updateEvent,
+  uploadThumbnailPhoto,
 } from '../controllers/eventsController';
 
 // Product Route
@@ -56,11 +59,19 @@ import {
 import {
   createTicket,
   deleteTicket,
+  getMyTickets,
   getTicketById,
   getTickets,
   updateTicket,
 } from '../controllers/ticketController';
 import { tryChapa } from '../controllers/transactionController';
+import {
+  add_remove,
+  deleteFavorite,
+  getAllFavorites,
+  getFavoriteById,
+  updateFavorite,
+} from '../controllers/favoriteController';
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -96,6 +107,8 @@ router.patch('/resetPassword/:token', resetPassword);
 // AUTHENTICATION
 //login
 router.post('/users/login', loginUser);
+// logout
+router.post('/users/logout',logoutUser); 
 
 // Google OAuth login route
 router.get(
@@ -119,7 +132,6 @@ router.get(
 //   passport.authenticate('google', { failureRedirect: '/login' }),googleSignInRedirect
 // );
 
-router.post('/users/logout'); //finish logout here
 
 // event routes
 // VIEW
@@ -127,14 +139,30 @@ router.get('/events', getEvents);
 router.get('/events/:id', getEventById);
 
 // API
-router.post('/events', createEvent);
-router.put('/events/:id', updateEvent);
+router.post('/events', uploadThumbnailPhoto, resizeThumbnailPhoto, createEvent);
+router.put(
+  '/events/:id',
+  uploadThumbnailPhoto,
+  resizeThumbnailPhoto,
+  updateEvent
+);
 router.delete('/events/:id', deleteEvent);
+
+// favorites routes
+// VIEW
+router.get('/favorites',protect, getAllFavorites);
+router.get('/favorites/:id', getFavoriteById);
+
+// API
+router.post('/favorites', add_remove);
+router.put('/favorites/:id', updateFavorite);
+router.delete('/favorites/:id', deleteFavorite);
 
 // TICKET routes
 // VIEW
 router.get('/tickets', getTickets);
 router.get('/tickets/:id', getTicketById);
+router.get('/mytickets/:id', getMyTickets);
 
 // API
 router.post('/tickets', createTicket);

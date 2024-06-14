@@ -121,6 +121,60 @@ export const getTickets = async (req: Request, res: Response) => {
   }
 };
 
+export const getMyTickets = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
+
+    // Fetch all tickets for the user with event details populated
+    const tickets = await Ticket.find({ userId })
+      .populate({
+        path: 'eventId',
+        select: 'title thumbnail', // Include only title and thumbnail
+      })
+      .populate('transactionId', '-__v');
+
+    if (!tickets.length) {
+      return res
+        .status(404)
+        .json({ message: 'No tickets found for this user' });
+    }
+
+    // Verify transactions for each ticket
+    for (let ticket of tickets) {
+      let transaction: any = ticket.transactionId;
+      if (transaction.status !== 'completed') {
+        await verifyTransaction(transaction._id);
+      }
+    }
+
+    // Re-fetch tickets to get updated transaction status
+    const updatedTickets = await Ticket.find({ userId })
+      .populate({
+        path: 'eventId',
+        select: 'title thumbnail',
+      })
+      .populate('transactionId', '-__v');
+
+    // Prepare response data with checkout URL for pending transactions
+    const responseData = updatedTickets.map((ticket) => {
+      let transaction: any = ticket.transactionId;
+      if (transaction.status === 'pending') {
+        return {
+          ...ticket.toObject(),
+          checkoutUrl: transaction.checkout_url,
+        };
+      } else {
+        return ticket.toObject();
+      }
+    });
+
+    res.json(responseData);
+  } catch (error) {
+    console.error('Error fetching tickets for user:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 // Get ticket by ID
 export const getTicketById = async (req: Request, res: Response) => {
   try {

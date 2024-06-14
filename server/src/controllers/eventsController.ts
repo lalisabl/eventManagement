@@ -1,13 +1,45 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import Event, { validateEvent } from '../models/events';
+import multer from 'multer';
+import sharp from 'sharp';
+import Favorite from '../models/favorite';
+import { UserDocument } from '../models/user';
 
+const multerStorage = multer.memoryStorage();
+const multerFilter = (req: Request, file: any, cb: any) => {
+  if (file.mimetype.startsWith('image')) {
+    cb(null, true);
+  } else {
+    cb(Error('Not an image! Please upload only images.'), false);
+  }
+};
+
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+});
+export const uploadThumbnailPhoto = upload.single('thumbnail');
+export const resizeThumbnailPhoto = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  if (!req.file) return next();
+  req.file.filename = `thumbnail-${req.body?.title}.jpeg`;
+  await sharp(req.file.buffer)
+    .resize(500, 500)
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toFile(`src/public/thumbnails/${req.file.filename}`);
+  next();
+};
 // Create a new event
 export const createEvent = async (req: Request, res: Response) => {
   try {
     const { error } = validateEvent(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
-    const event = new Event(req.body);
+    const event = new Event({ ...req.body, thumbnail: req?.file?.filename });
     await event.save();
     res.status(201).send(event);
   } catch (error) {
@@ -81,14 +113,53 @@ class APIfeatures {
 
 export const getEvents = async (req: Request, res: Response) => {
   try {
-    const features = new APIfeatures(Event.find(), req.query)
+    const userId = req.query?.userId ? req.query?.userId.toString() : '';
+    const myfavorite = req.query?.myfavorite === 'true';
+
+    const { userId: _, myfavorite: __, ...queryParams } = req.query;
+
+    const features = new APIfeatures(Event.find(), queryParams)
       .multfilter()
       .filter()
       .sort()
       .limiting()
       .paginatinating();
     const events = await features.query.select();
-    res.send(events);
+
+    if (userId) {
+      // Fetch user's favorite events
+      const favoriteEvents = await Favorite.find({ userId }).select('eventId');
+
+      const favoriteEventIds = new Set(
+        favoriteEvents.map((fav) => fav.eventId.toString())
+      );
+
+      // Add the favorite field to each event
+      let eventsWithFavorite = events.map(
+        (event: { toObject: () => any; _id: { toString: () => string } }) => ({
+          ...event.toObject(),
+          favorite: favoriteEventIds.has(event._id.toString()),
+        })
+      );
+
+      // If myfavorite=true, filter events to only include favorites
+      if (myfavorite) {
+        eventsWithFavorite = eventsWithFavorite.filter(
+          (event: { favorite: any }) => event.favorite
+        );
+      }
+
+      res.send(eventsWithFavorite);
+    } else {
+      // If no userId, just send the events without the favorite field
+      const eventsWithFavorite = events.map(
+        (event: { toObject: () => any }) => ({
+          ...event.toObject(),
+          favorite: false,
+        })
+      );
+      res.send(eventsWithFavorite);
+    }
   } catch (error) {
     console.error('Error fetching events:', error);
     res.status(500).send('Server error');

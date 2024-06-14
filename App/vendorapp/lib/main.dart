@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vendorapp/screens/authentication/register.dart';
+import 'package:vendorapp/themes/colors.dart';
 import 'package:vendorapp/widgets/bottom_bar.dart';
 import 'package:vendorapp/screens/mypackages.dart';
 import 'package:vendorapp/screens/myprofile.dart';
@@ -17,9 +18,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
-        theme: ThemeData(
-          primarySwatch: Colors.red,
-        ),
+       // theme: AppThemes.lightTheme,
+        // darkTheme: AppThemes.darkTheme,
+        // themeMode: ThemeMode.system,
         initialRoute: '/login',
         routes: {
           '/login': (context) => LoginScreen(),

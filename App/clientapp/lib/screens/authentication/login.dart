@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:clientapp/constants/url.dart';
 import 'package:clientapp/screens/authentication/register.dart';
-import 'package:clientapp/screens/screen1.dart';
 import 'package:clientapp/themes/colors.dart';
 import 'package:clientapp/widgets/bottom_bar.dart';
 import 'package:flutter/material.dart';
@@ -30,10 +29,6 @@ class LoginScreen extends StatelessWidget {
           'password': password,
         }),
       );
-
-      // Print response for debugging
-      print("status: ${response.statusCode}");
-      print("response body: ${response.body}");
 
       if (response.statusCode == 200) {
         final storage = FlutterSecureStorage();

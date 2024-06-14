@@ -1,14 +1,19 @@
-const mongoose = require('mongoose');
+import mongoose, { Document, Schema, Model } from 'mongoose';
 
-const favoriteSchema = new mongoose.Schema(
+interface IFavorite extends Document {
+  userId: mongoose.Schema.Types.ObjectId;
+  eventId: mongoose.Schema.Types.ObjectId;
+}
+
+const favoriteSchema: Schema = new Schema(
   {
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
     eventId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'Event',
       required: true,
     },
@@ -16,6 +21,6 @@ const favoriteSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Favorite = mongoose.model('Favorite', favoriteSchema);
+const Favorite: Model<IFavorite> = mongoose.model<IFavorite>('Favorite', favoriteSchema);
 
 export default Favorite;

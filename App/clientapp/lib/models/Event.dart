@@ -1,5 +1,5 @@
-// event_model.dart
 class Event {
+  final String id;
   final String title;
   final String description;
   final DateTime startDate;
@@ -14,8 +14,10 @@ class Event {
   final int normalTicketsAvailable;
   final int vipTicketsAvailable;
   final String organiserId;
+  final bool favorite;
 
   Event({
+    required this.id,
     required this.title,
     required this.description,
     required this.startDate,
@@ -25,6 +27,7 @@ class Event {
     required this.vipTicketsIncluded,
     required this.normalTickets,
     required this.normalPrice,
+    required this.favorite,
     required this.vipTickets,
     required this.vipPrice,
     required this.normalTicketsAvailable,
@@ -34,20 +37,26 @@ class Event {
 
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
-      title: json['title'],
-      description: json['description'],
-      startDate: DateTime.parse(json['startDate']),
-      endDate: DateTime.parse(json['endDate']),
-      thumbnail: json['thumbnail'],
-      location: json['location'],
-      vipTicketsIncluded: json['vipTicketsIncluded'],
-      normalTickets: json['normalTickets'],
-      normalPrice: json['normalPrice'].toDouble(),
-      vipTickets: json['vipTickets'],
-      vipPrice: json['vipPrice'].toDouble(),
-      normalTicketsAvailable: json['normalTicketsAvailable'],
-      vipTicketsAvailable: json['vipTicketsAvailable'],
-      organiserId: json['organiserId'],
+      id: json['_id'] ?? '',
+      title: json['title'] ?? '',
+      favorite: json['favorite'] ?? false,
+      description: json['description'] ?? '',
+      startDate: json['startDate'] != null
+          ? DateTime.parse(json['startDate'])
+          : DateTime.now(),
+      endDate: json['endDate'] != null
+          ? DateTime.parse(json['endDate'])
+          : DateTime.now(),
+      thumbnail: json['thumbnail'] ?? '',
+      location: json['location'] ?? '',
+      vipTicketsIncluded: json['vipTicketsIncluded'] ?? false,
+      normalTickets: json['normalTickets'] ?? 0,
+      normalPrice: (json['normalPrice'] ?? 0).toDouble(),
+      vipTickets: json['vipTickets'] ?? 0,
+      vipPrice: (json['vipPrice'] ?? 0).toDouble(),
+      normalTicketsAvailable: json['normalTicketsAvailable'] ?? 0,
+      vipTicketsAvailable: json['vipTicketsAvailable'] ?? 0,
+      organiserId: json['organiserId'] ?? '',
     );
   }
 }
