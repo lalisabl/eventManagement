@@ -47,6 +47,8 @@ class _PackagesScreenState extends State<PackagesScreen> {
         },
       );
 
+      if (!mounted) return;
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
@@ -103,9 +105,8 @@ class _PackagesScreenState extends State<PackagesScreen> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Vendor App'),
           bottom: PreferredSize(
-            preferredSize: Size.fromHeight(110.0),
+            preferredSize: Size.fromHeight(70.0),
             child: Column(
               children: [
                 _buildSearchBar(),
@@ -153,116 +154,124 @@ class _PackagesScreenState extends State<PackagesScreen> {
   Widget _buildListView(double screenHeight) {
     return _isLoading
         ? Center(child: CircularProgressIndicator())
-        : SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: screenHeight,
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: _data.length,
-                      itemBuilder: (context, index) {
-                        final item = _data[index];
-                        String imageUrl;
-                        if (_activeTabIndex == 0) {
-                          String packageImage = item['packageImage'];
-                          packageImage = packageImage.replaceAll('\\', '/');
-                          packageImage =
-                              packageImage.replaceFirst('src/public/', '');
-                          imageUrl =
-                              '${AppConstants.APIURL.split('/api')[0]}/$packageImage';
-                        } else {
-                          String productImage = item['productImage'];
-                          productImage = productImage.replaceAll('\\', '/');
-                          productImage =
-                              productImage.replaceFirst('src/public/', '');
-                          imageUrl =
-                              '${AppConstants.APIURL.split('/api')[0]}/$productImage';
-                        }
+        : _data.isEmpty
+            ? Center(child: Text('Oops, no results found'))
+            : SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: screenHeight,
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: _data.length,
+                          itemBuilder: (context, index) {
+                            final item = _data[index];
+                            String imageUrl = "";
+                            if (_activeTabIndex == 0) {
+                              String? packageImage = item['packageImage'];
+                              if (packageImage != null) {
+                                packageImage =
+                                    packageImage.replaceAll('\\', '/');
+                                packageImage = packageImage.replaceFirst(
+                                    'src/public/', '');
+                                imageUrl =
+                                    '${AppConstants.APIURL.split('/api')[0]}/$packageImage';
+                              }
+                            } else {
+                              String? productImage = item['productImage'];
+                              if (productImage != null) {
+                                productImage =
+                                    productImage.replaceAll('\\', '/');
+                                productImage = productImage.replaceFirst(
+                                    'src/public/', '');
+                                imageUrl =
+                                    '${AppConstants.APIURL.split('/api')[0]}/$productImage';
+                              }
+                            }
 
-                        return Card(
-                          margin: EdgeInsets.all(10.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              AspectRatio(
-                                aspectRatio: 4 / 3.5,
-                                child: item['packageImage'] != null ||
-                                        item['productImage'] != null
-                                    ? Image.network(
-                                        imageUrl,
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                        fit: BoxFit.cover,
-                                      )
-                                    : Container(
-                                        color: Colors.grey,
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                        child: Icon(
-                                          Icons.image_not_supported,
-                                          size: 50,
-                                        ),
-                                      ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  item['name'],
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
+                            return Card(
+                              margin: EdgeInsets.all(10.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  AspectRatio(
+                                    aspectRatio: 4 / 3.5,
+                                    child: (item['packageImage'] != null ||
+                                            item['productImage'] != null)
+                                        ? Image.network(
+                                            imageUrl,
+                                            width: double.infinity,
+                                            height: double.infinity,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : Container(
+                                            color: Colors.grey,
+                                            width: double.infinity,
+                                            height: double.infinity,
+                                            child: Icon(
+                                              Icons.image_not_supported,
+                                              size: 50,
+                                            ),
+                                          ),
                                   ),
-                                ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      item['name'] ?? 'N/A',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0),
+                                    child: Text(
+                                      item['description'] ?? 'No description',
+                                      style: TextStyle(fontSize: 14),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0),
+                                    child: Text(
+                                      'Price = ${item['price']?.toString() ?? 'N/A'}',
+                                      style: TextStyle(fontSize: 14),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        if (_activeTabIndex == 0) {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  PackageDetailScreen(
+                                                      packageId: item['_id']),
+                                            ),
+                                          );
+                                        } else {
+                                          // Handle product detail navigation
+                                        }
+                                      },
+                                      child: Text('See Detail'),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Text(
-                                  item['description'],
-                                  style: TextStyle(fontSize: 14),
-                                ),
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Text(
-                                  'Price = ${item['price'].toString()}',
-                                  style: TextStyle(fontSize: 14),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    if (_activeTabIndex == 0) {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              PackageDetailScreen(
-                                                  packageId: item['_id']),
-                                        ),
-                                      );
-                                    } else {
-                                      // Handle product detail navigation
-                                    }
-                                  },
-                                  child: Text('See Detail'),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-          );
+                ),
+              );
   }
 
   Widget _buildSearchBar() {
