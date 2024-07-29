@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:vendorapp/screens/create_package_screen.dart';
 import 'package:vendorapp/screens/mypackages.dart';
-import 'package:vendorapp/screens/createpackage.dart';
+// import 'package:vendorapp/screens/createpackage.dart';
 import 'package:vendorapp/screens/myprofile.dart';
 import 'package:vendorapp/themes/colors.dart';
+import 'package:vendorapp/screens/create_package_screen.dart';
 
 class OwnerBottomNavigationBar extends StatefulWidget {
   @override
@@ -15,8 +17,8 @@ class _OwnerBottomNavigationBarState extends State<OwnerBottomNavigationBar> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
-    Mypackages(),
-    Createpackage(),
+    PackagesScreen(),
+    CreatePackageScreen(),
     ProfileScreen(),
   ];
 

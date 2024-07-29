@@ -5,26 +5,46 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vendorapp/constants/url.dart';
 import 'package:vendorapp/themes/colors.dart';
-import 'package:vendorapp/screens/package_detail_screen.dart';
-import 'package:vendorapp/screens/my_products.dart';
+import 'package:vendorapp/screens/product_detail_screen.dart';
 
-class PackagesScreen extends StatefulWidget {
+class MyProductsScreen extends StatefulWidget {
+  final String? searchQuery;
+
+  MyProductsScreen({this.searchQuery});
+
+  static Function(String)? searchProductsCallback;
+
+  static void searchProducts(String query) {
+    if (searchProductsCallback != null) {
+      searchProductsCallback!(query);
+    }
+  }
+
   @override
-  _PackagesScreenState createState() => _PackagesScreenState();
+  _MyProductsScreenState createState() => _MyProductsScreenState();
 }
 
-class _PackagesScreenState extends State<PackagesScreen> {
+class _MyProductsScreenState extends State<MyProductsScreen> {
   bool _isLoading = true;
   List _data = [];
   String _searchQuery = "";
   Timer? _debounce;
-  int _activeTabIndex = 0; // 0 for Packages, 1 for Products
-  TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    _searchQuery = widget.searchQuery ?? "";
     _fetchData();
+    MyProductsScreen.searchProductsCallback = _onSearchChanged;
+  }
+
+  @override
+  void didUpdateWidget(covariant MyProductsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.searchQuery != oldWidget.searchQuery) {
+      _searchQuery = widget.searchQuery ?? "";
+      _fetchData();
+    }
   }
 
   Future<void> _fetchData() async {
@@ -38,10 +58,9 @@ class _PackagesScreenState extends State<PackagesScreen> {
       return;
     }
 
-    String endpoint = _activeTabIndex == 0 ? '/myPackage' : '/myProduct';
     try {
       final response = await http.get(
-        Uri.parse('${AppConstants.APIURL}$endpoint?q=$_searchQuery'),
+        Uri.parse('${AppConstants.APIURL}/myProduct?q=$_searchQuery'),
         headers: {
           'Authorization': 'Bearer $token',
         },
@@ -52,7 +71,7 @@ class _PackagesScreenState extends State<PackagesScreen> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
-          _data = _activeTabIndex == 0 ? data['packages'] : data['products'];
+          _data = data['products'];
           _isLoading = false;
         });
       } else {
@@ -75,25 +94,13 @@ class _PackagesScreenState extends State<PackagesScreen> {
         _searchQuery = query;
         _isLoading = true;
       });
-      if (_activeTabIndex == 0) {
-        _fetchData();
-      } else {
-        MyProductsScreen.searchProducts(query);
-      }
-    });
-  }
-
-  void _clearSearch() {
-    setState(() {
-      _searchQuery = "";
-      _searchController.clear();
+      _fetchData();
     });
   }
 
   @override
   void dispose() {
     _debounce?.cancel();
-    _searchController.dispose();
     super.dispose();
   }
 
@@ -101,61 +108,10 @@ class _PackagesScreenState extends State<PackagesScreen> {
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
 
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          bottom: PreferredSize(
-            preferredSize: Size.fromHeight(70.0),
-            child: Column(
-              children: [
-                _buildSearchBar(),
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom:
-                          BorderSide(color: AppColors.primaryColor, width: 2),
-                    ),
-                  ),
-                  child: TabBar(
-                    onTap: (index) {
-                      setState(() {
-                        _activeTabIndex = index;
-                        _clearSearch(); // Clear search query and text field when switching tabs
-                        _fetchData(); // Fetch data based on active tab
-                      });
-                    },
-                    labelColor: AppColors.primaryColor,
-                    unselectedLabelColor: Colors.grey,
-                    indicatorColor: AppColors.primaryColor,
-                    indicatorWeight: 4.0,
-                    tabs: [
-                      Tab(text: 'My Packages'),
-                      Tab(text: 'My Products'),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        body: TabBarView(
-          children: [
-            _buildListView(screenHeight),
-            MyProductsScreen(
-                searchQuery:
-                    _searchQuery), // Pass search query to MyProductsScreen
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildListView(double screenHeight) {
     return _isLoading
         ? Center(child: CircularProgressIndicator())
         : _data.isEmpty
-            ? Center(child: Text('Oops, no results found !!'))
+            ? Center(child: Text('Oops, no results found'))
             : SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -168,28 +124,15 @@ class _PackagesScreenState extends State<PackagesScreen> {
                           itemCount: _data.length,
                           itemBuilder: (context, index) {
                             final item = _data[index];
-                            String imageUrl = "";
-                            if (_activeTabIndex == 0) {
-                              String? packageImage = item['packageImage'];
-                              if (packageImage != null) {
-                                packageImage =
-                                    packageImage.replaceAll('\\', '/');
-                                packageImage = packageImage.replaceFirst(
-                                    'src/public/', '');
-                                imageUrl =
-                                    '${AppConstants.APIURL.split('/api')[0]}/$packageImage';
-                              }
-                            } else {
-                              String? productImage = item['productImage'];
-                              if (productImage != null) {
-                                productImage =
-                                    productImage.replaceAll('\\', '/');
-                                productImage = productImage.replaceFirst(
-                                    'src/public/', '');
-                                imageUrl =
-                                    '${AppConstants.APIURL.split('/api')[0]}/$productImage';
-                              }
+                            String? productImage = item['productImage'];
+                            if (productImage != null) {
+                              productImage = productImage.replaceAll('\\', '/');
+                              productImage =
+                                  productImage.replaceFirst('src/public/', '');
                             }
+
+                            String imageUrl =
+                                '${AppConstants.APIURL.split('/api')[0]}/$productImage';
 
                             return Card(
                               margin: EdgeInsets.all(10.0),
@@ -198,8 +141,7 @@ class _PackagesScreenState extends State<PackagesScreen> {
                                 children: [
                                   AspectRatio(
                                     aspectRatio: 4 / 3.5,
-                                    child: (item['packageImage'] != null ||
-                                            item['productImage'] != null)
+                                    child: (item['productImage'] != null)
                                         ? Image.network(
                                             imageUrl,
                                             width: double.infinity,
@@ -246,18 +188,14 @@ class _PackagesScreenState extends State<PackagesScreen> {
                                     padding: const EdgeInsets.all(8.0),
                                     child: ElevatedButton(
                                       onPressed: () {
-                                        if (_activeTabIndex == 0) {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  PackageDetailScreen(
-                                                      packageId: item['_id']),
-                                            ),
-                                          );
-                                        } else {
-                                          // Handle product detail navigation
-                                        }
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                ProductDetailScreen(
+                                                    productId: item['_id']),
+                                          ),
+                                        );
                                       },
                                       child: Text('See Detail'),
                                     ),
@@ -272,26 +210,5 @@ class _PackagesScreenState extends State<PackagesScreen> {
                   ),
                 ),
               );
-  }
-
-  Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: TextField(
-        controller: _searchController,
-        onChanged: _onSearchChanged,
-        decoration: InputDecoration(
-          labelText:
-              _activeTabIndex == 0 ? 'Search Packages' : 'Search Products',
-          filled: true,
-          fillColor: AppColors.primaryColor.withOpacity(0.3),
-          border: OutlineInputBorder(
-            borderSide: BorderSide.none,
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          prefixIcon: Icon(Icons.search),
-        ),
-      ),
-    );
   }
 }

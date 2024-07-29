@@ -2,6 +2,9 @@
 // comments
 import express from 'express';
 import passport from 'passport';
+import multer from 'multer';
+import path from 'path';
+
 // user routes
 import { User, UserDocument } from '../models/user';
 import {
@@ -36,14 +39,18 @@ import {
 import {
   createProduct,
   getAllProducts,
+  getMyProducts,
   getProductById,
   updateProductById,
   deleteProductById,
+  getMyProductById,
 } from '../controllers/productController';
 // package routes
 import {
   createPackage,
   getAllPackages,
+  getMyPackages,
+  getMyPackageById,
   getPackageById,
   updatePackageById,
   deletePackageById,
@@ -65,6 +72,18 @@ import {
   getFavoriteById,
   updateFavorite,
 } from '../controllers/favoriteController';
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'src/public/packages-product/'); // Set the destination directory for uploaded files
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    cb(null, `${Date.now()}${ext}`); // Set the filename for uploaded files (use timestamp to avoid conflicts)
+  },
+});
+
+const upload = multer({ storage: storage });
 
 const router = express.Router();
 
@@ -154,19 +173,33 @@ router.delete('/tickets/:id', deleteTicket);
 //VIEWs
 router.get('/product', getAllProducts);
 router.get('/product/:id', getProductById);
+router.get('/myProduct', protect, getMyProducts);
+router.get('/myProduct/:id', protect, getMyProductById);
 // API
-router.post('/product', createProduct);
-router.put('/product/:id', updateProductById);
+router.post('/product', protect, upload.single('productImage'), createProduct);
+router.put(
+  '/myProduct/:id',
+  protect,
+  upload.single('productImage'),
+  updateProductById
+);
 router.delete('/product/:id', deleteProductById);
 
 // attendant routes
 // package routes
 //views
 router.get('/package', getAllPackages);
+router.get('/myPackage', protect, getMyPackages);
+router.get('/myPackage/:id', protect, getMyPackageById);
 router.get('/package/:id', getPackageById);
 // Routes for Package CRUD operations
-router.post('/package', createPackage);
-router.put('/package/:id', updatePackageById);
+router.post('/package', protect, upload.single('packageImage'), createPackage);
+router.put(
+  '/package/:id',
+  protect,
+  upload.single('packageImage'),
+  updatePackageById
+);
 router.delete('/package/:id', deletePackageById);
 
 export default router;
