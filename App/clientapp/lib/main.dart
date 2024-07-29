@@ -50,7 +50,7 @@ class MyApp extends StatelessWidget {
               '/login': (context) => LoginScreen(),
               '/register': (context) => SignUpScreen(),
             
-              '/screen4': (context) => Screen4(),
+              '/screen4': (context) => ProfileScreen(),
             },
           );
         }
