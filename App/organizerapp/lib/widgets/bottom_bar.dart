@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:html';
+// import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
@@ -51,12 +51,12 @@ class _OwnerBottomNavigationBarState extends State<OwnerBottomNavigationBar> {
           SnackBar(content: Text('Settings Clicked')),
         );
         break;
-     
+
       case 'logout':
         final response = await http.post(
           Uri.parse('http://127.0.0.1:5000/api/users/logout'),
         );
-       print(response);
+        print(response);
         if (response.statusCode == 200) {
           final responseBody = json.decode(response.body);
           if (responseBody['success'] == true) {
@@ -66,7 +66,8 @@ class _OwnerBottomNavigationBarState extends State<OwnerBottomNavigationBar> {
             // Handle further actions like navigating to login screen if needed
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Logout failed: ${responseBody['message']}')),
+              SnackBar(
+                  content: Text('Logout failed: ${responseBody['message']}')),
             );
           }
         } else {
@@ -75,7 +76,6 @@ class _OwnerBottomNavigationBarState extends State<OwnerBottomNavigationBar> {
           );
         }
         break;
-    
     }
   }
 
