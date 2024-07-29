@@ -1,5 +1,5 @@
 import 'package:clientapp/screens/event_list.dart';
-import 'package:clientapp/screens/screen4.dart';
+import 'package:clientapp/screens/profile.dart';
 import 'package:clientapp/themes/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';

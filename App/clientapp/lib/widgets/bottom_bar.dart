@@ -4,7 +4,7 @@ import 'package:clientapp/screens/my_tickets.dart';
 import 'package:clientapp/themes/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:clientapp/screens/screen4.dart';
+import 'package:clientapp/screens/profile.dart';
 
 class MyBottomNavigationBar extends StatefulWidget {
   @override
@@ -18,7 +18,7 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
     EventsListScreen(),
     FavoritesListScreen(),
     MyTicketsScreen(),
-    Screen4(),
+    ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {
