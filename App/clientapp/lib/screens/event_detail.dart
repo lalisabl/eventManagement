@@ -83,7 +83,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CachedNetworkImage(
-                imageUrl: AppConstants.BASEURL+'/thumbnails/thumbnail.jpeg',
+                imageUrl: AppConstants.BASEURL+'/public/thumbnails/thumbnail.jpeg',
                 placeholder: (context, url) =>
                     Center(child: CircularProgressIndicator()),
                 errorWidget: (context, url, error) => Icon(Icons.error),

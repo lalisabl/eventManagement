@@ -92,7 +92,8 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
                       child: ListTile(
                         contentPadding: EdgeInsets.all(10),
                         leading: Image.network(
-                          AppConstants.BASEURL + '/thumbnails/thumbnail.jpeg',
+                          AppConstants.BASEURL +
+                              '/public/thumbnails/thumbnail.jpeg',
                           width: 50,
                           height: 50,
                           fit: BoxFit.cover,

@@ -10,6 +10,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:clientapp/screens/event_detail.dart';
+import 'package:intl/intl.dart'; // Import for date formatting
 
 class EventCard extends StatefulWidget {
   final Event event;
@@ -62,6 +63,10 @@ class _EventCardState extends State<EventCard> {
     }
   }
 
+  String formatDate(DateTime date) {
+    return DateFormat('MMMM dd, yyyy').format(date); // Format date
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -81,7 +86,8 @@ class _EventCardState extends State<EventCard> {
             Stack(
               children: [
                 CachedNetworkImage(
-                  imageUrl: AppConstants.BASEURL+'/thumbnails/thumbnail.jpeg',
+                  imageUrl: AppConstants.BASEURL +
+                      '/public/thumbnails/thumbnail.jpeg',
                   placeholder: (context, url) =>
                       Center(child: CircularProgressIndicator()),
                   errorWidget: (context, url, error) => Icon(Icons.error),
@@ -129,10 +135,40 @@ class _EventCardState extends State<EventCard> {
                   SizedBox(height: 8),
                   Text(widget.event.description),
                   SizedBox(height: 8),
-                  Text(
-                      'Date: ${widget.event.startDate.toLocal()} - ${widget.event.endDate.toLocal()}'),
+                  Row(
+                    children: [
+                      Icon(Icons.calendar_today),
+                      SizedBox(width: 4),
+                      Text(
+                        '${formatDate(widget.event.startDate.toLocal())} - ${formatDate(widget.event.endDate.toLocal())}',
+                      ),
+                    ],
+                  ),
                   SizedBox(height: 8),
-                  Text('Location: ${widget.event.location}'),
+                  Row(
+                    children: [
+                      Icon(Icons.location_on),
+                      SizedBox(width: 4),
+                      Text(widget.event.location),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(Icons.event_seat),
+                      SizedBox(width: 4),
+                      Text(
+                          'VIP Seats: ${widget.event.vipTicketsAvailable} / ${widget.event.vipTickets}'),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Icon(Icons.event_seat),
+                      SizedBox(width: 4),
+                      Text(
+                          'Normal Seats: ${widget.event.normalTicketsAvailable} / ${widget.event.normalTickets}'),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -272,8 +308,8 @@ class _EventsListScreenState extends State<EventsListScreen> {
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
-      List<dynamic> body = jsonDecode(response.body);
-      return body.map((dynamic item) => Event.fromJson(item)).toList();
+      final jsonData = jsonDecode(response.body);
+      return (jsonData as List).map((item) => Event.fromJson(item)).toList();
     } else {
       throw Exception('Failed to load events');
     }

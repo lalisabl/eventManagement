@@ -1,6 +1,6 @@
 // This is a generated file; do not edit or check into version control.
-FLUTTER_ROOT=/opt/flutter
-FLUTTER_APPLICATION_PATH=/home/lalisa/Desktop/eventManagement/App/organizerapp
+FLUTTER_ROOT=C:\Users\Firuol\Desktop\flutter
+FLUTTER_APPLICATION_PATH=C:\Users\Firuol\Desktop\project\eventManagement\eventManagement\App\organizerapp
 COCOAPODS_PARALLEL_CODE_SIGN=true
 FLUTTER_BUILD_DIR=build
 FLUTTER_BUILD_NAME=1.0.0
