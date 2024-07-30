@@ -8,6 +8,7 @@ import passport from 'passport';
 import session from 'express-session';
 import { errorHandler } from './controllers/errorContoller';
 import { User } from './models/user';
+// import path = require('path');
 
 dotenv.config();
 
@@ -18,7 +19,10 @@ const app = express();
 app.use(cors());
 app.use(passport.initialize());
 app.use(express.json());
-app.use(bodyParser.json());
+
+app.use(bodyParser.json({ limit: '50mb' })); // Adjust the limit as needed
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+
 CreateGoogleStrategy();
 
 // Configure session middleware
@@ -34,7 +38,11 @@ app.use(session(sessionOptions));
 
 // Route
 app.use('/api', router);
-app.use(express.static('src/public'));
+app.use('/uploads', express.static('uploads'));
+app.use('/public', express.static('src/public'));
+
+app.use('/packages-product', express.static('src/public/packages-product'));
+
 // Load environment variables
 dotenv.config();
 require('../config/database');
@@ -61,4 +69,5 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
 export default app;

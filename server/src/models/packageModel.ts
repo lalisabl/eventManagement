@@ -8,6 +8,7 @@ interface IPackage extends Document {
   description: string;
   price: number;
   includedServices: mongoose.Types.ObjectId[];
+  packageImage: string; // Add the packageImage field
 }
 
 // Define the schema for the package
@@ -18,6 +19,7 @@ const PackageSchema: Schema = new Schema(
     description: { type: String, required: true },
     price: { type: Number, required: true },
     includedServices: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
+    packageImage: { type: String, required: true }, // Add the packageImage field
   },
   { timestamps: true }
 );
@@ -29,6 +31,7 @@ const packageJoiSchema = Joi.object({
   description: Joi.string().required(),
   price: Joi.number().required(),
   includedServices: Joi.array().items(Joi.string().required()),
+  packageImage: Joi.string().required(), // Add packageImage to the Joi schema
 });
 
 // Validate package data against Joi schema
