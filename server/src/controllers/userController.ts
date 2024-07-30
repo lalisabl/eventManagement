@@ -223,11 +223,11 @@ export const getUserById = async (req: Request, res: Response) => {
 // Controller function to update a user by ID
 export const updateUserById = async (req: Request, res: Response) => {
   try {
-    const { fullName, username, email, password, role, profileImage } =
+    const { fullName, username, email,phoneNumber, password, role, profileImage } =
       req.body;
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
-      { fullName, username, email, password, role, profileImage },
+      { fullName, username, email,phoneNumber, password, role, profileImage },
       { new: true }
     );
     if (!updatedUser) {
